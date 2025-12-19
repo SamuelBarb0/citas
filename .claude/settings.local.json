@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mysql:*)",
+      "Bash(\"C:\\xampp\\mysql\\bin\\mysql.exe\" -u root -e \"CREATE DATABASE IF NOT EXISTS citas_mallorca CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\")",
+      "Bash(php artisan make:migration:*)",
+      "Bash(php artisan migrate:fresh:*)",
+      "Bash(php artisan:*)",
+      "Bash(php artisan make:model:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(node node_modules/tailwindcss/lib/cli.js:*)",
+      "Bash(npm run build:*)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)"
+    ]
+  }
+}

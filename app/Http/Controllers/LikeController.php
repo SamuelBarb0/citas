@@ -1,0 +1,187 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Like;
+use App\Models\UserMatch;
+use Illuminate\Http\Request;
+
+class LikeController extends Controller
+{
+    /**
+     * Dar like a un usuario
+     */
+    public function store(Request $request, $userId)
+    {
+        $request->validate([
+            'liked_user_id' => 'required|exists:users,id',
+            'is_super_like' => 'nullable|boolean',
+        ]);
+
+        $currentUserId = auth()->id();
+        $likedUserId = $request->liked_user_id;
+        $isSuperLike = $request->input('is_super_like', false);
+
+        // Verificar que no se esté intentando dar like a sí mismo
+        if ($currentUserId == $likedUserId) {
+            return back()->with('error', 'No puedes darte like a ti mismo.');
+        }
+
+        // Verificar si ya existe el like
+        $existingLike = Like::where('user_id', $currentUserId)
+            ->where('liked_user_id', $likedUserId)
+            ->first();
+
+        if ($existingLike) {
+            return back()->with('info', 'Ya le has dado like a este usuario.');
+        }
+
+        // Crear el like
+        Like::create([
+            'user_id' => $currentUserId,
+            'liked_user_id' => $likedUserId,
+            'is_super_like' => $isSuperLike,
+        ]);
+
+        // Verificar si el otro usuario también nos ha dado like (MATCH!)
+        $mutualLike = Like::where('user_id', $likedUserId)
+            ->where('liked_user_id', $currentUserId)
+            ->first();
+
+        if ($mutualLike) {
+            // ¡Es un match! Crear el match automáticamente
+            $this->createMatch($currentUserId, $likedUserId);
+
+            // Obtener los datos del perfil del usuario con quien hicimos match
+            $matchedUser = \App\Models\User::with('profile')->find($likedUserId);
+            $currentUser = \App\Models\User::with('profile')->find($currentUserId);
+
+            $matchData = [
+                'name' => $matchedUser->profile->nombre ?? $matchedUser->name,
+                'photo' => $matchedUser->profile->foto_principal ?? 'https://ui-avatars.com/api/?name=' . urlencode($matchedUser->name) . '&size=400&background=A67C52&color=fff'
+            ];
+
+            // Si es una petición AJAX, devolver JSON
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'match' => true,
+                    'message' => '¡Es un match! 💕',
+                    'matched_user' => $matchData
+                ]);
+            }
+
+            // Guardar el match en la sesión para mostrarlo cuando vuelva al dashboard
+            session()->flash('new_match', [
+                'name' => $currentUser->profile->nombre ?? $currentUser->name,
+                'photo' => $currentUser->profile->foto_principal ?? 'https://ui-avatars.com/api/?name=' . urlencode($currentUser->name) . '&size=400&background=A67C52&color=fff'
+            ]);
+
+            return redirect()->route('matches')->with('success', '¡Es un match! 💕 Ahora puedes enviar mensajes.');
+        }
+
+        // Si es una petición AJAX, devolver JSON
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'match' => false,
+                'message' => '¡Like enviado! ❤️'
+            ]);
+        }
+
+        return back()->with('success', '¡Like enviado! ❤️');
+    }
+
+    /**
+     * Quitar like a un usuario
+     */
+    public function destroy($likedUserId)
+    {
+        $currentUserId = auth()->id();
+
+        $like = Like::where('user_id', $currentUserId)
+            ->where('liked_user_id', $likedUserId)
+            ->first();
+
+        if (!$like) {
+            return back()->with('error', 'No has dado like a este usuario.');
+        }
+
+        $like->delete();
+
+        return back()->with('success', 'Like eliminado.');
+    }
+
+    /**
+     * Crear un match entre dos usuarios
+     */
+    private function createMatch($userId1, $userId2)
+    {
+        // Asegurar que user_id_1 sea siempre el menor para evitar duplicados
+        $userIdMin = min($userId1, $userId2);
+        $userIdMax = max($userId1, $userId2);
+
+        // Verificar si ya existe el match
+        $existingMatch = UserMatch::where(function ($query) use ($userIdMin, $userIdMax) {
+            $query->where('user_id_1', $userIdMin)
+                  ->where('user_id_2', $userIdMax);
+        })->orWhere(function ($query) use ($userIdMin, $userIdMax) {
+            $query->where('user_id_1', $userIdMax)
+                  ->where('user_id_2', $userIdMin);
+        })->first();
+
+        if (!$existingMatch) {
+            UserMatch::create([
+                'user_id_1' => $userIdMin,
+                'user_id_2' => $userIdMax,
+                'matched_at' => now(),
+            ]);
+        }
+    }
+
+    /**
+     * Ver lista de usuarios a los que he dado like
+     */
+    public function myLikes()
+    {
+        $currentUserId = auth()->id();
+
+        $likes = Like::where('user_id', $currentUserId)
+            ->with(['likedUser.profile'])
+            ->latest()
+            ->paginate(12);
+
+        return view('likes.index', compact('likes'));
+    }
+
+    /**
+     * Ver lista de usuarios que me han dado like
+     */
+    public function whoLikesMe()
+    {
+        $currentUserId = auth()->id();
+
+        $likes = Like::where('liked_user_id', $currentUserId)
+            ->with(['user.profile'])
+            ->latest()
+            ->paginate(12);
+
+        return view('likes.who-likes-me', compact('likes'));
+    }
+
+    /**
+     * Ver quién me ha dado super like
+     */
+    public function superLikesReceived()
+    {
+        $currentUserId = auth()->id();
+
+        $superLikes = Like::where('liked_user_id', $currentUserId)
+            ->where('is_super_like', true)
+            ->with(['user.profile'])
+            ->latest()
+            ->get();
+
+        return view('likes.super-likes', compact('superLikes'));
+    }
+}
