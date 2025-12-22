@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'is_admin',
+        'last_activity',
     ];
 
     /**
@@ -45,6 +46,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'last_activity' => 'datetime',
         ];
     }
 
@@ -78,5 +80,62 @@ class User extends Authenticatable
     public function receivedMessages()
     {
         return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(UserSubscription::class);
+    }
+
+    public function activeSubscription()
+    {
+        return $this->hasOne(UserSubscription::class)
+            ->where('estado', 'activa')
+            ->where('fecha_expiracion', '>', now())
+            ->latest();
+    }
+
+    /**
+     * Obtener el plan actual del usuario
+     */
+    public function currentPlan()
+    {
+        $subscription = $this->activeSubscription;
+        return $subscription ? $subscription->plan : null;
+    }
+
+    /**
+     * Verificar si tiene un plan premium activo
+     */
+    public function hasPremium()
+    {
+        return $this->activeSubscription !== null;
+    }
+
+    /**
+     * Verificar si puede dar like (según límites del plan)
+     */
+    public function canGiveLike()
+    {
+        $subscription = $this->activeSubscription;
+
+        if (!$subscription) {
+            // Plan gratuito por defecto - 10 likes diarios
+            return true; // Implementar lógica de límite gratuito
+        }
+
+        return $subscription->canLike();
+    }
+
+    /**
+     * Verificar si el usuario está online (activo en los últimos 5 minutos)
+     */
+    public function isOnline()
+    {
+        if (!$this->last_activity) {
+            return false;
+        }
+
+        return $this->last_activity->diffInMinutes(now()) < 5;
     }
 }

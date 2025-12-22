@@ -56,6 +56,10 @@ class LikeController extends Controller
             $matchedUser = \App\Models\User::with('profile')->find($likedUserId);
             $currentUser = \App\Models\User::with('profile')->find($currentUserId);
 
+            // Enviar notificaciones a ambos usuarios
+            $matchedUser->notify(new \App\Notifications\NewMatchNotification($currentUser));
+            $currentUser->notify(new \App\Notifications\NewMatchNotification($matchedUser));
+
             $matchData = [
                 'name' => $matchedUser->profile->nombre ?? $matchedUser->name,
                 'photo' => $matchedUser->profile->foto_principal ?? 'https://ui-avatars.com/api/?name=' . urlencode($matchedUser->name) . '&size=400&background=A67C52&color=fff'

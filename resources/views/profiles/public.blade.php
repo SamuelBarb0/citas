@@ -46,8 +46,8 @@
         <div class="max-w-4xl mx-auto">
             <!-- Tarjeta de perfil moderna con hero image -->
             <div class="bg-white rounded-3xl shadow-2xl overflow-hidden mb-6">
-                <!-- Galería de fotos con swipe -->
-                <div class="relative h-96 sm:h-[500px]">
+                <!-- Galería de fotos estilo Instagram Stories -->
+                <div class="relative h-[500px] sm:h-[600px] lg:h-[700px]">
                     @php
                         $allPhotos = array_filter([
                             $profile->foto_principal,
@@ -57,38 +57,40 @@
 
                     @if(count($allPhotos) > 0)
                         <!-- Contenedor de la galería -->
-                        <div id="photo-gallery" class="relative w-full h-full overflow-hidden">
+                        <div id="photo-gallery" class="relative w-full h-full overflow-hidden cursor-pointer">
                             @foreach($allPhotos as $index => $photo)
-                                <div class="gallery-photo absolute inset-0 transition-all duration-500 {{ $index === 0 ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full' }}"
+                                <div class="gallery-photo absolute inset-0 transition-opacity duration-300 {{ $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0' }}"
                                      data-index="{{ $index }}">
                                     <img src="{{ str_starts_with($photo, 'http') ? $photo : Storage::url($photo) }}"
                                          alt="{{ $profile->nombre }}"
-                                         class="w-full h-full object-cover">
+                                         class="w-full h-full object-cover"
+                                         data-fullscreen-src="{{ str_starts_with($photo, 'http') ? $photo : Storage::url($photo) }}">
                                 </div>
                             @endforeach
                         </div>
 
                         @if(count($allPhotos) > 1)
-                            <!-- Botones de navegación -->
-                            <button id="prev-photo" class="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-white/90 hover:bg-white text-brown w-12 h-12 rounded-full shadow-xl flex items-center justify-center transition-all hover:scale-110">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                                </svg>
-                            </button>
-                            <button id="next-photo" class="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-white/90 hover:bg-white text-brown w-12 h-12 rounded-full shadow-xl flex items-center justify-center transition-all hover:scale-110">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                            </button>
+                            <!-- Áreas táctiles invisibles estilo Instagram Stories -->
+                            <div class="absolute inset-0 flex z-20 pointer-events-none">
+                                <button id="prev-photo" class="w-1/2 h-full focus:outline-none active:bg-black/10 transition pointer-events-auto"></button>
+                                <button id="next-photo" class="w-1/2 h-full focus:outline-none active:bg-black/10 transition pointer-events-auto"></button>
+                            </div>
 
-                            <!-- Indicadores de foto (dots) -->
-                            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-2">
+                            <!-- Indicadores de foto en la parte superior (barras estilo Stories) -->
+                            <div class="absolute top-3 left-0 right-0 z-30 flex gap-1.5 px-3 pointer-events-none">
                                 @foreach($allPhotos as $index => $photo)
-                                    <div class="photo-indicator w-2 h-2 rounded-full transition-all {{ $index === 0 ? 'bg-white w-8' : 'bg-white/50' }}"
-                                         data-index="{{ $index }}"></div>
+                                    <div class="flex-1 h-1 rounded-full transition-all duration-300 {{ $index === 0 ? 'bg-white shadow-lg' : 'bg-white/40' }}"
+                                         data-indicator="{{ $index }}"></div>
                                 @endforeach
                             </div>
                         @endif
+
+                        <!-- Botón de fullscreen en la esquina superior derecha -->
+                        <button id="fullscreen-btn" class="absolute top-4 right-4 z-40 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition pointer-events-auto">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                            </svg>
+                        </button>
                     @else
                         <div class="w-full h-full bg-gradient-to-br from-brown to-heart-red flex items-center justify-center">
                             <svg class="w-40 h-40 text-white/20" fill="currentColor" viewBox="0 0 20 20">
@@ -98,10 +100,10 @@
                     @endif
 
                     <!-- Gradiente oscuro en la parte inferior -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none z-10"></div>
 
                     <!-- Badge de ubicación -->
-                    <div class="absolute top-6 left-6">
+                    <div class="absolute top-6 left-6 z-30 pointer-events-none">
                         <div class="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
                             <svg class="w-4 h-4 text-heart-red" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
@@ -111,14 +113,14 @@
                     </div>
 
                     <!-- Badge de edad -->
-                    <div class="absolute top-6 right-6">
+                    <div class="absolute top-6 right-20 z-30 pointer-events-none">
                         <div class="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
                             <span class="font-bold text-brown text-lg">{{ $profile->edad }}</span>
                         </div>
                     </div>
 
                     <!-- Nombre en la parte inferior -->
-                    <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
+                    <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-30 pointer-events-none">
                         <div class="flex items-center gap-3 mb-2">
                             <h1 class="text-5xl sm:text-6xl font-black text-white drop-shadow-2xl">
                                 {{ $profile->nombre }}
@@ -383,7 +385,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const photos = document.querySelectorAll('.gallery-photo');
-        const indicators = document.querySelectorAll('.photo-indicator');
+        const indicators = document.querySelectorAll('[data-indicator]');
         const prevBtn = document.getElementById('prev-photo');
         const nextBtn = document.getElementById('next-photo');
         let currentIndex = 0;
@@ -391,37 +393,39 @@
         function showPhoto(index) {
             // Ocultar todas las fotos
             photos.forEach(photo => {
-                photo.classList.remove('opacity-100', 'translate-x-0');
-                photo.classList.add('opacity-0', 'translate-x-full');
+                photo.classList.remove('opacity-100', 'z-10');
+                photo.classList.add('opacity-0', 'z-0');
             });
 
-            // Actualizar indicadores
+            // Actualizar indicadores (barras)
             indicators.forEach(indicator => {
-                indicator.classList.remove('bg-white', 'w-8');
-                indicator.classList.add('bg-white/50', 'w-2');
+                indicator.classList.remove('bg-white', 'shadow-lg');
+                indicator.classList.add('bg-white/40');
             });
 
             // Mostrar foto actual
-            photos[index].classList.remove('opacity-0', 'translate-x-full');
-            photos[index].classList.add('opacity-100', 'translate-x-0');
+            photos[index].classList.remove('opacity-0', 'z-0');
+            photos[index].classList.add('opacity-100', 'z-10');
 
             // Actualizar indicador actual
-            indicators[index].classList.remove('bg-white/50', 'w-2');
-            indicators[index].classList.add('bg-white', 'w-8');
+            indicators[index].classList.remove('bg-white/40');
+            indicators[index].classList.add('bg-white', 'shadow-lg');
 
             currentIndex = index;
         }
 
-        // Navegación con botones
+        // Navegación con botones (áreas táctiles invisibles)
         if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
+            prevBtn.addEventListener('click', (e) => {
+                e.preventDefault();
                 const newIndex = (currentIndex - 1 + photos.length) % photos.length;
                 showPhoto(newIndex);
             });
         }
 
         if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
+            nextBtn.addEventListener('click', (e) => {
+                e.preventDefault();
                 const newIndex = (currentIndex + 1) % photos.length;
                 showPhoto(newIndex);
             });
@@ -445,20 +449,21 @@
 
         gallery.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
-        });
+        }, { passive: true });
 
         gallery.addEventListener('touchend', (e) => {
             touchEndX = e.changedTouches[0].screenX;
             handleSwipe();
-        });
+        }, { passive: true });
 
         function handleSwipe() {
-            if (touchEndX < touchStartX - 50) {
+            const swipeThreshold = 50;
+            if (touchEndX < touchStartX - swipeThreshold) {
                 // Swipe left - next photo
                 const newIndex = (currentIndex + 1) % photos.length;
                 showPhoto(newIndex);
             }
-            if (touchEndX > touchStartX + 50) {
+            if (touchEndX > touchStartX + swipeThreshold) {
                 // Swipe right - previous photo
                 const newIndex = (currentIndex - 1 + photos.length) % photos.length;
                 showPhoto(newIndex);
@@ -467,6 +472,172 @@
     });
 </script>
 @endif
+
+<script>
+    // Funcionalidad de fullscreen para las fotos
+    document.addEventListener('DOMContentLoaded', function() {
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const photos = document.querySelectorAll('.gallery-photo img');
+        let currentFullscreenIndex = 0;
+
+        if (fullscreenBtn && photos.length > 0) {
+            fullscreenBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Obtener el índice de la foto actual
+                const currentPhoto = document.querySelector('.gallery-photo.opacity-100');
+                currentFullscreenIndex = parseInt(currentPhoto.dataset.index);
+
+                openFullscreen(currentFullscreenIndex);
+            });
+        }
+
+        function openFullscreen(index) {
+            // Crear modal de fullscreen
+            const modal = document.createElement('div');
+            modal.id = 'fullscreen-modal';
+            modal.className = 'fixed inset-0 bg-black z-50 flex items-center justify-center';
+
+            modal.innerHTML = `
+                <!-- Botón de cerrar -->
+                <button id="close-fullscreen" class="absolute top-4 right-4 z-50 text-white hover:text-gray-300 transition">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+
+                ${photos.length > 1 ? `
+                    <!-- Botón anterior -->
+                    <button id="fullscreen-prev" class="absolute left-4 top-1/2 -translate-y-1/2 z-50 text-white hover:text-gray-300 transition bg-black/30 hover:bg-black/50 rounded-full p-3">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+
+                    <!-- Botón siguiente -->
+                    <button id="fullscreen-next" class="absolute right-4 top-1/2 -translate-y-1/2 z-50 text-white hover:text-gray-300 transition bg-black/30 hover:bg-black/50 rounded-full p-3">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+
+                    <!-- Indicadores -->
+                    <div class="absolute bottom-8 left-0 right-0 z-50 flex justify-center gap-2">
+                        ${Array.from(photos).map((_, i) => `
+                            <div class="w-2 h-2 rounded-full transition-all ${i === index ? 'bg-white w-8' : 'bg-white/50'}" data-fs-indicator="${i}"></div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+
+                <!-- Contenedor de imagen -->
+                <div id="fullscreen-image-container" class="w-full h-full flex items-center justify-center p-4">
+                    <img id="fullscreen-image"
+                         src="${photos[index].dataset.fullscreenSrc}"
+                         alt="Foto en pantalla completa"
+                         class="max-w-full max-h-full object-contain">
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            document.body.style.overflow = 'hidden';
+
+            // Event listeners
+            const closeBtn = document.getElementById('close-fullscreen');
+            const prevBtn = document.getElementById('fullscreen-prev');
+            const nextBtn = document.getElementById('fullscreen-next');
+            const fsImage = document.getElementById('fullscreen-image');
+            const fsIndicators = document.querySelectorAll('[data-fs-indicator]');
+
+            function updateFullscreenPhoto(newIndex) {
+                currentFullscreenIndex = newIndex;
+                fsImage.src = photos[newIndex].dataset.fullscreenSrc;
+
+                // Actualizar indicadores
+                if (fsIndicators.length > 0) {
+                    fsIndicators.forEach((indicator, i) => {
+                        if (i === newIndex) {
+                            indicator.className = 'w-8 h-2 rounded-full transition-all bg-white';
+                        } else {
+                            indicator.className = 'w-2 h-2 rounded-full transition-all bg-white/50';
+                        }
+                    });
+                }
+            }
+
+            function closeFullscreen() {
+                modal.remove();
+                document.body.style.overflow = '';
+            }
+
+            // Cerrar
+            closeBtn.addEventListener('click', closeFullscreen);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal || e.target.id === 'fullscreen-image-container') {
+                    closeFullscreen();
+                }
+            });
+
+            // Navegación
+            if (prevBtn) {
+                prevBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const newIndex = (currentFullscreenIndex - 1 + photos.length) % photos.length;
+                    updateFullscreenPhoto(newIndex);
+                });
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const newIndex = (currentFullscreenIndex + 1) % photos.length;
+                    updateFullscreenPhoto(newIndex);
+                });
+            }
+
+            // Teclado
+            function handleKeydown(e) {
+                if (e.key === 'Escape') {
+                    closeFullscreen();
+                    document.removeEventListener('keydown', handleKeydown);
+                } else if (e.key === 'ArrowLeft' && photos.length > 1) {
+                    const newIndex = (currentFullscreenIndex - 1 + photos.length) % photos.length;
+                    updateFullscreenPhoto(newIndex);
+                } else if (e.key === 'ArrowRight' && photos.length > 1) {
+                    const newIndex = (currentFullscreenIndex + 1) % photos.length;
+                    updateFullscreenPhoto(newIndex);
+                }
+            }
+
+            document.addEventListener('keydown', handleKeydown);
+
+            // Swipe en móvil
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            modal.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+
+            modal.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                const swipeThreshold = 50;
+
+                if (photos.length > 1) {
+                    if (touchEndX < touchStartX - swipeThreshold) {
+                        // Swipe left - next photo
+                        const newIndex = (currentFullscreenIndex + 1) % photos.length;
+                        updateFullscreenPhoto(newIndex);
+                    } else if (touchEndX > touchStartX + swipeThreshold) {
+                        // Swipe right - previous photo
+                        const newIndex = (currentFullscreenIndex - 1 + photos.length) % photos.length;
+                        updateFullscreenPhoto(newIndex);
+                    }
+                }
+            }, { passive: true });
+        }
+    });
+</script>
 
 <script>
     // Modales de reportar y bloquear

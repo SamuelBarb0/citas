@@ -24,18 +24,24 @@
                                 alt="{{ $otherUser->name }}"
                                 class="w-14 h-14 rounded-full object-cover border-4 border-white shadow-lg"
                             >
-                            <!-- Badge online -->
-                            <div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                            @if($otherUser->isOnline())
+                                <!-- Badge online - Solo si estuvo activo en los últimos 5 minutos -->
+                                <div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full" title="En línea"></div>
+                            @endif
                         </div>
                         <div class="flex-1 min-w-0">
                             <h2 class="font-black text-brown text-lg truncate">
                                 {{ $otherUser->profile->nombre ?? $otherUser->name }}
                             </h2>
                             <p class="text-sm text-gray-500 flex items-center gap-1 truncate">
-                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                                </svg>
-                                {{ $otherUser->profile->ciudad ?? '' }}
+                                @if($otherUser->isOnline())
+                                    <span class="text-green-500 font-semibold">En línea</span>
+                                @else
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    {{ $otherUser->profile->ciudad ?? '' }}
+                                @endif
                             </p>
                         </div>
                     </a>

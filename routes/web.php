@@ -128,6 +128,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Reportar usuarios
     Route::post('/report/{userId}', [ReportController::class, 'store'])->name('report.store');
 
+    // Notificaciones
+    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all');
+    Route::get('/notifications/unread/count', [\App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('notifications.count');
+    Route::delete('/notifications/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
+
+    // Suscripciones y Planes
+    Route::get('/planes', [\App\Http\Controllers\SubscriptionController::class, 'index'])->name('subscriptions.index');
+    Route::get('/mi-suscripcion', [\App\Http\Controllers\SubscriptionController::class, 'dashboard'])->name('subscriptions.dashboard');
+    Route::get('/checkout/{planSlug}', [\App\Http\Controllers\SubscriptionController::class, 'checkout'])->name('subscriptions.checkout');
+    Route::post('/subscribe/stripe', [\App\Http\Controllers\SubscriptionController::class, 'processStripe'])->name('subscriptions.stripe');
+    Route::post('/subscribe/paypal', [\App\Http\Controllers\SubscriptionController::class, 'processPayPal'])->name('subscriptions.paypal');
+    Route::post('/subscription/cancel', [\App\Http\Controllers\SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+    Route::post('/subscription/reactivate', [\App\Http\Controllers\SubscriptionController::class, 'reactivate'])->name('subscriptions.reactivate');
+
     // Panel de Administración (solo para administradores)
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');

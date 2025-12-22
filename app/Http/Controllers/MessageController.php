@@ -95,7 +95,8 @@ class MessageController extends Controller
             'mensaje' => 'required|string|max:1000',
         ]);
 
-        $currentUserId = auth()->id();
+        $currentUser = auth()->user();
+        $currentUserId = $currentUser->id;
 
         // Verificar que el match existe y pertenece al usuario actual
         $match = UserMatch::where('id', $matchId)
@@ -103,21 +104,55 @@ class MessageController extends Controller
                 $query->where('user_id_1', $currentUserId)
                       ->orWhere('user_id_2', $currentUserId);
             })
+            ->with(['userOne', 'userTwo'])
             ->firstOrFail();
 
         // Determinar quién es el receptor
-        $receiverId = $match->user_id_1 == $currentUserId
-            ? $match->user_id_2
-            : $match->user_id_1;
+        $receiverUser = $match->user_id_1 == $currentUserId
+            ? $match->userTwo
+            : $match->userOne;
+
+        // VERIFICAR RESTRICCIONES DE MENSAJERÍA
+        $senderSubscription = $currentUser->activeSubscription;
+
+        // Si el usuario NO tiene suscripción, es plan Gratis por defecto
+        if (!$senderSubscription) {
+            // Usuario Gratis: NO puede iniciar conversaciones, solo responder
+            // Verificar si ya hay mensajes del receptor
+            $hasReceivedMessages = Message::where('match_id', $match->id)
+                ->where('sender_id', $receiverUser->id)
+                ->exists();
+
+            if (!$hasReceivedMessages) {
+                return back()->with('error', 'Los usuarios gratuitos solo pueden responder mensajes. Actualiza a un plan de pago para iniciar conversaciones.');
+            }
+        } else {
+            // Verificar si puede enviar mensaje según su plan
+            if (!$senderSubscription->canSendMessageTo($receiverUser)) {
+                $remaining = $senderSubscription->getRemainingWeeklyMessages();
+
+                if ($remaining === 0 && $senderSubscription->plan->slug === 'basico') {
+                    return back()->with('error', 'Has alcanzado tu límite de 3 mensajes semanales a usuarios gratuitos. Actualiza a Premium para mensajes ilimitados.');
+                }
+
+                return back()->with('error', 'No puedes enviar más mensajes. Actualiza tu plan para continuar.');
+            }
+
+            // Incrementar contador de mensajes si es necesario
+            $senderSubscription->incrementWeeklyMessages($receiverUser);
+        }
 
         // Crear el mensaje
-        Message::create([
+        $message = Message::create([
             'match_id' => $match->id,
             'sender_id' => $currentUserId,
-            'receiver_id' => $receiverId,
+            'receiver_id' => $receiverUser->id,
             'mensaje' => $request->mensaje,
             'leido' => false,
         ]);
+
+        // Enviar notificación al receptor
+        $receiverUser->notify(new \App\Notifications\NewMessageNotification($message, $currentUser));
 
         return redirect()->route('messages.show', $matchId)
             ->with('success', 'Mensaje enviado correctamente.');

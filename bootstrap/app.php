@@ -14,6 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
+
+        // Agregar middleware global para actualizar última actividad
+        $middleware->web(append: [
+            \App\Http\Middleware\UpdateLastActivity::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
