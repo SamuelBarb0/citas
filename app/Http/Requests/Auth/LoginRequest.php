@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
+use App\Notifications\LoginAttemptNotification;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -43,6 +45,16 @@ class LoginRequest extends FormRequest
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
+
+            // Enviar notificación de intento de login fallido si el usuario existe
+            $user = User::where('email', $this->email)->first();
+            if ($user) {
+                $user->notify(new LoginAttemptNotification(
+                    $this->ip(),
+                    $this->userAgent(),
+                    false
+                ));
+            }
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),

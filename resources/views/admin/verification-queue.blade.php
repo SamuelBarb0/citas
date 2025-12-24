@@ -60,151 +60,97 @@
                     </div>
                 </div>
 
-                @if($profiles->count() > 0)
-                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                            Perfil
-                                        </th>
-                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                            Usuario
-                                        </th>
-                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                            Ubicación
-                                        </th>
-                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                            Estadísticas
-                                        </th>
-                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                            Registrado
-                                        </th>
-                                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                            Acciones
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach($profiles as $profile)
-                                        <tr class="hover:bg-gray-50 transition">
-                                            <!-- Perfil -->
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="flex items-center">
-                                                    @if($profile->foto_principal)
-                                                        <img src="{{ $profile->foto_principal }}"
-                                                             alt="{{ $profile->nombre }}"
-                                                             class="w-12 h-12 rounded-full object-cover">
-                                                    @else
-                                                        <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                                                            <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                                                            </svg>
-                                                        </div>
-                                                    @endif
-                                                    <div class="ml-4">
-                                                        <div class="font-semibold text-brown text-lg">{{ $profile->nombre }}</div>
-                                                        <div class="text-sm text-gray-500">{{ $profile->edad }} años • {{ $profile->genero }}</div>
-                                                        @if($profile->fotos_adicionales && count($profile->fotos_adicionales) > 0)
-                                                            <div class="text-xs text-gray-400 mt-1">
-                                                                📸 {{ count($profile->fotos_adicionales) + 1 }} fotos
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </td>
+                @if($verificationRequests->count() > 0)
+                    <!-- Grid de solicitudes -->
+                    <div class="grid gap-6">
+                        @foreach($verificationRequests as $request)
+                            <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100">
+                                <div class="grid md:grid-cols-2 gap-6 p-6">
+                                    <!-- Lado izquierdo: Info del usuario y foto de perfil -->
+                                    <div>
+                                        <div class="flex items-center gap-4 mb-4">
+                                            <img src="{{ $request->profile->foto_principal ?? 'https://ui-avatars.com/api/?name=' . urlencode($request->profile->nombre) }}"
+                                                 alt="{{ $request->profile->nombre }}"
+                                                 class="w-16 h-16 rounded-full object-cover border-4 border-gray-200">
+                                            <div>
+                                                <h3 class="text-xl font-black text-brown">{{ $request->profile->nombre }}</h3>
+                                                <p class="text-gray-600">{{ $request->profile->edad }} años • {{ $request->profile->genero }}</p>
+                                                <p class="text-sm text-gray-500">📍 {{ $request->profile->ciudad }}</p>
+                                            </div>
+                                        </div>
 
-                                            <!-- Usuario -->
-                                            <td class="px-6 py-4">
-                                                <div class="text-sm font-medium text-gray-900">{{ $profile->user->name }}</div>
-                                                <div class="text-sm text-gray-500">{{ $profile->user->email }}</div>
-                                            </td>
+                                        <div class="bg-gray-50 rounded-xl p-4 mb-4">
+                                            <h4 class="font-bold text-gray-700 mb-2">Información del usuario</h4>
+                                            <div class="space-y-1 text-sm">
+                                                <p class="text-gray-600"><strong>Email:</strong> {{ $request->user->email }}</p>
+                                                <p class="text-gray-600"><strong>Registrado:</strong> {{ $request->user->created_at->format('d/m/Y') }} ({{ $request->user->created_at->diffForHumans() }})</p>
+                                                <p class="text-gray-600"><strong>Solicitud enviada:</strong> {{ $request->created_at->format('d/m/Y H:i') }}</p>
+                                            </div>
+                                        </div>
 
-                                            <!-- Ubicación -->
-                                            <td class="px-6 py-4">
-                                                <div class="text-sm text-gray-900">📍 {{ $profile->ciudad }}</div>
-                                                @if($profile->intereses && count($profile->intereses) > 0)
-                                                    <div class="flex flex-wrap gap-1 mt-2">
-                                                        @foreach(array_slice($profile->intereses, 0, 2) as $interes)
-                                                            <span class="px-2 py-1 bg-cream text-brown rounded-full text-xs font-semibold">
-                                                                {{ $interes }}
-                                                            </span>
-                                                        @endforeach
-                                                        @if(count($profile->intereses) > 2)
-                                                            <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
-                                                                +{{ count($profile->intereses) - 2 }}
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                @endif
-                                            </td>
+                                        <div class="bg-blue-50 rounded-xl p-4">
+                                            <h4 class="font-bold text-blue-900 mb-2">Foto actual del perfil</h4>
+                                            <img src="{{ $request->profile->foto_principal ?? 'https://ui-avatars.com/api/?name=' . urlencode($request->profile->nombre) }}"
+                                                 alt="Foto de perfil actual"
+                                                 class="w-full h-80 object-cover rounded-lg border-2 border-blue-200 cursor-pointer hover:opacity-90 transition"
+                                                 onclick="openImageModal(this.src)">
+                                            <p class="text-xs text-blue-700 mt-2 text-center">Click para ampliar</p>
+                                        </div>
+                                    </div>
 
-                                            <!-- Estadísticas -->
-                                            <td class="px-6 py-4">
-                                                <div class="space-y-1 text-sm">
-                                                    <div class="flex items-center gap-2">
-                                                        <svg class="w-4 h-4 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
-                                                        </svg>
-                                                        <span class="text-gray-600">{{ $profile->user->matches()->count() }} matches</span>
-                                                    </div>
-                                                    <div class="flex items-center gap-2">
-                                                        <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/>
-                                                        </svg>
-                                                        <span class="text-gray-600">{{ $profile->user->likes()->count() }} likes</span>
-                                                    </div>
-                                                    <div class="flex items-center gap-2">
-                                                        <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/>
-                                                        </svg>
-                                                        <span class="text-gray-600">{{ $profile->likedBy()->count() }} recibidos</span>
-                                                    </div>
-                                                </div>
-                                            </td>
+                                    <!-- Lado derecho: Foto de verificación y acciones -->
+                                    <div>
+                                        <div class="bg-yellow-50 rounded-xl p-4 mb-4">
+                                            <h4 class="font-bold text-yellow-900 mb-2">Foto de verificación (selfie con gesto)</h4>
+                                            <img src="{{ asset('storage/' . $request->verification_photo) }}"
+                                                 alt="Foto de verificación"
+                                                 class="w-full h-80 object-cover rounded-lg border-2 border-yellow-200 cursor-pointer hover:opacity-90 transition"
+                                                 onclick="openImageModal(this.src)">
+                                            <p class="text-xs text-yellow-700 mt-2 text-center">Click para ampliar</p>
+                                        </div>
 
-                                            <!-- Registrado -->
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {{ $profile->user->created_at->format('d/m/Y') }}<br>
-                                                <span class="text-xs text-gray-400">{{ $profile->user->created_at->diffForHumans() }}</span>
-                                            </td>
+                                        <!-- Botones de acción -->
+                                        <div class="space-y-3">
+                                            <a href="{{ route('profile.public', $request->user_id) }}"
+                                               target="_blank"
+                                               class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold transition">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                </svg>
+                                                Ver perfil completo
+                                            </a>
 
-                                            <!-- Acciones -->
-                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <div class="flex items-center justify-end gap-2">
-                                                    <a href="{{ route('profile.public', $profile->user_id) }}"
-                                                       target="_blank"
-                                                       class="text-blue-600 hover:text-blue-900"
-                                                       title="Ver perfil">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                                        </svg>
-                                                    </a>
+                                            <form action="{{ route('admin.verify', $request->id) }}" method="POST" class="w-full">
+                                                @csrf
+                                                <button type="submit"
+                                                        class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-green-500 to-green-600 hover:shadow-lg text-white rounded-xl font-bold transition"
+                                                        onclick="return confirm('¿Estás seguro de que quieres aprobar esta verificación?')">
+                                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    ✓ Aprobar verificación
+                                                </button>
+                                            </form>
 
-                                                    <form action="{{ route('admin.verify', $profile->id) }}" method="POST" class="inline">
-                                                        @csrf
-                                                        <button type="submit"
-                                                                class="text-green-600 hover:text-green-900"
-                                                                title="Verificar perfil">
-                                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                                            </svg>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                                            <button type="button"
+                                                    onclick="openRejectModal({{ $request->id }}, '{{ $request->profile->nombre }}')"
+                                                    class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition">
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                                </svg>
+                                                ✗ Rechazar solicitud
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
 
                     <!-- Paginación -->
                     <div class="mt-8">
-                        {{ $profiles->links() }}
+                        {{ $verificationRequests->links() }}
                     </div>
                 @else
                     <!-- Estado vacío -->
@@ -233,4 +179,91 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal para ampliar imágenes -->
+    <div id="imageModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/90" onclick="closeImageModal()">
+        <div class="relative max-w-6xl max-h-screen p-4">
+            <button onclick="closeImageModal()"
+                    class="absolute top-6 right-6 text-white hover:text-gray-300 transition">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+            <img id="modalImage" src="" alt="Imagen ampliada" class="max-w-full max-h-screen object-contain rounded-lg">
+        </div>
+    </div>
+
+    <!-- Modal para rechazar verificación -->
+    <div id="rejectModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-black text-brown">Rechazar verificación</h3>
+            </div>
+
+            <p class="text-gray-600 mb-4">
+                ¿Estás seguro de que quieres rechazar la verificación de <strong id="rejectUserName"></strong>?
+            </p>
+
+            <form id="rejectForm" method="POST" action="">
+                @csrf
+                <div class="mb-4">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">
+                        Motivo del rechazo <span class="text-red-500">*</span>
+                    </label>
+                    <textarea name="admin_notes"
+                              required
+                              rows="4"
+                              class="w-full rounded-xl border-gray-300 focus:ring-brown focus:border-brown"
+                              placeholder="Explica por qué se rechaza la verificación (ej: Foto borrosa, sin gesto visible, etc.)"></textarea>
+                    <p class="text-xs text-gray-500 mt-1">Este mensaje será enviado al usuario</p>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="button"
+                            onclick="closeRejectModal()"
+                            class="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-bold transition">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                            class="flex-1 px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition">
+                        Rechazar solicitud
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openImageModal(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModal').classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.add('hidden');
+        }
+
+        function openRejectModal(requestId, userName) {
+            document.getElementById('rejectUserName').textContent = userName;
+            document.getElementById('rejectForm').action = '/admin/verification/' + requestId + '/reject';
+            document.getElementById('rejectModal').classList.remove('hidden');
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').classList.add('hidden');
+        }
+
+        // Cerrar modales con tecla ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeImageModal();
+                closeRejectModal();
+            }
+        });
+    </script>
 </x-app-layout>

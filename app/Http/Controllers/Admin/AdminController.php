@@ -10,9 +10,12 @@ use App\Models\UserMatch;
 use App\Models\Like;
 use App\Models\AdminLog;
 use App\Models\Message;
+use App\Models\SeoSetting;
+use App\Models\Plan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -68,52 +71,102 @@ class AdminController extends Controller
     }
 
     /**
-     * Ver perfiles pendientes de verificación
+     * Ver solicitudes de verificación pendientes
      */
     public function verificationQueue(Request $request)
     {
-        $query = Profile::where('activo', true)
-            ->where('verified', false)
-            ->with('user');
+        $query = \App\Models\VerificationRequest::with(['user', 'profile'])
+            ->where('estado', 'pendiente');
 
-        // Búsqueda por nombre, email o ciudad
+        // Búsqueda por nombre o email
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('nombre', 'like', "%{$search}%")
-                  ->orWhere('ciudad', 'like', "%{$search}%")
-                  ->orWhereHas('user', function ($uq) use ($search) {
-                      $uq->where('name', 'like', "%{$search}%")
-                         ->orWhere('email', 'like', "%{$search}%");
-                  });
+                $q->whereHas('profile', function ($pq) use ($search) {
+                    $pq->where('nombre', 'like', "%{$search}%");
+                })
+                ->orWhereHas('user', function ($uq) use ($search) {
+                    $uq->where('name', 'like', "%{$search}%")
+                       ->orWhere('email', 'like', "%{$search}%");
+                });
             });
         }
 
-        $profiles = $query->latest()->paginate(20)->withQueryString();
+        $verificationRequests = $query->latest()->paginate(20)->withQueryString();
 
-        return view('admin.verification-queue', compact('profiles'));
+        return view('admin.verification-queue', compact('verificationRequests'));
     }
 
     /**
-     * Verificar un perfil
+     * Aprobar solicitud de verificación
      */
-    public function verifyProfile($profileId)
+    public function verifyProfile(Request $request, $requestId)
     {
-        $profile = Profile::findOrFail($profileId);
+        $verificationRequest = \App\Models\VerificationRequest::findOrFail($requestId);
+        $profile = $verificationRequest->profile;
+
+        // Marcar perfil como verificado
         $profile->update([
             'verified' => true,
             'verified_at' => now(),
         ]);
 
+        // Actualizar solicitud
+        $verificationRequest->update([
+            'estado' => 'aprobada',
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+            'admin_notes' => $request->input('admin_notes'),
+        ]);
+
+        // Notificar al usuario
+        $verificationRequest->user->notify(new \App\Notifications\VerificationApprovedNotification($profile));
+
         $this->logActivity(
             'verify_profile',
-            "Verificó el perfil de {$profile->nombre}",
+            "Aprobó la verificación del perfil de {$profile->nombre}",
             Profile::class,
             $profile->id,
             ['profile_name' => $profile->nombre]
         );
 
-        return back()->with('success', 'Perfil verificado exitosamente.');
+        return back()->with('success', 'Solicitud aprobada. El perfil ha sido verificado.');
+    }
+
+    /**
+     * Rechazar solicitud de verificación
+     */
+    public function rejectVerification(Request $request, $requestId)
+    {
+        $request->validate([
+            'admin_notes' => 'required|string|max:500',
+        ], [
+            'admin_notes.required' => 'Debes proporcionar un motivo para el rechazo.',
+        ]);
+
+        $verificationRequest = \App\Models\VerificationRequest::findOrFail($requestId);
+        $profile = $verificationRequest->profile;
+
+        // Actualizar solicitud
+        $verificationRequest->update([
+            'estado' => 'rechazada',
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+            'admin_notes' => $request->input('admin_notes'),
+        ]);
+
+        // Notificar al usuario
+        $verificationRequest->user->notify(new \App\Notifications\VerificationRejectedNotification($profile, $request->input('admin_notes')));
+
+        $this->logActivity(
+            'reject_verification',
+            "Rechazó la verificación del perfil de {$profile->nombre}",
+            Profile::class,
+            $profile->id,
+            ['profile_name' => $profile->nombre, 'reason' => $request->input('admin_notes')]
+        );
+
+        return back()->with('success', 'Solicitud rechazada. El usuario ha sido notificado.');
     }
 
     /**
@@ -126,6 +179,14 @@ class AdminController extends Controller
             'verified' => false,
             'verified_at' => null,
         ]);
+
+        $this->logActivity(
+            'unverify_profile',
+            "Removió la verificación del perfil de {$profile->nombre}",
+            Profile::class,
+            $profile->id,
+            ['profile_name' => $profile->nombre]
+        );
 
         return back()->with('success', 'Verificación removida.');
     }
@@ -315,5 +376,281 @@ class AdminController extends Controller
             'description' => $description,
             'metadata' => $metadata,
         ]);
+    }
+
+    // ============================================
+    // GESTIÓN DE SEO
+    // ============================================
+
+    /**
+     * Listar todas las configuraciones SEO
+     */
+    public function seoIndex()
+    {
+        $seoSettings = SeoSetting::orderBy('page_key')->paginate(20);
+
+        // Páginas predefinidas disponibles
+        $availablePages = [
+            'home' => 'Página de Inicio',
+            'dashboard' => 'Dashboard',
+            'matches' => 'Matches',
+            'messages' => 'Mensajes',
+            'profile' => 'Mi Perfil',
+            'plans' => 'Planes y Precios',
+            'login' => 'Iniciar Sesión',
+            'register' => 'Registro',
+        ];
+
+        return view('admin.seo.index', compact('seoSettings', 'availablePages'));
+    }
+
+    /**
+     * Mostrar formulario para crear nueva configuración SEO
+     */
+    public function seoCreate()
+    {
+        return view('admin.seo.create');
+    }
+
+    /**
+     * Guardar nueva configuración SEO
+     */
+    public function seoStore(Request $request)
+    {
+        $validated = $request->validate([
+            'page_key' => 'required|string|unique:seo_settings,page_key|max:100',
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'keywords' => 'nullable|string|max:500',
+            'og_title' => 'nullable|string|max:255',
+            'og_description' => 'nullable|string|max:500',
+            'og_image' => 'nullable|image|max:2048',
+            'og_type' => 'nullable|string|max:50',
+            'twitter_card' => 'nullable|string|max:50',
+            'twitter_title' => 'nullable|string|max:255',
+            'twitter_description' => 'nullable|string|max:500',
+            'twitter_image' => 'nullable|image|max:2048',
+            'index' => 'boolean',
+            'follow' => 'boolean',
+        ]);
+
+        // Subir imagen Open Graph si existe
+        if ($request->hasFile('og_image')) {
+            $validated['og_image'] = $request->file('og_image')->store('seo/og-images', 'public');
+        }
+
+        // Subir imagen Twitter si existe
+        if ($request->hasFile('twitter_image')) {
+            $validated['twitter_image'] = $request->file('twitter_image')->store('seo/twitter-images', 'public');
+        }
+
+        SeoSetting::create($validated);
+
+        $this->logActivity('create_seo', "Creó configuración SEO para página: {$validated['page_key']}");
+
+        return redirect()->route('admin.seo.index')->with('success', 'Configuración SEO creada correctamente.');
+    }
+
+    /**
+     * Mostrar formulario para editar configuración SEO
+     */
+    public function seoEdit($id)
+    {
+        $seoSetting = SeoSetting::findOrFail($id);
+        return view('admin.seo.edit', compact('seoSetting'));
+    }
+
+    /**
+     * Actualizar configuración SEO
+     */
+    public function seoUpdate(Request $request, $id)
+    {
+        $seoSetting = SeoSetting::findOrFail($id);
+
+        $validated = $request->validate([
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'keywords' => 'nullable|string|max:500',
+            'og_title' => 'nullable|string|max:255',
+            'og_description' => 'nullable|string|max:500',
+            'og_image' => 'nullable|image|max:2048',
+            'og_type' => 'nullable|string|max:50',
+            'twitter_card' => 'nullable|string|max:50',
+            'twitter_title' => 'nullable|string|max:255',
+            'twitter_description' => 'nullable|string|max:500',
+            'twitter_image' => 'nullable|image|max:2048',
+            'index' => 'boolean',
+            'follow' => 'boolean',
+        ]);
+
+        // Subir nueva imagen Open Graph si existe
+        if ($request->hasFile('og_image')) {
+            if ($seoSetting->og_image) {
+                Storage::disk('public')->delete($seoSetting->og_image);
+            }
+            $validated['og_image'] = $request->file('og_image')->store('seo/og-images', 'public');
+        }
+
+        // Subir nueva imagen Twitter si existe
+        if ($request->hasFile('twitter_image')) {
+            if ($seoSetting->twitter_image) {
+                Storage::disk('public')->delete($seoSetting->twitter_image);
+            }
+            $validated['twitter_image'] = $request->file('twitter_image')->store('seo/twitter-images', 'public');
+        }
+
+        $seoSetting->update($validated);
+
+        $this->logActivity('update_seo', "Actualizó configuración SEO para página: {$seoSetting->page_key}");
+
+        return redirect()->route('admin.seo.index')->with('success', 'Configuración SEO actualizada correctamente.');
+    }
+
+    /**
+     * Eliminar configuración SEO
+     */
+    public function seoDestroy($id)
+    {
+        $seoSetting = SeoSetting::findOrFail($id);
+
+        // Eliminar imágenes si existen
+        if ($seoSetting->og_image) {
+            Storage::disk('public')->delete($seoSetting->og_image);
+        }
+        if ($seoSetting->twitter_image) {
+            Storage::disk('public')->delete($seoSetting->twitter_image);
+        }
+
+        $pageKey = $seoSetting->page_key;
+        $seoSetting->delete();
+
+        $this->logActivity('delete_seo', "Eliminó configuración SEO para página: {$pageKey}");
+
+        return redirect()->route('admin.seo.index')->with('success', 'Configuración SEO eliminada correctamente.');
+    }
+
+    // ============================================
+    // GESTIÓN DE PLANES
+    // ============================================
+
+    /**
+     * Listar todos los planes
+     */
+    public function plansIndex()
+    {
+        $plans = Plan::orderBy('orden')->orderBy('precio_mensual')->get();
+        return view('admin.plans.index', compact('plans'));
+    }
+
+    /**
+     * Mostrar formulario para crear nuevo plan
+     */
+    public function plansCreate()
+    {
+        return view('admin.plans.create');
+    }
+
+    /**
+     * Guardar nuevo plan
+     */
+    public function plansStore(Request $request)
+    {
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:100',
+            'slug' => 'required|string|unique:plans,slug|max:100',
+            'descripcion' => 'nullable|string|max:500',
+            'precio_mensual' => 'required|numeric|min:0',
+            'precio_anual' => 'nullable|numeric|min:0',
+            'likes_diarios' => 'nullable|integer|min:0',
+            'super_likes_mes' => 'nullable|integer|min:0',
+            'mensajes_semanales_gratis' => 'nullable|integer|min:0',
+            'fotos_adicionales' => 'nullable|integer|min:0',
+            'boost_mensual' => 'nullable|integer|min:0',
+            'ver_quien_te_gusta' => 'boolean',
+            'matches_ilimitados' => 'boolean',
+            'puede_iniciar_conversacion' => 'boolean',
+            'mensajes_ilimitados' => 'boolean',
+            'rewind' => 'boolean',
+            'sin_anuncios' => 'boolean',
+            'modo_incognito' => 'boolean',
+            'verificacion_prioritaria' => 'boolean',
+            'activo' => 'boolean',
+            'orden' => 'nullable|integer|min:0',
+        ]);
+
+        Plan::create($validated);
+
+        $this->logActivity('create_plan', "Creó el plan: {$validated['nombre']}");
+
+        return redirect()->route('admin.plans.index')->with('success', 'Plan creado correctamente.');
+    }
+
+    /**
+     * Mostrar formulario para editar plan
+     */
+    public function plansEdit($id)
+    {
+        $plan = Plan::findOrFail($id);
+        return view('admin.plans.edit', compact('plan'));
+    }
+
+    /**
+     * Actualizar plan
+     */
+    public function plansUpdate(Request $request, $id)
+    {
+        $plan = Plan::findOrFail($id);
+
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:100',
+            'slug' => 'required|string|max:100|unique:plans,slug,' . $id,
+            'descripcion' => 'nullable|string|max:500',
+            'precio_mensual' => 'required|numeric|min:0',
+            'precio_anual' => 'nullable|numeric|min:0',
+            'likes_diarios' => 'nullable|integer|min:0',
+            'super_likes_mes' => 'nullable|integer|min:0',
+            'mensajes_semanales_gratis' => 'nullable|integer|min:0',
+            'fotos_adicionales' => 'nullable|integer|min:0',
+            'boost_mensual' => 'nullable|integer|min:0',
+            'ver_quien_te_gusta' => 'boolean',
+            'matches_ilimitados' => 'boolean',
+            'puede_iniciar_conversacion' => 'boolean',
+            'mensajes_ilimitados' => 'boolean',
+            'rewind' => 'boolean',
+            'sin_anuncios' => 'boolean',
+            'modo_incognito' => 'boolean',
+            'verificacion_prioritaria' => 'boolean',
+            'activo' => 'boolean',
+            'orden' => 'nullable|integer|min:0',
+        ]);
+
+        $plan->update($validated);
+
+        $this->logActivity('update_plan', "Actualizó el plan: {$plan->nombre}");
+
+        return redirect()->route('admin.plans.index')->with('success', 'Plan actualizado correctamente.');
+    }
+
+    /**
+     * Eliminar plan
+     */
+    public function plansDestroy($id)
+    {
+        $plan = Plan::findOrFail($id);
+
+        // Verificar si hay usuarios suscritos a este plan
+        $activeSubscriptions = $plan->subscriptions()->where('estado', 'activo')->count();
+
+        if ($activeSubscriptions > 0) {
+            return redirect()->route('admin.plans.index')
+                ->with('error', "No se puede eliminar el plan porque hay {$activeSubscriptions} suscripciones activas.");
+        }
+
+        $planNombre = $plan->nombre;
+        $plan->delete();
+
+        $this->logActivity('delete_plan', "Eliminó el plan: {$planNombre}");
+
+        return redirect()->route('admin.plans.index')->with('success', 'Plan eliminado correctamente.');
     }
 }

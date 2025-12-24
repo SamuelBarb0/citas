@@ -23,7 +23,19 @@ Route::get('/', function () {
 });
 
 // Rutas protegidas (requieren autenticación)
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
+    // Rutas de perfil y verificación (NO requieren estar verificado)
+    Route::get('/mi-perfil/crear', [UserProfileController::class, 'create'])->name('user.profile.create');
+    Route::post('/mi-perfil', [UserProfileController::class, 'store'])->name('user.profile.store');
+
+    // Verificación de Perfil (NO requiere estar verificado)
+    Route::get('/verification/request', [\App\Http\Controllers\VerificationRequestController::class, 'create'])->name('verification.create');
+    Route::post('/verification/request', [\App\Http\Controllers\VerificationRequestController::class, 'store'])->name('verification.store');
+    Route::get('/verification/status', [\App\Http\Controllers\VerificationRequestController::class, 'status'])->name('verification.status');
+});
+
+// Rutas que REQUIEREN verificación de identidad
+Route::middleware(['auth', 'verified.identity'])->group(function () {
     // Dashboard - Descubrir perfiles
     Route::get('/dashboard', function () {
         $currentUserId = auth()->id();
@@ -84,10 +96,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return view('dashboard', compact('perfiles', 'newMatch'));
     })->name('dashboard');
 
-    // Gestión de Perfil de Usuario (Dating Profile)
+    // Gestión de Perfil de Usuario (Dating Profile) - requiere verificación
     Route::get('/mi-perfil', [UserProfileController::class, 'show'])->name('user.profile.show');
-    Route::get('/mi-perfil/crear', [UserProfileController::class, 'create'])->name('user.profile.create');
-    Route::post('/mi-perfil', [UserProfileController::class, 'store'])->name('user.profile.store');
     Route::get('/mi-perfil/editar', [UserProfileController::class, 'edit'])->name('user.profile.edit');
     Route::put('/mi-perfil', [UserProfileController::class, 'update'])->name('user.profile.update');
 
@@ -152,11 +162,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
         Route::post('/reports/{reportId}', [AdminController::class, 'updateReport'])->name('reports.update');
         Route::get('/verification', [AdminController::class, 'verificationQueue'])->name('verification');
-        Route::post('/verify/{profileId}', [AdminController::class, 'verifyProfile'])->name('verify');
+        Route::post('/verify/{requestId}', [AdminController::class, 'verifyProfile'])->name('verify');
+        Route::post('/verification/{requestId}/reject', [AdminController::class, 'rejectVerification'])->name('verification.reject');
         Route::post('/unverify/{profileId}', [AdminController::class, 'unverifyProfile'])->name('unverify');
         Route::get('/users', [AdminController::class, 'users'])->name('users');
         Route::post('/users/{userId}/suspend', [AdminController::class, 'suspendUser'])->name('users.suspend');
         Route::post('/users/{userId}/activate', [AdminController::class, 'activateUser'])->name('users.activate');
+
+        // Gestión de SEO
+        Route::get('/seo', [AdminController::class, 'seoIndex'])->name('seo.index');
+        Route::get('/seo/create', [AdminController::class, 'seoCreate'])->name('seo.create');
+        Route::post('/seo', [AdminController::class, 'seoStore'])->name('seo.store');
+        Route::get('/seo/{id}/edit', [AdminController::class, 'seoEdit'])->name('seo.edit');
+        Route::put('/seo/{id}', [AdminController::class, 'seoUpdate'])->name('seo.update');
+        Route::delete('/seo/{id}', [AdminController::class, 'seoDestroy'])->name('seo.destroy');
+
+        // Gestión de Planes
+        Route::get('/plans', [AdminController::class, 'plansIndex'])->name('plans.index');
+        Route::get('/plans/create', [AdminController::class, 'plansCreate'])->name('plans.create');
+        Route::post('/plans', [AdminController::class, 'plansStore'])->name('plans.store');
+        Route::get('/plans/{id}/edit', [AdminController::class, 'plansEdit'])->name('plans.edit');
+        Route::put('/plans/{id}', [AdminController::class, 'plansUpdate'])->name('plans.update');
+        Route::delete('/plans/{id}', [AdminController::class, 'plansDestroy'])->name('plans.destroy');
     });
 });
 

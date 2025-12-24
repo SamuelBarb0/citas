@@ -53,7 +53,9 @@ class UserProfileController extends Controller
 
         Profile::create($validated);
 
-        return redirect()->route('dashboard')->with('success', '¡Perfil creado exitosamente!');
+        // Redirigir a verificación de identidad obligatoria
+        return redirect()->route('verification.create')
+            ->with('success', '¡Perfil creado! Ahora debes verificar tu identidad para poder usar la app.');
     }
 
     /**

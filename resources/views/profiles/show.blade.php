@@ -10,6 +10,18 @@
             </div>
         @endif
 
+        @if(session('info'))
+            <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg mb-6 text-sm sm:text-base">
+                {{ session('info') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm sm:text-base">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <!-- Tarjeta de Perfil -->
         <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
             <!-- Header con foto de fondo -->
@@ -63,6 +75,50 @@
                         </p>
                     </div>
                 </div>
+
+                <!-- Verificación del Perfil -->
+                @php
+                    $hasPendingRequest = \App\Models\VerificationRequest::where('user_id', Auth::id())
+                        ->where('estado', 'pendiente')
+                        ->exists();
+                @endphp
+
+                @if($profile->verified)
+                    <!-- Perfil verificado -->
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <p class="text-sm text-green-800 font-medium">Cuenta verificada - Has completado el proceso de validación de identidad</p>
+                        </div>
+                    </div>
+                @elseif($hasPendingRequest)
+                    <!-- Solicitud pendiente -->
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                            </svg>
+                            <p class="text-sm text-yellow-800 font-medium">Verificación en proceso - Tu solicitud está siendo revisada (24-48h)</p>
+                        </div>
+                    </div>
+                @else
+                    <!-- No verificado - Call to action -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+                        <div class="flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                </svg>
+                                <p class="text-sm text-blue-800 font-medium">Verifica tu identidad para evitar que tu cuenta sea marcada como sospechosa</p>
+                            </div>
+                            <a href="{{ route('verification.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm whitespace-nowrap">
+                                Verificar ahora
+                            </a>
+                        </div>
+                    </div>
+                @endif
 
                 <!-- Sobre mí -->
                 @if($profile->biografia)

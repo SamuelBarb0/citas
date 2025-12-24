@@ -12,7 +12,10 @@
       "Bash(node node_modules/tailwindcss/lib/cli.js:*)",
       "Bash(npm run build:*)",
       "Bash(dir:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(if not exist \"resources\\\\views\\\\emails\" mkdir \"resources\\\\views\\\\emails\")",
+      "Bash(mkdir:*)",
+      "Bash(if not exist \"resources\\\\views\\\\subscriptions\" mkdir \"resources\\\\views\\\\subscriptions\")"
     ]
   }
 }

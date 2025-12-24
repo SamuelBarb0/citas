@@ -128,21 +128,45 @@
                                      data-index="{{ $index }}"
                                      style="transform: translateY({{ $index * 10 }}px) scale({{ 1 - ($index * 0.03) }}); z-index: {{ 100 - $index }}; opacity: {{ $index < 3 ? 1 : 0 }};">
 
-                                    <!-- Imagen de perfil fullscreen -->
+                                    <!-- Imagen de perfil fullscreen con carrusel -->
                                     <div class="relative h-full">
-                                        <img src="{{ $perfil->foto_principal }}"
-                                             alt="{{ $perfil->nombre }}"
-                                             class="w-full h-full object-cover">
+                                        @php
+                                            $allPhotos = array_filter([
+                                                $perfil->foto_principal,
+                                                ...($perfil->fotos_adicionales ?? [])
+                                            ]);
+                                            $totalPhotos = count($allPhotos);
+                                        @endphp
+
+                                        <!-- Contenedor de la galería de fotos -->
+                                        <div class="photo-carousel relative w-full h-full" data-card-id="{{ $perfil->id }}">
+                                            @foreach($allPhotos as $photoIndex => $photo)
+                                                <div class="carousel-photo absolute inset-0 transition-opacity duration-300 {{ $photoIndex === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0' }}"
+                                                     data-photo-index="{{ $photoIndex }}">
+                                                    <img src="{{ str_starts_with($photo, 'http') ? $photo : Storage::url($photo) }}"
+                                                         alt="{{ $perfil->nombre }}"
+                                                         class="w-full h-full object-cover pointer-events-none select-none"
+                                                         draggable="false">
+                                                </div>
+                                            @endforeach
+                                        </div>
+
+                                        @if($totalPhotos > 1)
+                                            <!-- Indicadores de foto en la parte superior (barras estilo Stories) -->
+                                            <div class="absolute top-3 left-0 right-0 z-30 flex gap-1.5 px-3 pointer-events-none" data-carousel-id="{{ $perfil->id }}">
+                                                @foreach($allPhotos as $photoIndex => $photo)
+                                                    <div class="flex-1 h-1 rounded-full transition-all duration-300 {{ $photoIndex === 0 ? 'bg-white shadow-lg' : 'bg-white/40' }}"
+                                                         data-indicator-index="{{ $photoIndex }}"></div>
+                                                @endforeach
+                                            </div>
+                                        @endif
 
                                         <!-- Overlay con gradiente -->
-                                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none z-20"></div>
 
                                         <!-- Indicador de múltiples fotos -->
-                                        @php
-                                            $totalPhotos = 1 + count($perfil->fotos_adicionales ?? []);
-                                        @endphp
                                         @if($totalPhotos > 1)
-                                            <div class="absolute top-6 right-6 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+                                            <div class="absolute top-6 right-6 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg flex items-center gap-1 z-40 pointer-events-none">
                                                 <svg class="w-4 h-4 text-brown" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
                                                 </svg>
@@ -151,15 +175,15 @@
                                         @endif
 
                                         <!-- Indicador de like/nope -->
-                                        <div class="like-indicator absolute top-12 right-12 bg-green-500 text-white px-8 py-4 rounded-2xl font-black text-3xl rotate-12 border-4 border-white opacity-0 transition-opacity duration-200">
+                                        <div class="like-indicator absolute top-12 right-12 bg-green-500 text-white px-8 py-4 rounded-2xl font-black text-3xl rotate-12 border-4 border-white opacity-0 transition-opacity duration-200 z-40 pointer-events-none">
                                             ❤️ LIKE
                                         </div>
-                                        <div class="nope-indicator absolute top-12 left-12 bg-red-500 text-white px-8 py-4 rounded-2xl font-black text-3xl -rotate-12 border-4 border-white opacity-0 transition-opacity duration-200">
+                                        <div class="nope-indicator absolute top-12 left-12 bg-red-500 text-white px-8 py-4 rounded-2xl font-black text-3xl -rotate-12 border-4 border-white opacity-0 transition-opacity duration-200 z-40 pointer-events-none">
                                             ✕ NOPE
                                         </div>
 
                                         <!-- Badge de ciudad -->
-                                        <div class="absolute top-6 left-6">
+                                        <div class="absolute top-6 left-6 z-40 pointer-events-none">
                                             <span class="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-xs font-bold text-brown shadow-lg flex items-center gap-1">
                                                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
@@ -169,7 +193,7 @@
                                         </div>
 
                                         <!-- Información del perfil -->
-                                        <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                                        <div class="absolute bottom-0 left-0 right-0 p-6 text-white z-40">
                                             <div class="flex items-end justify-between mb-4">
                                                 <div class="flex-1">
                                                     <div class="flex items-center gap-2 mb-2">
@@ -503,14 +527,89 @@
             // Inicializar la primera tarjeta
             initCardDragListeners();
 
+            // ==================== CARRUSEL DE FOTOS ====================
+            // Almacenar el índice actual de foto para cada tarjeta
+            const cardPhotoIndexes = {};
+
+            // Inicializar índices para todas las tarjetas
+            cards.forEach(card => {
+                const cardId = card.dataset.profileId;
+                cardPhotoIndexes[cardId] = 0;
+            });
+
+            // Función para navegar entre fotos
+            function navigatePhoto(cardId, direction) {
+                const carousel = document.querySelector(`.photo-carousel[data-card-id="${cardId}"]`);
+                if (!carousel) return;
+
+                const photos = carousel.querySelectorAll('.carousel-photo');
+                const indicators = document.querySelector(`[data-carousel-id="${cardId}"]`)?.querySelectorAll('[data-indicator-index]');
+
+                if (!photos || photos.length <= 1) return;
+
+                const currentIndex = cardPhotoIndexes[cardId] || 0;
+                let newIndex;
+
+                if (direction === 'next') {
+                    newIndex = (currentIndex + 1) % photos.length;
+                } else {
+                    newIndex = currentIndex === 0 ? photos.length - 1 : currentIndex - 1;
+                }
+
+                // Ocultar foto actual
+                photos[currentIndex].classList.remove('opacity-100', 'z-10');
+                photos[currentIndex].classList.add('opacity-0', 'z-0');
+
+                // Mostrar nueva foto
+                photos[newIndex].classList.remove('opacity-0', 'z-0');
+                photos[newIndex].classList.add('opacity-100', 'z-10');
+
+                // Actualizar indicadores
+                if (indicators) {
+                    indicators[currentIndex].classList.remove('bg-white', 'shadow-lg');
+                    indicators[currentIndex].classList.add('bg-white/40');
+
+                    indicators[newIndex].classList.remove('bg-white/40');
+                    indicators[newIndex].classList.add('bg-white', 'shadow-lg');
+                }
+
+                // Guardar nuevo índice
+                cardPhotoIndexes[cardId] = newIndex;
+            }
+
+            // Navegación con teclas A (anterior) y D (siguiente)
+            document.addEventListener('keydown', (e) => {
+                if (currentCardIndex >= cards.length) return;
+
+                const currentCard = cards[currentCardIndex];
+                const cardId = currentCard.dataset.profileId;
+
+                if (e.key === 'a' || e.key === 'A') {
+                    navigatePhoto(cardId, 'prev');
+                } else if (e.key === 'd' || e.key === 'D') {
+                    navigatePhoto(cardId, 'next');
+                }
+            });
+            // ==================== FIN CARRUSEL DE FOTOS ====================
+
+            let hasMoved = false; // Track si realmente se ha movido la tarjeta
+            let clickStartX = 0; // Posición X inicial del click
+            let clickStartY = 0; // Posición Y inicial del click
+
             function handleDragStart(e) {
                 if (currentCardIndex >= cards.length) return;
 
-                isDragging = true;
+                // Prevenir comportamiento de drag & drop nativo del navegador
+                e.preventDefault();
+
                 const card = cards[currentCardIndex];
                 card.style.transition = 'none';
 
+                isDragging = true;
+                hasMoved = false;
                 startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+                clickStartX = startX;
+                clickStartY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
 
                 document.addEventListener('mousemove', handleDragMove);
                 document.addEventListener('touchmove', handleDragMove);
@@ -523,6 +622,12 @@
 
                 currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
                 const deltaX = currentX - startX;
+
+                // Solo activar el drag si se ha movido al menos 10px
+                if (Math.abs(deltaX) < 10 && !hasMoved) return;
+
+                hasMoved = true; // Marcar que se ha iniciado el movimiento
+
                 const card = cards[currentCardIndex];
                 const rotation = deltaX / 20;
 
@@ -544,17 +649,43 @@
                 }
             }
 
-            function handleDragEnd() {
+            function handleDragEnd(e) {
                 if (!isDragging) return;
 
                 isDragging = false;
-                const deltaX = currentX - startX;
                 const card = cards[currentCardIndex];
 
                 document.removeEventListener('mousemove', handleDragMove);
                 document.removeEventListener('touchmove', handleDragMove);
                 document.removeEventListener('mouseup', handleDragEnd);
                 document.removeEventListener('touchend', handleDragEnd);
+
+                // Si nunca se movió, fue un click - activar carrusel
+                if (!hasMoved) {
+                    const endX = e.type === 'mouseup' ? e.clientX : e.changedTouches[0].clientX;
+                    const endY = e.type === 'mouseup' ? e.clientY : e.changedTouches[0].clientY;
+
+                    // Verificar que sea realmente un click (no movimiento accidental)
+                    const distance = Math.sqrt(Math.pow(endX - clickStartX, 2) + Math.pow(endY - clickStartY, 2));
+
+                    if (distance < 10) {
+                        // Es un click real - navegar en el carrusel
+                        const cardRect = card.getBoundingClientRect();
+                        const clickX = endX - cardRect.left;
+                        const cardWidth = cardRect.width;
+                        const cardId = card.dataset.profileId;
+
+                        if (clickX < cardWidth / 2) {
+                            navigatePhoto(cardId, 'prev');
+                        } else {
+                            navigatePhoto(cardId, 'next');
+                        }
+                    }
+                    return;
+                }
+
+                // Fue un drag - procesar like/nope
+                const deltaX = currentX - startX;
 
                 if (Math.abs(deltaX) > 150) {
                     removeCard(deltaX > 0 ? 'right' : 'left');

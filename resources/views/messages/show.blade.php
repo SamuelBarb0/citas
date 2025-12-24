@@ -163,38 +163,141 @@
             <!-- Formulario de envío fijo -->
             <div class="sticky bottom-0 bg-white/90 backdrop-blur-lg border-t border-gray-200 shadow-2xl">
                 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <form action="{{ route('messages.store', $match->id) }}" method="POST" class="flex gap-3 items-end">
-                        @csrf
-                        <div class="flex-1">
-                            <textarea
-                                id="mensaje-input"
-                                name="mensaje"
-                                placeholder="Escribe un mensaje..."
-                                required
-                                maxlength="1000"
-                                rows="1"
-                                class="w-full px-6 py-4 border-2 border-gray-300 rounded-3xl focus:border-heart-red focus:ring-0 transition resize-none text-sm"
-                                style="max-height: 120px;"
-                                onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); this.form.submit(); }"
-                            ></textarea>
-                            @error('mensaje')
-                                <p class="text-red-500 text-xs mt-1 px-2">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        <button
-                            type="submit"
-                            class="bg-gradient-to-r from-heart-red to-heart-red-light text-white p-4 rounded-full font-bold hover:shadow-glow transition shadow-lg flex items-center justify-center group"
-                        >
-                            <svg class="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                            </svg>
-                        </button>
-                    </form>
+                    @php
+                        $currentUser = auth()->user();
+                        $currentSubscription = $currentUser->activeSubscription;
+                        $currentPlan = $currentSubscription ? $currentSubscription->plan : null;
 
-                    <!-- Info de caracteres restantes -->
-                    <p class="text-xs text-gray-400 mt-2 text-center">
-                        Presiona Enter para enviar, Shift + Enter para nueva línea
-                    </p>
+                        $receiverSubscription = $otherUser->activeSubscription;
+                        $receiverPlan = $receiverSubscription ? $receiverSubscription->plan : null;
+
+                        // Determinar si puede enviar mensajes
+                        $canSendMessage = true;
+                        $restrictionMessage = null;
+                        $remainingMessages = null;
+
+                        if (!$currentSubscription) {
+                            // Usuario Gratis: solo puede responder
+                            $hasReceivedMessages = $match->messages()
+                                ->where('sender_id', $otherUser->id)
+                                ->exists();
+
+                            if (!$hasReceivedMessages) {
+                                $canSendMessage = false;
+                                $restrictionMessage = 'Los usuarios gratuitos solo pueden responder mensajes. Actualiza tu plan para iniciar conversaciones.';
+                            }
+                        } else {
+                            // Verificar límites según el plan
+                            if (!$currentSubscription->canSendMessageTo($otherUser)) {
+                                $canSendMessage = false;
+                                $remainingMessages = $currentSubscription->getRemainingWeeklyMessages();
+
+                                if ($remainingMessages === 0 && $currentPlan->slug === 'basico') {
+                                    $restrictionMessage = 'Has alcanzado tu límite de 3 mensajes semanales a usuarios gratuitos. Actualiza a Premium para mensajes ilimitados.';
+                                } else {
+                                    $restrictionMessage = 'No puedes enviar más mensajes. Actualiza tu plan para continuar.';
+                                }
+                            } else {
+                                // Mostrar mensajes restantes para usuarios Básico enviando a Gratis
+                                if ($currentPlan->slug === 'basico' && (!$receiverPlan || $receiverPlan->slug === 'free')) {
+                                    $remainingMessages = $currentSubscription->getRemainingWeeklyMessages();
+                                }
+                            }
+                        }
+                    @endphp
+
+                    <!-- Indicador de plan y límites -->
+                    @if($currentPlan && $currentPlan->slug !== 'premium')
+                        <div class="mb-3 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12zm0-9a1 1 0 011 1v3a1 1 0 11-2 0V8a1 1 0 011-1zm0 7a1 1 0 100-2 1 1 0 000 2z"/>
+                                    </svg>
+                                    <div>
+                                        <p class="text-xs font-bold text-yellow-800">
+                                            Plan {{ $currentPlan->nombre }}
+                                        </p>
+                                        @if($remainingMessages !== null && $remainingMessages >= 0)
+                                            <p class="text-xs text-yellow-700">
+                                                {{ $remainingMessages }} mensajes restantes esta semana para usuarios gratuitos
+                                            </p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <a href="{{ route('subscriptions.index') }}" class="bg-gradient-to-r from-heart-red to-heart-red-light text-white px-4 py-1.5 rounded-full text-xs font-bold hover:shadow-glow transition whitespace-nowrap">
+                                    Mejorar Plan
+                                </a>
+                            </div>
+                        </div>
+                    @elseif(!$currentPlan)
+                        <div class="mb-3 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-xl p-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <div>
+                                        <p class="text-xs font-bold text-red-800">Plan Gratis</p>
+                                        <p class="text-xs text-red-700">Solo puedes responder mensajes</p>
+                                    </div>
+                                </div>
+                                <a href="{{ route('subscriptions.index') }}" class="bg-gradient-to-r from-heart-red to-heart-red-light text-white px-4 py-1.5 rounded-full text-xs font-bold hover:shadow-glow transition whitespace-nowrap">
+                                    Ver Planes
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if(!$canSendMessage)
+                        <!-- Mensaje de restricción -->
+                        <div class="bg-white rounded-2xl p-6 border-2 border-red-200 shadow-lg text-center">
+                            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-black text-brown mb-2">Límite Alcanzado</h3>
+                            <p class="text-gray-600 mb-4 text-sm">{{ $restrictionMessage }}</p>
+                            <a href="{{ route('subscriptions.index') }}" class="inline-block bg-gradient-to-r from-heart-red to-heart-red-light text-white px-6 py-3 rounded-full font-bold hover:shadow-glow transition">
+                                Ver Planes de Pago
+                            </a>
+                        </div>
+                    @else
+                        <!-- Formulario normal -->
+                        <form action="{{ route('messages.store', $match->id) }}" method="POST" class="flex gap-3 items-end">
+                            @csrf
+                            <div class="flex-1">
+                                <textarea
+                                    id="mensaje-input"
+                                    name="mensaje"
+                                    placeholder="Escribe un mensaje..."
+                                    required
+                                    maxlength="1000"
+                                    rows="1"
+                                    class="w-full px-6 py-4 border-2 border-gray-300 rounded-3xl focus:border-heart-red focus:ring-0 transition resize-none text-sm"
+                                    style="max-height: 120px;"
+                                    onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); this.form.submit(); }"
+                                ></textarea>
+                                @error('mensaje')
+                                    <p class="text-red-500 text-xs mt-1 px-2">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <button
+                                type="submit"
+                                class="bg-gradient-to-r from-heart-red to-heart-red-light text-white p-4 rounded-full font-bold hover:shadow-glow transition shadow-lg flex items-center justify-center group"
+                            >
+                                <svg class="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                                </svg>
+                            </button>
+                        </form>
+
+                        <!-- Info de caracteres restantes -->
+                        <p class="text-xs text-gray-400 mt-2 text-center">
+                            Presiona Enter para enviar, Shift + Enter para nueva línea
+                        </p>
+                    @endif
                 </div>
             </div>
         </div>

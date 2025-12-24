@@ -1,0 +1,90 @@
+PHP Warning:  Module "ftp" is already loaded in Unknown on line 0
+
+Warning: Module "ftp" is already loaded in Unknown on line 0
+
+[32m═══════════════════════════════════════════════════════════════════════[39m
+[32m          VERIFICACIÓN DE RESTRICCIONES DE MENSAJERÍA[39m
+[32m═══════════════════════════════════════════════════════════════════════[39m
+
+[32m👤 USUARIOS CON PLAN GRATIS (3):[39m
+[32m─────────────────────────────────────────────────────────────────────[39m
+  • Carlos (ID: 2) - carlos@citasmallorca.es
+  • Miguel (ID: 4) - miguel@citasmallorca.es
+  • Sofia (ID: 7) - sofia@citasmallorca.es
+
+[32m⭐ USUARIOS CON PLAN BÁSICO (3):[39m
+[32m─────────────────────────────────────────────────────────────────────[39m
+  • Laura (ID: 3) - Mensajes restantes: 3/3
+  • Ana (ID: 5) - Mensajes restantes: 3/3
+  • Javier (ID: 6) - Mensajes restantes: 3/3
+
+[32m💎 USUARIOS CON PLAN PREMIUM (1):[39m
+[32m─────────────────────────────────────────────────────────────────────[39m
+  • David (ID: 8) - Mensajes ilimitados
+
+
+[32m═══════════════════════════════════════════════════════════════════════[39m
+[32m          MATRIZ DE RESTRICCIONES[39m
+[32m═══════════════════════════════════════════════════════════════════════[39m
+
+  Remitente → Receptor │ Puede Enviar │ Límite
+  ────────────────────────────────────────────────────────────────
+  👤 Carlos   → 👤 Miguel   │ [31m✗ No[39m │ Solo responder
+  👤 Carlos   → 👤 Sofia    │ [31m✗ No[39m │ Solo responder
+  👤 Carlos   → ⭐ Laura    │ [31m✗ No[39m │ Solo responder
+  👤 Carlos   → ⭐ Ana      │ [31m✗ No[39m │ Solo responder
+  👤 Carlos   → ⭐ Javier   │ [31m✗ No[39m │ Solo responder
+  👤 Carlos   → 💎 David    │ [31m✗ No[39m │ Solo responder
+  👤 Miguel   → 👤 Carlos   │ [31m✗ No[39m │ Solo responder
+  👤 Miguel   → 👤 Sofia    │ [31m✗ No[39m │ Solo responder
+  👤 Miguel   → ⭐ Laura    │ [31m✗ No[39m │ Solo responder
+  👤 Miguel   → ⭐ Ana      │ [31m✗ No[39m │ Solo responder
+  👤 Miguel   → ⭐ Javier   │ [31m✗ No[39m │ Solo responder
+  👤 Miguel   → 💎 David    │ [31m✗ No[39m │ Solo responder
+  👤 Sofia    → 👤 Carlos   │ [31m✗ No[39m │ Solo responder
+  👤 Sofia    → 👤 Miguel   │ [31m✗ No[39m │ Solo responder
+  👤 Sofia    → ⭐ Laura    │ [31m✗ No[39m │ Solo responder
+  👤 Sofia    → ⭐ Ana      │ [31m✗ No[39m │ Solo responder
+  👤 Sofia    → ⭐ Javier   │ [31m✗ No[39m │ Solo responder
+  👤 Sofia    → 💎 David    │ [31m✗ No[39m │ Solo responder
+  ⭐ Laura    → 👤 Carlos   │ [32m✓ Sí[39m │ 3/3 semana
+  ⭐ Laura    → 👤 Miguel   │ [32m✓ Sí[39m │ 3/3 semana
+  ⭐ Laura    → 👤 Sofia    │ [32m✓ Sí[39m │ 3/3 semana
+  ⭐ Laura    → ⭐ Ana      │ [32m✓ Sí[39m │ Ilimitado
+  ⭐ Laura    → ⭐ Javier   │ [32m✓ Sí[39m │ Ilimitado
+  ⭐ Laura    → 💎 David    │ [32m✓ Sí[39m │ Ilimitado
+  ⭐ Ana      → 👤 Carlos   │ [32m✓ Sí[39m │ 3/3 semana
+  ⭐ Ana      → 👤 Miguel   │ [32m✓ Sí[39m │ 3/3 semana
+  ⭐ Ana      → 👤 Sofia    │ [32m✓ Sí[39m │ 3/3 semana
+  ⭐ Ana      → ⭐ Laura    │ [32m✓ Sí[39m │ Ilimitado
+  ⭐ Ana      → ⭐ Javier   │ [32m✓ Sí[39m │ Ilimitado
+  ⭐ Ana      → 💎 David    │ [32m✓ Sí[39m │ Ilimitado
+  ⭐ Javier   → 👤 Carlos   │ [32m✓ Sí[39m │ 3/3 semana
+  ⭐ Javier   → 👤 Miguel   │ [32m✓ Sí[39m │ 3/3 semana
+  ⭐ Javier   → 👤 Sofia    │ [32m✓ Sí[39m │ 3/3 semana
+  ⭐ Javier   → ⭐ Laura    │ [32m✓ Sí[39m │ Ilimitado
+  ⭐ Javier   → ⭐ Ana      │ [32m✓ Sí[39m │ Ilimitado
+  ⭐ Javier   → 💎 David    │ [32m✓ Sí[39m │ Ilimitado
+  💎 David    → 👤 Carlos   │ [32m✓ Sí[39m │ Ilimitado
+  💎 David    → 👤 Miguel   │ [32m✓ Sí[39m │ Ilimitado
+  💎 David    → 👤 Sofia    │ [32m✓ Sí[39m │ Ilimitado
+  💎 David    → ⭐ Laura    │ [32m✓ Sí[39m │ Ilimitado
+  💎 David    → ⭐ Ana      │ [32m✓ Sí[39m │ Ilimitado
+  💎 David    → ⭐ Javier   │ [32m✓ Sí[39m │ Ilimitado
+
+[32m═══════════════════════════════════════════════════════════════════════[39m
+[32m          REGLAS DE MENSAJERÍA[39m
+[32m═══════════════════════════════════════════════════════════════════════[39m
+
+  👤 Plan Gratis:
+     • NO puede iniciar conversaciones (solo responder)
+     • Debe esperar a que otros usuarios le escriban primero
+
+  ⭐ Plan Básico (€4.99/mes):
+     • Puede enviar 3 mensajes/semana a usuarios Gratis
+     • Mensajes ILIMITADOS con usuarios Básico y Premium
+
+  💎 Plan Premium (€9.99/mes):
+     • Mensajes ILIMITADOS con TODOS los usuarios
+     • Sin restricciones de ningún tipo
+

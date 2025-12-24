@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\WelcomeEmail;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
@@ -45,6 +47,11 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // Enviar email de bienvenida
+        Mail::to($user->email)->send(new WelcomeEmail($user));
+
+        // Redirigir a crear perfil primero
+        return redirect(route('user.profile.create'))
+            ->with('success', '¡Cuenta creada! Ahora completa tu perfil y verifica tu identidad.');
     }
 }
