@@ -19,7 +19,10 @@ class UserProfileController extends Controller
             return redirect()->route('user.profile.edit');
         }
 
-        return view('profiles.create');
+        // Obtener datos de perfil guardados en la sesión (si existen)
+        $profileData = session('profile_data', []);
+
+        return view('profiles.create', compact('profileData'));
     }
 
     /**
@@ -30,8 +33,9 @@ class UserProfileController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'edad' => 'required|integer|min:18|max:100',
-            'genero' => 'required|in:hombre,mujer,otro',
-            'busco' => 'required|in:hombre,mujer,ambos',
+            'genero' => 'required|in:hombre,mujer,no-binario,genero-fluido,otro,prefiero-no-decir',
+            'orientacion_sexual' => 'nullable|in:heterosexual,gay,lesbiana,bisexual,pansexual,asexual,queer,otra,prefiero-no-decir',
+            'busco' => 'required|in:hombre,mujer,no-binario,cualquiera',
             'ciudad' => 'required|string|max:255',
             'biografia' => 'nullable|string|max:500',
             'intereses' => 'nullable|array',
@@ -86,8 +90,9 @@ class UserProfileController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'edad' => 'required|integer|min:18|max:100',
-            'genero' => 'required|in:hombre,mujer,otro',
-            'busco' => 'required|in:hombre,mujer,ambos',
+            'genero' => 'required|in:hombre,mujer,no-binario,genero-fluido,otro,prefiero-no-decir',
+            'orientacion_sexual' => 'nullable|in:heterosexual,gay,lesbiana,bisexual,pansexual,asexual,queer,otra,prefiero-no-decir',
+            'busco' => 'required|in:hombre,mujer,no-binario,cualquiera',
             'ciudad' => 'required|string|max:255',
             'biografia' => 'nullable|string|max:500',
             'intereses' => 'nullable|array',

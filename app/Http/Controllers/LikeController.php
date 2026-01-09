@@ -77,8 +77,8 @@ class LikeController extends Controller
 
             // Guardar el match en la sesión para mostrarlo cuando vuelva al dashboard
             session()->flash('new_match', [
-                'name' => $currentUser->profile->nombre ?? $currentUser->name,
-                'photo' => $currentUser->profile->foto_principal ?? 'https://ui-avatars.com/api/?name=' . urlencode($currentUser->name) . '&size=400&background=A67C52&color=fff'
+                'name' => $matchedUser->profile->nombre ?? $matchedUser->name,
+                'photo' => $matchedUser->profile->foto_principal ?? 'https://ui-avatars.com/api/?name=' . urlencode($matchedUser->name) . '&size=400&background=A67C52&color=fff'
             ]);
 
             return redirect()->route('matches')->with('success', '¡Es un match! 💕 Ahora puedes enviar mensajes.');

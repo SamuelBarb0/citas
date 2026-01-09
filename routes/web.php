@@ -8,6 +8,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\BlockController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\LegalController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Profile;
 
@@ -16,11 +17,17 @@ Route::get('/', function () {
     $perfiles = Profile::with('user')
         ->where('activo', true)
         ->inRandomOrder()
-        ->limit(8)
+        ->limit(20)
         ->get();
 
     return view('welcome', compact('perfiles'));
 });
+
+// Ruta pública de Planes (no requiere autenticación)
+Route::get('/planes', [\App\Http\Controllers\SubscriptionController::class, 'index'])->name('subscriptions.index');
+
+// Webhook de PayPal (público - no requiere autenticación)
+Route::post('/webhooks/paypal', [\App\Http\Controllers\PayPalWebhookController::class, 'handle'])->name('webhooks.paypal');
 
 // Rutas protegidas (requieren autenticación)
 Route::middleware(['auth'])->group(function () {
@@ -59,7 +66,24 @@ Route::middleware(['auth', 'verified.identity'])->group(function () {
                     ->where('blocked_user_id', $currentUserId);
             });
 
-        // Aplicar filtros
+        // Obtener el perfil del usuario actual para filtros inteligentes
+        $myProfile = auth()->user()->profile;
+
+        // Filtro de compatibilidad automático basado en el perfil del usuario
+        // Solo mostrar personas cuyo género coincida con lo que busco
+        if ($myProfile && $myProfile->busco && $myProfile->busco !== 'cualquiera') {
+            $query->where('genero', $myProfile->busco);
+        }
+
+        // Solo mostrar personas que busquen mi género (o "cualquiera")
+        if ($myProfile && $myProfile->genero) {
+            $query->where(function($q) use ($myProfile) {
+                $q->where('busco', $myProfile->genero)
+                  ->orWhere('busco', 'cualquiera');
+            });
+        }
+
+        // Aplicar filtros manuales (sobrescriben los automáticos)
         if (request()->has('edad_min')) {
             $query->where('edad', '>=', request('edad_min'));
         }
@@ -72,8 +96,14 @@ Route::middleware(['auth', 'verified.identity'])->group(function () {
             $query->where('ciudad', 'LIKE', '%' . request('ciudad') . '%');
         }
 
+        // Filtro manual de género (sobrescribe el automático)
         if (request()->filled('busco')) {
+            // Remover el filtro automático y aplicar el manual
             $query->where('genero', request('busco'));
+        }
+
+        if (request()->filled('orientacion_sexual')) {
+            $query->where('orientacion_sexual', request('orientacion_sexual'));
         }
 
         if (request()->filled('intereses')) {
@@ -120,6 +150,7 @@ Route::middleware(['auth', 'verified.identity'])->group(function () {
     // Matches
     Route::get('/matches', [MatchController::class, 'index'])->name('matches');
     Route::delete('/matches/{matchId}', [MatchController::class, 'destroy'])->name('matches.destroy');
+    Route::get('/matches/check-new', [MatchController::class, 'checkNewMatches'])->name('matches.check-new');
 
     // Mensajes
     Route::get('/messages', [MessageController::class, 'index'])->name('messages');
@@ -145,12 +176,13 @@ Route::middleware(['auth', 'verified.identity'])->group(function () {
     Route::get('/notifications/unread/count', [\App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('notifications.count');
     Route::delete('/notifications/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
 
-    // Suscripciones y Planes
-    Route::get('/planes', [\App\Http\Controllers\SubscriptionController::class, 'index'])->name('subscriptions.index');
+    // Suscripciones (requieren autenticación)
     Route::get('/mi-suscripcion', [\App\Http\Controllers\SubscriptionController::class, 'dashboard'])->name('subscriptions.dashboard');
     Route::get('/checkout/{planSlug}', [\App\Http\Controllers\SubscriptionController::class, 'checkout'])->name('subscriptions.checkout');
     Route::post('/subscribe/stripe', [\App\Http\Controllers\SubscriptionController::class, 'processStripe'])->name('subscriptions.stripe');
     Route::post('/subscribe/paypal', [\App\Http\Controllers\SubscriptionController::class, 'processPayPal'])->name('subscriptions.paypal');
+    Route::post('/subscribe/paypal/create', [\App\Http\Controllers\SubscriptionController::class, 'createPayPalSubscription'])->name('subscriptions.paypal.create');
+    Route::post('/subscribe/paypal/activate', [\App\Http\Controllers\SubscriptionController::class, 'activatePayPalSubscription'])->name('subscriptions.paypal.activate');
     Route::post('/subscription/cancel', [\App\Http\Controllers\SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
     Route::post('/subscription/reactivate', [\App\Http\Controllers\SubscriptionController::class, 'reactivate'])->name('subscriptions.reactivate');
 
@@ -186,5 +218,13 @@ Route::middleware(['auth', 'verified.identity'])->group(function () {
         Route::delete('/plans/{id}', [AdminController::class, 'plansDestroy'])->name('plans.destroy');
     });
 });
+
+// Rutas de páginas legales (públicas - no requieren autenticación)
+Route::get('/aviso-legal', [LegalController::class, 'avisoLegal'])->name('legal.aviso-legal');
+Route::get('/politica-privacidad', [LegalController::class, 'privacidad'])->name('legal.privacidad');
+Route::get('/politica-cookies', [LegalController::class, 'cookies'])->name('legal.cookies');
+Route::get('/terminos-condiciones', [LegalController::class, 'terminos'])->name('legal.terminos');
+Route::get('/terminos-contratacion', [LegalController::class, 'terminosContratacion'])->name('legal.contract-terms');
+Route::get('/condiciones-pago', [LegalController::class, 'condicionesPago'])->name('legal.payment-conditions');
 
 require __DIR__.'/auth.php';

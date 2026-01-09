@@ -175,16 +175,28 @@
                         $canSendMessage = true;
                         $restrictionMessage = null;
                         $remainingMessages = null;
+                        $remainingResponses = null;
 
-                        if (!$currentSubscription) {
-                            // Usuario Gratis: solo puede responder
-                            $hasReceivedMessages = $match->messages()
+                        if (!$currentSubscription || ($currentPlan && $currentPlan->slug === 'free')) {
+                            // Usuario Gratis: solo puede responder 1:1
+                            $messagesReceived = $match->messages()
                                 ->where('sender_id', $otherUser->id)
-                                ->exists();
+                                ->where('receiver_id', auth()->id())
+                                ->count();
 
-                            if (!$hasReceivedMessages) {
+                            $messagesSent = $match->messages()
+                                ->where('sender_id', auth()->id())
+                                ->where('receiver_id', $otherUser->id)
+                                ->count();
+
+                            $remainingResponses = max(0, $messagesReceived - $messagesSent);
+
+                            if ($messagesReceived === 0) {
                                 $canSendMessage = false;
                                 $restrictionMessage = 'Los usuarios gratuitos solo pueden responder mensajes. Actualiza tu plan para iniciar conversaciones.';
+                            } elseif ($messagesSent >= $messagesReceived) {
+                                $canSendMessage = false;
+                                $restrictionMessage = "Has respondido todos los mensajes recibidos. Espera a que {$otherUser->profile->nombre} te envíe más mensajes o actualiza a un plan de pago.";
                             }
                         } else {
                             // Verificar límites según el plan
@@ -230,21 +242,37 @@
                                 </a>
                             </div>
                         </div>
-                    @elseif(!$currentPlan)
+                    @elseif(!$currentPlan || ($currentPlan && $currentPlan->slug === 'free'))
                         <div class="mb-3 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-xl p-3">
-                            <div class="flex items-center justify-between">
+                            <div class="flex items-center justify-between mb-2">
                                 <div class="flex items-center gap-2">
                                     <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
                                     </svg>
                                     <div>
                                         <p class="text-xs font-bold text-red-800">Plan Gratis</p>
-                                        <p class="text-xs text-red-700">Solo puedes responder mensajes</p>
+                                        @if($remainingResponses !== null && $remainingResponses > 0)
+                                            <p class="text-xs text-green-700 font-semibold">
+                                                Puedes responder {{ $remainingResponses }} {{ $remainingResponses === 1 ? 'mensaje' : 'mensajes' }} más
+                                            </p>
+                                        @else
+                                            <p class="text-xs text-red-700">Solo puedes responder mensajes</p>
+                                        @endif
                                     </div>
                                 </div>
                                 <a href="{{ route('subscriptions.index') }}" class="bg-gradient-to-r from-heart-red to-heart-red-light text-white px-4 py-1.5 rounded-full text-xs font-bold hover:shadow-glow transition whitespace-nowrap">
                                     Ver Planes
                                 </a>
+                            </div>
+                            <div class="border-t border-red-200 pt-2 mt-2">
+                                <p class="text-xs text-red-700 leading-relaxed">
+                                    <span class="font-semibold">Plan Gratis:</span> Solo puedes responder 1 mensaje por cada mensaje que recibes.
+                                    @if($remainingResponses !== null && $remainingResponses > 0)
+                                        {{ $otherUser->profile->nombre }} te ha enviado {{ $messagesReceived }} {{ $messagesReceived === 1 ? 'mensaje' : 'mensajes' }}
+                                        y has respondido {{ $messagesSent }}.
+                                    @endif
+                                    Actualiza tu plan para iniciar conversaciones y enviar mensajes ilimitados.
+                                </p>
                             </div>
                         </div>
                     @endif

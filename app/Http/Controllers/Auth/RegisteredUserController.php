@@ -19,8 +19,13 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
+        // Guardar los parámetros de perfil en la sesión para usarlos después
+        if ($request->has('genero')) {
+            session(['profile_data' => $request->only(['genero', 'orientacion_sexual', 'busco', 'edad_min', 'edad_max', 'ciudad'])]);
+        }
+
         return view('auth.register');
     }
 
@@ -35,6 +40,13 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'accept_privacy' => ['required', 'accepted'],
+            'accept_terms' => ['required', 'accepted'],
+        ], [
+            'accept_privacy.required' => 'Debes aceptar la Política de Privacidad para continuar.',
+            'accept_privacy.accepted' => 'Debes aceptar la Política de Privacidad para continuar.',
+            'accept_terms.required' => 'Debes aceptar los Términos y Condiciones para continuar.',
+            'accept_terms.accepted' => 'Debes aceptar los Términos y Condiciones para continuar.',
         ]);
 
         $user = User::create([

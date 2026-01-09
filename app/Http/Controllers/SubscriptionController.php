@@ -15,7 +15,7 @@ class SubscriptionController extends Controller
     public function index()
     {
         $plans = Plan::active()->ordered()->get();
-        $currentSubscription = Auth::user()->activeSubscription;
+        $currentSubscription = Auth::check() ? Auth::user()->activeSubscription : null;
 
         return view('subscriptions.index', compact('plans', 'currentSubscription'));
     }
@@ -124,19 +124,103 @@ class SubscriptionController extends Controller
     }
 
     /**
+     * Crear suscripción en PayPal (llamado desde JavaScript)
+     */
+    public function createPayPalSubscription(Request $request)
+    {
+        $request->validate([
+            'plan_id' => 'required|exists:plans,id',
+        ]);
+
+        try {
+            $plan = Plan::findOrFail($request->plan_id);
+
+            // TODO: Integrar con PayPal SDK para crear la suscripción
+            // Por ahora retornamos un subscription_id de ejemplo
+
+            return response()->json([
+                'success' => true,
+                'subscription_id' => 'I-' . strtoupper(uniqid()), // ID temporal de ejemplo
+                'message' => 'Suscripción creada exitosamente'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear la suscripción: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Activar suscripción de PayPal después de aprobación del usuario
+     */
+    public function activatePayPalSubscription(Request $request)
+    {
+        $request->validate([
+            'subscription_id' => 'required',
+            'plan_id' => 'required|exists:plans,id',
+        ]);
+
+        try {
+            $plan = Plan::findOrFail($request->plan_id);
+            $user = Auth::user();
+
+            // TODO: Verificar con PayPal que la suscripción está activa
+
+            // Crear la suscripción en nuestra base de datos
+            $subscription = UserSubscription::create([
+                'user_id' => $user->id,
+                'plan_id' => $plan->id,
+                'tipo' => $plan->slug === 'mensual' ? 'mensual' : 'anual',
+                'estado' => 'activa',
+                'metodo_pago' => 'paypal',
+                'paypal_subscription_id' => $request->subscription_id,
+                'monto_pagado' => $plan->slug === 'mensual' ? $plan->precio_mensual : $plan->precio_anual,
+            ]);
+
+            $subscription->activate();
+
+            return response()->json([
+                'success' => true,
+                'message' => '¡Suscripción activada exitosamente!',
+                'redirect_url' => route('subscriptions.dashboard')
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al activar la suscripción: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Cancelar suscripción
+     * El usuario mantiene acceso hasta el fin del período ya pagado
      */
     public function cancel(Request $request)
     {
-        $subscription = Auth::user()->activeSubscription;
+        $user = Auth::user();
+        $subscription = $user->activeSubscription;
 
         if (!$subscription) {
             return back()->with('error', 'No tienes una suscripción activa.');
         }
 
-        $subscription->cancel();
+        // Cancelar en PayPal si existe subscription_id
+        if ($subscription->paypal_subscription_id) {
+            // TODO: Integrar con PayPal SDK para cancelar la suscripción recurrente
+            // $this->cancelPayPalSubscription($subscription->paypal_subscription_id);
+        }
 
-        return back()->with('success', 'Suscripción cancelada. Seguirás teniendo acceso hasta ' . $subscription->fecha_expiracion->format('d/m/Y'));
+        // Cancelar la renovación automática pero mantener acceso hasta expiración
+        $subscription->update([
+            'estado' => 'cancelada_fin_periodo',
+            'auto_renovacion' => false,
+        ]);
+
+        return back()->with('success', 'Tu suscripción ha sido cancelada. Seguirás teniendo acceso hasta el ' . $subscription->fecha_expiracion->format('d/m/Y') . '. No se realizará el siguiente cobro.');
     }
 
     /**

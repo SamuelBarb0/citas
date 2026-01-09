@@ -57,10 +57,11 @@ class UserSubscription extends Model
 
     /**
      * Verificar si la suscripción está activa
+     * Incluye suscripciones canceladas pero aún válidas hasta fin de período
      */
     public function isActive()
     {
-        return $this->estado === 'activa' &&
+        return in_array($this->estado, ['activa', 'cancelada_fin_periodo']) &&
                $this->fecha_expiracion &&
                $this->fecha_expiracion->isFuture();
     }
@@ -210,6 +211,75 @@ class UserSubscription extends Model
     }
 
     /**
+     * Marcar suscripción como impagada (fallo de cobro)
+     * Bloquea automáticamente el acceso del usuario
+     */
+    public function markAsUnpaid()
+    {
+        $this->update([
+            'estado' => 'impago',
+            'auto_renovacion' => false,
+        ]);
+
+        // Bloquear acceso del usuario
+        $this->user->update(['activo' => false]);
+    }
+
+    /**
+     * Reactivar suscripción tras regularizar el pago
+     * Restaura el acceso automáticamente
+     */
+    public function reactivate()
+    {
+        $duracionMeses = $this->tipo === 'anual' ? 12 : 1;
+
+        $this->update([
+            'estado' => 'activa',
+            'fecha_expiracion' => now()->addMonths($duracionMeses),
+            'auto_renovacion' => true,
+        ]);
+
+        // Restaurar acceso del usuario
+        $this->user->update(['activo' => true]);
+    }
+
+    /**
+     * Renovar suscripción (cobro recurrente exitoso)
+     */
+    public function renew($transactionId = null, $montoPagado = null)
+    {
+        $duracionMeses = $this->tipo === 'anual' ? 12 : 1;
+
+        $updateData = [
+            'estado' => 'activa',
+            'fecha_expiracion' => now()->addMonths($duracionMeses),
+            'super_likes_restantes' => $this->plan->super_likes_mes,
+            'boosts_restantes' => $this->plan->boost_mensual ? 1 : 0,
+        ];
+
+        if ($transactionId) {
+            $updateData['transaction_id'] = $transactionId;
+        }
+
+        if ($montoPagado) {
+            $updateData['monto_pagado'] = $montoPagado;
+        }
+
+        $this->update($updateData);
+
+        // Asegurar que el usuario tenga acceso
+        $this->user->update(['activo' => true]);
+    }
+
+    /**
+     * Verificar si la suscripción está impagada
+     */
+    public function isUnpaid()
+    {
+        return $this->estado === 'impago';
+    }
+
+    /**
      * Resetear contador de mensajes semanales
      */
     public function resetWeeklyMessages()
@@ -225,7 +295,7 @@ class UserSubscription extends Model
     /**
      * Verificar si puede enviar mensaje a un usuario específico
      * Reglas:
-     * - Gratis: NO puede iniciar conversaciones (solo responder)
+     * - Gratis: NO puede iniciar conversaciones. Solo puede responder 1 mensaje por cada mensaje recibido
      * - Básico: 3 mensajes/semana a usuarios Gratis, ilimitados a Básico/Premium
      * - Premium: Ilimitados con todos
      */
@@ -240,7 +310,17 @@ class UserSubscription extends Model
 
         // Si el plan NO puede iniciar conversaciones (Gratis)
         if (!$this->plan->puede_iniciar_conversacion) {
-            return false;
+            // Contar mensajes en la conversación
+            $messagesReceived = \App\Models\Message::where('sender_id', $receiverUser->id)
+                ->where('receiver_id', $this->user_id)
+                ->count();
+
+            $messagesSent = \App\Models\Message::where('sender_id', $this->user_id)
+                ->where('receiver_id', $receiverUser->id)
+                ->count();
+
+            // Solo puede responder si ha recibido más mensajes de los que ha enviado
+            return $messagesSent < $messagesReceived;
         }
 
         // Plan Básico

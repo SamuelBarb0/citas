@@ -15,7 +15,20 @@
       "Bash(findstr:*)",
       "Bash(if not exist \"resources\\\\views\\\\emails\" mkdir \"resources\\\\views\\\\emails\")",
       "Bash(mkdir:*)",
-      "Bash(if not exist \"resources\\\\views\\\\subscriptions\" mkdir \"resources\\\\views\\\\subscriptions\")"
+      "Bash(if not exist \"resources\\\\views\\\\subscriptions\" mkdir \"resources\\\\views\\\\subscriptions\")",
+      "Bash(\"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root -e \"USE citas_mallorca; SELECT COUNT\\(*\\) as ''Total usuarios'' FROM users;\")",
+      "Bash(\"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root -e \"USE citas_mallorca; SELECT user_id, nombre, activo FROM profiles;\")",
+      "Bash(\"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root -e \"USE citas_mallorca; SELECT user_id, liked_user_id, created_at FROM likes ORDER BY created_at DESC LIMIT 20;\")",
+      "Bash(\"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root -e \"USE citas_mallorca; DELETE FROM likes; SELECT COUNT\\(*\\) as ''Likes restantes'' FROM likes;\")",
+      "Bash(\"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root -e \"USE citas_mallorca; SELECT COUNT\\(*\\) as ''Total de likes en la DB'' FROM likes;\")",
+      "Bash(\"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root -e \"USE citas_mallorca; DESCRIBE plans;\")",
+      "Bash(\"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root -e \"USE citas_mallorca; SELECT * FROM plans;\")",
+      "Bash(\"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root -e \"USE citas_mallorca; UPDATE plans SET precio_anual = 29.99, nombre = ''Acceso Total'', descripcion = ''Acceso completo a todas las funcionalidades de la plataforma'' WHERE id = 4;\")",
+      "Bash(\"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root -e \"USE citas_mallorca; UPDATE plans SET activo = 0 WHERE id = 2;\")",
+      "Bash(\"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root -e \"USE citas_mallorca; UPDATE plans SET nombre = ''Mensual'', slug = ''mensual'', descripcion = ''Acceso completo con renovación mensual'' WHERE id = 4;\")",
+      "Bash(\"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root -e \"USE citas_mallorca; INSERT INTO plans \\(nombre, slug, descripcion, precio_mensual, precio_anual, likes_diarios, super_likes_mes, ver_quien_te_gusta, matches_ilimitados, puede_iniciar_conversacion, mensajes_semanales_gratis, mensajes_ilimitados, rewind, boost_mensual, sin_anuncios, modo_incognito, verificacion_prioritaria, fotos_adicionales, activo, orden\\) VALUES \\(''Anual'', ''anual'', ''Acceso completo con renovación anual - Ahorra dinero'', 0.00, 29.99, -1, 0, 1, 1, 1, -1, 1, 0, 0, 0, 0, 0, 10, 1, 3\\);\")",
+      "Bash(\"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root -e \"USE citas_mallorca; SELECT id, nombre, slug, precio_mensual, precio_anual, activo, orden FROM plans ORDER BY orden;\")",
+      "Bash(if not exist \"c:\\\\xampp\\\\htdocs\\\\citas\\\\resources\\\\views\\\\legal\" mkdir \"c:\\\\xampp\\\\htdocs\\\\citas\\\\resources\\\\views\\\\legal\")"
     ]
   }
 }

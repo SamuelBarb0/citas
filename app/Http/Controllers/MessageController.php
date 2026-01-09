@@ -117,14 +117,24 @@ class MessageController extends Controller
 
         // Si el usuario NO tiene suscripción, es plan Gratis por defecto
         if (!$senderSubscription) {
-            // Usuario Gratis: NO puede iniciar conversaciones, solo responder
-            // Verificar si ya hay mensajes del receptor
-            $hasReceivedMessages = Message::where('match_id', $match->id)
+            // Usuario Gratis: Solo puede responder 1 mensaje por cada mensaje recibido
+            $messagesReceived = Message::where('match_id', $match->id)
                 ->where('sender_id', $receiverUser->id)
-                ->exists();
+                ->where('receiver_id', $currentUserId)
+                ->count();
 
-            if (!$hasReceivedMessages) {
-                return back()->with('error', 'Los usuarios gratuitos solo pueden responder mensajes. Actualiza a un plan de pago para iniciar conversaciones.');
+            $messagesSent = Message::where('match_id', $match->id)
+                ->where('sender_id', $currentUserId)
+                ->where('receiver_id', $receiverUser->id)
+                ->count();
+
+            if ($messagesSent >= $messagesReceived) {
+                if ($messagesReceived === 0) {
+                    return back()->with('error', 'Los usuarios gratuitos solo pueden responder mensajes. Actualiza a un plan de pago para iniciar conversaciones.');
+                } else {
+                    $remaining = $messagesReceived - $messagesSent;
+                    return back()->with('error', "Has respondido todos los mensajes recibidos. Espera a que {$receiverUser->profile->nombre} te envíe más mensajes o actualiza a un plan de pago.");
+                }
             }
         } else {
             // Verificar si puede enviar mensaje según su plan
@@ -133,6 +143,23 @@ class MessageController extends Controller
 
                 if ($remaining === 0 && $senderSubscription->plan->slug === 'basico') {
                     return back()->with('error', 'Has alcanzado tu límite de 3 mensajes semanales a usuarios gratuitos. Actualiza a Premium para mensajes ilimitados.');
+                }
+
+                // Si es usuario gratis con suscripción
+                if ($senderSubscription->plan->slug === 'free') {
+                    $messagesReceived = Message::where('sender_id', $receiverUser->id)
+                        ->where('receiver_id', $currentUserId)
+                        ->count();
+
+                    $messagesSent = Message::where('sender_id', $currentUserId)
+                        ->where('receiver_id', $receiverUser->id)
+                        ->count();
+
+                    $remaining = $messagesReceived - $messagesSent;
+
+                    if ($remaining === 0 && $messagesReceived > 0) {
+                        return back()->with('error', "Has respondido todos los mensajes recibidos. Espera a que {$receiverUser->profile->nombre} te envíe más mensajes o actualiza a un plan de pago.");
+                    }
                 }
 
                 return back()->with('error', 'No puedes enviar más mensajes. Actualiza tu plan para continuar.');

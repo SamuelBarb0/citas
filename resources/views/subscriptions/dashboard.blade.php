@@ -54,7 +54,16 @@
                             </div>
                         </div>
 
-                        @if($subscription->auto_renovacion)
+                        @if($subscription->estado === 'cancelada_fin_periodo')
+                            <div class="mt-6 bg-yellow-500/20 rounded-2xl p-4">
+                                <p class="text-sm">
+                                    ⚠️ <strong>Suscripción cancelada.</strong> Mantienes acceso hasta el
+                                    <strong>{{ $subscription->fecha_expiracion->format('d/m/Y') }}</strong>
+                                    <br>
+                                    No se realizará el siguiente cobro.
+                                </p>
+                            </div>
+                        @elseif($subscription->auto_renovacion)
                             <div class="mt-6 bg-white/10 rounded-2xl p-4">
                                 <p class="text-sm">
                                     ✓ Tu suscripción se renovará automáticamente el

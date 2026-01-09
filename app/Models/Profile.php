@@ -12,6 +12,7 @@ class Profile extends Model
         'nombre',
         'edad',
         'genero',
+        'orientacion_sexual',
         'busco',
         'biografia',
         'ciudad',

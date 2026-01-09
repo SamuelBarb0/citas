@@ -490,7 +490,7 @@
             // Crear modal de fullscreen
             const modal = document.createElement('div');
             modal.id = 'fullscreen-modal';
-            modal.className = 'fixed inset-0 bg-black z-50 flex items-center justify-center';
+            modal.className = 'fixed inset-0 bg-black z-[9999] flex items-center justify-center';
 
             modal.innerHTML = `
                 <!-- Botón de cerrar -->

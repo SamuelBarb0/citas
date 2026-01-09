@@ -2,6 +2,52 @@
 
 @section('title', 'Citas Mallorca - Encuentra el amor en la isla')
 
+@push('styles')
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    /* Estilos personalizados para Select2 */
+    .select2-container--default .select2-selection--single {
+        height: 52px;
+        border: 2px solid #d1d5db;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 52px;
+        padding: 0;
+        color: #374151;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 50px;
+    }
+
+    .select2-container--default.select2-container--focus .select2-selection--single {
+        border-color: #A67C52;
+        box-shadow: 0 0 0 1px #A67C52;
+    }
+
+    .select2-dropdown {
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+    }
+
+    .select2-search--dropdown .select2-search__field {
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        padding: 0.5rem;
+    }
+
+    .select2-results__option--highlighted[aria-selected] {
+        background-color: #A67C52 !important;
+    }
+</style>
+@endpush
+
 @section('content')
 <!-- Hero Section con formulario lateral (según REFERENCIA1 y REFERENCIA2) -->
 <div class="relative overflow-hidden bg-cream">
@@ -43,14 +89,40 @@
 
                     <!-- Formulario de registro rápido -->
                     <form action="{{ route('register') }}" method="GET" class="space-y-4">
+                        <!-- Mi Género -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Mi género</label>
+                            <x-dynamic-select
+                                tipo="genero"
+                                name="genero"
+                                :required="true"
+                                placeholder="Selecciona..."
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-brown focus:ring-0 transition"
+                            />
+                        </div>
+
+                        <!-- Mi Orientación Sexual (opcional) -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Mi orientación sexual <span class="text-xs text-gray-500">(opcional)</span></label>
+                            <x-dynamic-select
+                                tipo="orientacion_sexual"
+                                name="orientacion_sexual"
+                                :required="false"
+                                placeholder="Selecciona..."
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-brown focus:ring-0 transition"
+                            />
+                        </div>
+
                         <!-- Busco -->
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Busco</label>
-                            <select name="busco" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-brown focus:ring-0 transition">
-                                <option>a un hombre</option>
-                                <option>a una mujer</option>
-                                <option>a ambos</option>
-                            </select>
+                            <x-dynamic-select
+                                tipo="busco"
+                                name="busco"
+                                :required="true"
+                                placeholder="Selecciona..."
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-brown focus:ring-0 transition"
+                            />
                         </div>
 
                         <!-- Edad -->
@@ -78,12 +150,15 @@
                         <!-- Ubicación -->
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Vivo en</label>
-                            <select name="ciudad" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-brown focus:ring-0 transition">
-                                <option>Mallorca</option>
-                                <option>Palma</option>
-                                <option>Alcúdia</option>
-                                <option>Manacor</option>
-                            </select>
+                            <x-dynamic-select
+                                tipo="ciudad"
+                                name="ciudad"
+                                id="ciudad-welcome"
+                                :required="false"
+                                placeholder="Busca tu ciudad..."
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-brown focus:ring-0 transition"
+                                :use-select2="true"
+                            />
                         </div>
 
                         <!-- Botón submit -->
@@ -97,52 +172,48 @@
     </div>
 </div>
 
-<!-- Sección de imágenes (I1, I2, I3) -->
-<div class="bg-white py-16 md:py-24">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Imagen 1 -->
-            <div class="fade-in rounded-3xl overflow-hidden shadow-smooth group">
-                <img src="{{ asset('images/I1.png') }}" alt="Conexiones en Mallorca" class="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500">
-            </div>
-
-            <!-- Imagen 2 -->
-            <div class="fade-in rounded-3xl overflow-hidden shadow-smooth group" style="animation-delay: 0.1s;">
-                <img src="{{ asset('images/I2.png') }}" alt="Amigos en Mallorca" class="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500">
-            </div>
-
-            <!-- Imagen 3 -->
-            <div class="fade-in rounded-3xl overflow-hidden shadow-smooth group" style="animation-delay: 0.2s;">
-                <img src="{{ asset('images/I3.png') }}" alt="Romance en Mallorca" class="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500">
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Perfiles de usuarios (según REFERENCIA2) -->
 <div class="relative bg-cream py-16 md:py-24">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12 fade-in">
             <h2 class="text-4xl md:text-5xl font-extrabold mb-4 text-brown">
-                Perfiles de usuarios
+                Conoce gente increíble
             </h2>
+            <p class="text-gray-600 text-lg max-w-2xl mx-auto">
+                Miles de personas en Mallorca ya están conectando. ¡Únete ahora!
+            </p>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
             @forelse($perfiles as $perfil)
-                <div class="profile-card bg-white rounded-3xl shadow-smooth overflow-hidden group cursor-pointer">
+                <div class="profile-card bg-white rounded-2xl shadow-smooth overflow-hidden group cursor-pointer hover:shadow-glow transition-all duration-300">
                     <!-- Imagen de perfil -->
-                    <div class="relative overflow-hidden">
-                        <img src="{{ $perfil->foto_principal }}" alt="{{ $perfil->nombre }}" class="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="relative overflow-hidden aspect-[3/4]">
+                        <img src="{{ $perfil->foto_principal }}" alt="{{ $perfil->nombre }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
 
                         <!-- Gradiente overlay -->
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-                    </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
 
-                    <!-- Información del perfil -->
-                    <div class="p-4 text-center">
-                        <h3 class="text-lg font-bold text-brown">{{ $perfil->nombre }}, {{ $perfil->edad }}</h3>
-                        <p class="text-sm text-gray-600">{{ $perfil->ciudad }}</p>
+                        <!-- Info sobre la imagen -->
+                        <div class="absolute bottom-0 left-0 right-0 p-3 text-white">
+                            <h3 class="text-base font-bold drop-shadow-lg">{{ $perfil->nombre }}, {{ $perfil->edad }}</h3>
+                            <p class="text-xs drop-shadow-md flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                                </svg>
+                                {{ $perfil->ciudad }}
+                            </p>
+                        </div>
+
+                        <!-- Badge de verificación si está verificado -->
+                        @if($perfil->verificado)
+                            <div class="absolute top-2 right-2 bg-blue-500 rounded-full p-1.5">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                        @endif
                     </div>
                 </div>
             @empty
@@ -151,6 +222,15 @@
                 </div>
             @endforelse
         </div>
+
+        <!-- Botón para ver más -->
+        @if($perfiles->count() >= 20)
+            <div class="text-center mt-12">
+                <a href="{{ route('register') }}" class="inline-block gradient-button text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-glow transition">
+                    Ver más perfiles
+                </a>
+            </div>
+        @endif
     </div>
 </div>
 
@@ -297,4 +377,13 @@
         </div>
     </div>
 </div>
+
 @endsection
+
+<!-- jQuery (requerido para Select2) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+@stack('scripts')

@@ -31,6 +31,9 @@
                 <!-- Menu -->
                 <div class="hidden md:flex items-center space-x-8">
                     @guest
+                        <a href="{{ route('subscriptions.index') }}" class="text-gray-700 hover:text-gray-900 transition font-medium">
+                            Planes
+                        </a>
                         <a href="{{ route('login') }}" class="bg-heart-red text-white px-6 py-2 rounded-full hover:opacity-90 transition font-medium shadow-lg">
                             Entrar / Registrarse
                         </a>
@@ -61,6 +64,7 @@
         <div class="md:hidden hidden" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1">
                 @guest
+                    <a href="{{ route('subscriptions.index') }}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Planes</a>
                     <a href="{{ route('login') }}" class="block px-3 py-2 bg-heart-red text-white rounded-full text-center font-medium mx-2 shadow-lg">Entrar / Registrarse</a>
                 @else
                     <a href="{{ route('dashboard') }}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Descubrir</a>
@@ -81,6 +85,9 @@
         @yield('content')
     </main>
 
+    <!-- Banner de Cookies -->
+    @include('components.cookie-banner')
+
     <!-- Footer -->
     <footer class="bg-white mt-20 border-t border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -94,31 +101,82 @@
                         Tu punto de encuentro para conocer gente auténtica en la isla.
                         Conversa sin complicaciones y pásatelo bien en Mallorca.
                     </p>
+                    <div class="text-sm text-gray-500">
+                        <p class="font-semibold text-brown">Citas Mallorca S.L</p>
+                        <p>Carrer Gremi de Porgadors, 2 -2ºB</p>
+                        <p>07009 Palma, Illes Balears</p>
+                        <p class="mt-2">
+                            <a href="mailto:info@citasmallorca.es" class="text-heart-red hover:underline font-semibold">
+                                info@citasmallorca.es
+                            </a>
+                        </p>
+                    </div>
                 </div>
 
-                <!-- Enlaces -->
+                <!-- Información Legal -->
                 <div>
-                    <h3 class="font-semibold mb-4 text-brown">Empresa</h3>
+                    <h3 class="font-semibold mb-4 text-brown">Información Legal</h3>
                     <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-600 hover:text-gray-900 transition">Sobre Nosotros</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-gray-900 transition">Contacto</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-gray-900 transition">Blog</a></li>
+                        <li>
+                            <a href="{{ route('legal.aviso-legal') }}" class="text-gray-600 hover:text-heart-red transition">
+                                Aviso Legal
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('legal.privacidad') }}" class="text-gray-600 hover:text-heart-red transition">
+                                Política de Privacidad
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('legal.cookies') }}" class="text-gray-600 hover:text-heart-red transition">
+                                Política de Cookies
+                            </a>
+                        </li>
                     </ul>
                 </div>
 
-                <!-- Legal -->
+                <!-- Términos y Condiciones -->
                 <div>
-                    <h3 class="font-semibold mb-4 text-brown">Legal</h3>
+                    <h3 class="font-semibold mb-4 text-brown">Términos y Condiciones</h3>
                     <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-600 hover:text-gray-900 transition">Términos de Uso</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-gray-900 transition">Privacidad</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-gray-900 transition">Cookies</a></li>
+                        <li>
+                            <a href="{{ route('legal.terminos') }}" class="text-gray-600 hover:text-heart-red transition">
+                                Términos de Uso
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('legal.contract-terms') }}" class="text-gray-600 hover:text-heart-red transition">
+                                Condiciones de Contratación
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('legal.payment-conditions') }}" class="text-gray-600 hover:text-heart-red transition">
+                                Condiciones de Pago
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
 
-            <div class="border-t border-gray-200 mt-8 pt-8 text-center text-gray-600">
-                <p>&copy; {{ date('Y') }} Citas Mallorca. Todos los derechos reservados.</p>
+            <div class="border-t border-gray-200 mt-8 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-600 text-center md:text-left mb-4 md:mb-0">
+                        &copy; {{ date('Y') }} Citas Mallorca S.L. Todos los derechos reservados.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="{{ route('legal.privacidad') }}" class="text-sm text-gray-500 hover:text-heart-red transition">
+                            Privacidad
+                        </a>
+                        <span class="text-gray-300">|</span>
+                        <a href="{{ route('legal.cookies') }}" class="text-sm text-gray-500 hover:text-heart-red transition">
+                            Cookies
+                        </a>
+                        <span class="text-gray-300">|</span>
+                        <a href="{{ route('legal.terminos') }}" class="text-sm text-gray-500 hover:text-heart-red transition">
+                            Términos
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>

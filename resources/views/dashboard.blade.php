@@ -69,8 +69,8 @@
 
                     <!-- Filtro de Género -->
                     <div class="mb-6">
-                        <label class="block text-sm font-bold text-brown mb-3">Mostrar</label>
-                        <div class="grid grid-cols-3 gap-2">
+                        <label class="block text-sm font-bold text-brown mb-3">Mostrar personas de género</label>
+                        <div class="grid grid-cols-2 gap-2">
                             <label class="relative cursor-pointer">
                                 <input type="radio" name="busco" value="" {{ request('busco') == '' ? 'checked' : '' }} class="peer sr-only">
                                 <div class="px-4 py-3 rounded-xl border-2 border-gray-200 text-center font-semibold text-sm peer-checked:border-heart-red peer-checked:bg-heart-red peer-checked:text-white transition">
@@ -78,18 +78,40 @@
                                 </div>
                             </label>
                             <label class="relative cursor-pointer">
-                                <input type="radio" name="busco" value="Hombre" {{ request('busco') == 'Hombre' ? 'checked' : '' }} class="peer sr-only">
+                                <input type="radio" name="busco" value="hombre" {{ request('busco') == 'hombre' ? 'checked' : '' }} class="peer sr-only">
                                 <div class="px-4 py-3 rounded-xl border-2 border-gray-200 text-center font-semibold text-sm peer-checked:border-heart-red peer-checked:bg-heart-red peer-checked:text-white transition">
                                     Hombres
                                 </div>
                             </label>
                             <label class="relative cursor-pointer">
-                                <input type="radio" name="busco" value="Mujer" {{ request('busco') == 'Mujer' ? 'checked' : '' }} class="peer sr-only">
+                                <input type="radio" name="busco" value="mujer" {{ request('busco') == 'mujer' ? 'checked' : '' }} class="peer sr-only">
                                 <div class="px-4 py-3 rounded-xl border-2 border-gray-200 text-center font-semibold text-sm peer-checked:border-heart-red peer-checked:bg-heart-red peer-checked:text-white transition">
                                     Mujeres
                                 </div>
                             </label>
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="busco" value="no-binario" {{ request('busco') == 'no-binario' ? 'checked' : '' }} class="peer sr-only">
+                                <div class="px-4 py-3 rounded-xl border-2 border-gray-200 text-center font-semibold text-sm peer-checked:border-heart-red peer-checked:bg-heart-red peer-checked:text-white transition">
+                                    No binario
+                                </div>
+                            </label>
                         </div>
+                    </div>
+
+                    <!-- Filtro de Orientación Sexual -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-brown mb-3">Orientación Sexual</label>
+                        <select name="orientacion_sexual" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-heart-red focus:outline-none">
+                            <option value="">Todas</option>
+                            <option value="heterosexual" {{ request('orientacion_sexual') == 'heterosexual' ? 'selected' : '' }}>Heterosexual</option>
+                            <option value="gay" {{ request('orientacion_sexual') == 'gay' ? 'selected' : '' }}>Gay</option>
+                            <option value="lesbiana" {{ request('orientacion_sexual') == 'lesbiana' ? 'selected' : '' }}>Lesbiana</option>
+                            <option value="bisexual" {{ request('orientacion_sexual') == 'bisexual' ? 'selected' : '' }}>Bisexual</option>
+                            <option value="pansexual" {{ request('orientacion_sexual') == 'pansexual' ? 'selected' : '' }}>Pansexual</option>
+                            <option value="asexual" {{ request('orientacion_sexual') == 'asexual' ? 'selected' : '' }}>Asexual</option>
+                            <option value="queer" {{ request('orientacion_sexual') == 'queer' ? 'selected' : '' }}>Queer</option>
+                            <option value="otra" {{ request('orientacion_sexual') == 'otra' ? 'selected' : '' }}>Otra</option>
+                        </select>
                     </div>
 
                     <!-- Filtro de Intereses -->
@@ -456,9 +478,17 @@
                             <!-- Foto tuya (derecha) -->
                             <div class="absolute right-0 top-0 w-40 h-56 match-photo-right">
                                 <div class="relative w-full h-full rounded-2xl overflow-hidden border-4 border-white shadow-2xl transform rotate-6">
-                                    <div class="w-full h-full bg-gradient-to-br from-heart-red to-heart-red-light flex items-center justify-center text-white text-6xl font-black">
-                                        {{ substr(Auth::user()->name, 0, 1) }}
-                                    </div>
+                                    @php
+                                        $myProfile = Auth::user()->profile;
+                                        $myPhoto = $myProfile->foto_principal ?? null;
+                                    @endphp
+                                    @if($myPhoto)
+                                        <img src="{{ str_starts_with($myPhoto, 'http') ? $myPhoto : Storage::url($myPhoto) }}" class="w-full h-full object-cover" alt="{{ Auth::user()->name }}">
+                                    @else
+                                        <div class="w-full h-full bg-gradient-to-br from-heart-red to-heart-red-light flex items-center justify-center text-white text-6xl font-black">
+                                            {{ substr(Auth::user()->name, 0, 1) }}
+                                        </div>
+                                    @endif
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                                     <div class="absolute bottom-2 left-2 right-2">
                                         <p class="text-white font-black text-lg truncate">{{ Auth::user()->name }}</p>
@@ -703,6 +733,51 @@
                 if (e.key === 'ArrowLeft') removeCard('left');
                 if (e.key === 'ArrowUp') removeCard('up');
             });
+
+            // ==================== POLLING PARA NUEVOS MATCHES ====================
+            let lastCheckTime = new Date().toISOString();
+            let isCheckingMatches = false;
+
+            // Función para verificar nuevos matches
+            async function checkForNewMatches() {
+                if (isCheckingMatches) return; // Evitar múltiples peticiones simultáneas
+
+                isCheckingMatches = true;
+
+                try {
+                    const response = await fetch(`{{ route('matches.check-new') }}?last_check=${encodeURIComponent(lastCheckTime)}`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.has_new_matches && data.matches.length > 0) {
+                        // Mostrar popup para cada nuevo match
+                        data.matches.forEach(match => {
+                            showMatchNotification(match.photo, match.name, match.match_id);
+                        });
+
+                        // Actualizar el tiempo del último check
+                        lastCheckTime = new Date().toISOString();
+                    }
+                } catch (error) {
+                    console.error('Error al verificar nuevos matches:', error);
+                } finally {
+                    isCheckingMatches = false;
+                }
+            }
+
+            // Verificar nuevos matches cada 5 segundos
+            setInterval(checkForNewMatches, 5000);
+
+            // También verificar al inicio (después de 2 segundos para dar tiempo a cargar)
+            setTimeout(checkForNewMatches, 2000);
+            // ==================== FIN POLLING ====================
         });
     </script>
 
