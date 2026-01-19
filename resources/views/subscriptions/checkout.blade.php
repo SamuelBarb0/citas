@@ -20,14 +20,12 @@
             <h2 class="text-2xl font-bold text-brown mb-6">RESUMEN DE TU SUSCRIPCIÓN</h2>
 
             @php
-                // Determinar precio según el plan
-                if ($plan->slug === 'mensual') {
-                    $precio = $plan->precio_mensual;
-                    $periodo = 'Mensual';
-                } elseif ($plan->slug === 'anual') {
-                    $precio = $plan->precio_anual;
-                    $periodo = 'Anual';
-                }
+                // El tipo se pasa desde el controlador, si no existe lo determinamos por el slug del plan
+                $tipoSuscripcion = $tipo ?? ($plan->slug === 'anual' ? 'anual' : 'mensual');
+
+                // Determinar precio según el tipo
+                $precio = $tipoSuscripcion === 'anual' ? $plan->precio_anual : $plan->precio_mensual;
+                $periodo = ucfirst($tipoSuscripcion);
             @endphp
 
             <div class="border-b pb-6 mb-6">
@@ -66,6 +64,7 @@
             <form id="payment-form" method="POST" action="{{ route('subscriptions.paypal') }}">
                 @csrf
                 <input type="hidden" name="plan_id" value="{{ $plan->id }}">
+                <input type="hidden" name="tipo" value="{{ $tipoSuscripcion }}">
 
                 <!-- Checkbox 1: Términos de Contratación y Condiciones de Pago -->
                 <div class="mb-6">
@@ -152,7 +151,7 @@
 </div>
 
 <!-- PayPal SDK -->
-<script src="https://www.paypal.com/sdk/js?client-id={{ env('PAYPAL_CLIENT_ID', 'sandbox_client_id') }}&vault=true&intent=subscription&locale=es_ES"></script>
+<script src="{{ config('paypal.sdk_url') }}?client-id={{ config('paypal.client_id') }}&vault=true&intent=subscription&currency={{ config('paypal.currency') }}&locale={{ config('paypal.locale') }}"></script>
 
 <script>
     // Referencias a los checkboxes
@@ -219,12 +218,13 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 body: JSON.stringify({
-                    plan_id: '{{ $plan->id }}'
+                    plan_id: '{{ $plan->id }}',
+                    tipo: '{{ $tipoSuscripcion }}'
                 })
             })
             .then(response => response.json())
             .then(data => {
-                if (data.subscription_id) {
+                if (data.success && data.subscription_id) {
                     return data.subscription_id;
                 } else {
                     throw new Error(data.message || 'Error al crear la suscripción');
@@ -232,37 +232,19 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al procesar la suscripción. Por favor, inténtalo de nuevo.');
+                alert('Error al procesar la suscripción: ' + error.message);
                 throw error;
             });
         },
 
         onApprove: function(data, actions) {
-            // Suscripción aprobada - enviar al servidor para activar
-            return fetch('{{ route("subscriptions.paypal.activate") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    subscription_id: data.subscriptionID,
-                    plan_id: '{{ $plan->id }}'
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Redirigir al dashboard con mensaje de éxito
-                    window.location.href = '{{ route("dashboard") }}?payment=success';
-                } else {
-                    alert('Error al activar la suscripción: ' + (data.message || 'Error desconocido'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al procesar la suscripción');
-            });
+            // Suscripción aprobada - redirigir a página de éxito que activará la suscripción
+            const successUrl = '{{ route("subscriptions.paypal.success") }}' +
+                '?subscription_id=' + data.subscriptionID +
+                '&plan_id={{ $plan->id }}' +
+                '&tipo={{ $tipoSuscripcion }}';
+
+            window.location.href = successUrl;
         },
 
         onCancel: function(data) {

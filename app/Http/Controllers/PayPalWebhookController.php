@@ -97,7 +97,17 @@ class PayPalWebhookController extends Controller
         // Renovar la suscripción
         $subscription->renew($transactionId, $montoPagado);
 
-        // TODO: Enviar email de confirmación de pago
+        // Enviar email de confirmación de pago
+        try {
+            if (config('mail.username') !== 'tu-email@gmail.com') {
+                $subscription->user->notify(new \App\Notifications\SubscriptionActivatedNotification($subscription));
+            }
+        } catch (\Exception $e) {
+            Log::warning('Failed to send payment notification email', [
+                'error' => $e->getMessage(),
+                'subscription_id' => $subscription->id
+            ]);
+        }
     }
 
     /**
@@ -113,8 +123,17 @@ class PayPalWebhookController extends Controller
         // Marcar como impagada y bloquear acceso
         $subscription->markAsUnpaid();
 
-        // TODO: Enviar email notificando el fallo de pago
-        // TODO: Dar un período de gracia antes de bloquear (opcional)
+        // Enviar email notificando el fallo de pago
+        try {
+            if (config('mail.username') !== 'tu-email@gmail.com') {
+                $subscription->user->notify(new \App\Notifications\PaymentFailedNotification($subscription));
+            }
+        } catch (\Exception $e) {
+            Log::warning('Failed to send payment failed notification email', [
+                'error' => $e->getMessage(),
+                'subscription_id' => $subscription->id
+            ]);
+        }
     }
 
     /**

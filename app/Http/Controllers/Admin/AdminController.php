@@ -578,11 +578,57 @@ class AdminController extends Controller
             'orden' => 'nullable|integer|min:0',
         ]);
 
-        Plan::create($validated);
+        $plan = Plan::create($validated);
+
+        // Sincronizar automáticamente con PayPal si tiene precios
+        if ($validated['precio_mensual'] > 0 || ($validated['precio_anual'] ?? 0) > 0) {
+            try {
+                $paypalService = new \App\Services\PayPalService();
+
+                // Crear producto en PayPal
+                $productName = "Citas Mallorca - {$plan->nombre}";
+                $productDescription = strip_tags($plan->descripcion ?? $plan->nombre);
+                $product = $paypalService->createProduct($productName, $productDescription);
+                $productId = $product['id'];
+
+                // Crear plan mensual si tiene precio
+                if ($plan->precio_mensual > 0) {
+                    $billingPlan = $paypalService->createBillingPlan(
+                        $productId,
+                        "{$plan->nombre} - Mensual",
+                        "Suscripción mensual a {$plan->nombre}",
+                        $plan->precio_mensual,
+                        'MONTH'
+                    );
+                    $plan->paypal_plan_id_mensual = $billingPlan['id'];
+                }
+
+                // Crear plan anual si tiene precio
+                if ($plan->precio_anual > 0) {
+                    $billingPlan = $paypalService->createBillingPlan(
+                        $productId,
+                        "{$plan->nombre} - Anual",
+                        "Suscripción anual a {$plan->nombre}",
+                        $plan->precio_anual,
+                        'YEAR'
+                    );
+                    $plan->paypal_plan_id_anual = $billingPlan['id'];
+                }
+
+                $plan->save();
+
+            } catch (\Exception $e) {
+                \Log::error('Error al crear plan en PayPal', [
+                    'plan_id' => $plan->id,
+                    'error' => $e->getMessage()
+                ]);
+                // No fallar si PayPal tiene problemas, solo registrar
+            }
+        }
 
         $this->logActivity('create_plan', "Creó el plan: {$validated['nombre']}");
 
-        return redirect()->route('admin.plans.index')->with('success', 'Plan creado correctamente.');
+        return redirect()->route('admin.plans.index')->with('success', 'Plan creado correctamente y sincronizado con PayPal.');
     }
 
     /**
@@ -624,7 +670,85 @@ class AdminController extends Controller
             'orden' => 'nullable|integer|min:0',
         ]);
 
+        // Detectar cambios de precio ANTES de actualizar
+        $precioMensualCambio = $plan->precio_mensual != $validated['precio_mensual'];
+        $precioAnualCambio = $plan->precio_anual != ($validated['precio_anual'] ?? 0);
+        $tienePlanPayPal = $plan->paypal_plan_id_mensual || $plan->paypal_plan_id_anual;
+
         $plan->update($validated);
+
+        // Si cambió el precio y ya tiene plan en PayPal, advertir que se debe crear un nuevo plan
+        if ($tienePlanPayPal && ($precioMensualCambio || $precioAnualCambio)) {
+            \Log::warning('Precio de plan modificado - PayPal no permite cambiar precios de planes activos', [
+                'plan_id' => $plan->id,
+                'precio_mensual_anterior' => $plan->getOriginal('precio_mensual'),
+                'precio_mensual_nuevo' => $validated['precio_mensual'],
+                'precio_anual_anterior' => $plan->getOriginal('precio_anual'),
+                'precio_anual_nuevo' => $validated['precio_anual'] ?? 0
+            ]);
+
+            return redirect()->route('admin.plans.index')
+                ->with('warning', 'Plan actualizado. IMPORTANTE: PayPal no permite cambiar precios de planes existentes. Los usuarios nuevos verán el nuevo precio, pero las suscripciones activas mantendrán el precio anterior. Si necesitas cambiar precios para todos, considera crear un nuevo plan.');
+        }
+
+        // Sincronizar con PayPal si no tiene IDs aún y tiene precios
+        if (($validated['precio_mensual'] > 0 || ($validated['precio_anual'] ?? 0) > 0)) {
+            $needsSync = false;
+
+            // Verificar si necesita crear plan mensual en PayPal
+            if ($validated['precio_mensual'] > 0 && !$plan->paypal_plan_id_mensual) {
+                $needsSync = true;
+            }
+
+            // Verificar si necesita crear plan anual en PayPal
+            if (($validated['precio_anual'] ?? 0) > 0 && !$plan->paypal_plan_id_anual) {
+                $needsSync = true;
+            }
+
+            if ($needsSync) {
+                try {
+                    $paypalService = new \App\Services\PayPalService();
+
+                    // Crear producto en PayPal si no existe
+                    $productName = "Citas Mallorca - {$plan->nombre}";
+                    $productDescription = strip_tags($plan->descripcion ?? $plan->nombre);
+                    $product = $paypalService->createProduct($productName, $productDescription);
+                    $productId = $product['id'];
+
+                    // Crear plan mensual si no existe
+                    if ($plan->precio_mensual > 0 && !$plan->paypal_plan_id_mensual) {
+                        $billingPlan = $paypalService->createBillingPlan(
+                            $productId,
+                            "{$plan->nombre} - Mensual",
+                            "Suscripción mensual a {$plan->nombre}",
+                            $plan->precio_mensual,
+                            'MONTH'
+                        );
+                        $plan->paypal_plan_id_mensual = $billingPlan['id'];
+                    }
+
+                    // Crear plan anual si no existe
+                    if ($plan->precio_anual > 0 && !$plan->paypal_plan_id_anual) {
+                        $billingPlan = $paypalService->createBillingPlan(
+                            $productId,
+                            "{$plan->nombre} - Anual",
+                            "Suscripción anual a {$plan->nombre}",
+                            $plan->precio_anual,
+                            'YEAR'
+                        );
+                        $plan->paypal_plan_id_anual = $billingPlan['id'];
+                    }
+
+                    $plan->save();
+
+                } catch (\Exception $e) {
+                    \Log::error('Error al sincronizar plan con PayPal', [
+                        'plan_id' => $plan->id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+        }
 
         $this->logActivity('update_plan', "Actualizó el plan: {$plan->nombre}");
 
@@ -647,10 +771,31 @@ class AdminController extends Controller
         }
 
         $planNombre = $plan->nombre;
+
+        // Desactivar planes en PayPal si existen
+        if ($plan->paypal_plan_id_mensual || $plan->paypal_plan_id_anual) {
+            try {
+                $paypalService = new \App\Services\PayPalService();
+
+                // PayPal no permite eliminar planes, solo desactivarlos
+                // Esto se hace automáticamente cuando no hay más suscripciones activas
+                \Log::info('Plan eliminado de la base de datos, los planes de PayPal quedarán inactivos', [
+                    'plan_id' => $plan->id,
+                    'paypal_plan_id_mensual' => $plan->paypal_plan_id_mensual,
+                    'paypal_plan_id_anual' => $plan->paypal_plan_id_anual
+                ]);
+            } catch (\Exception $e) {
+                \Log::error('Error al procesar eliminación de plan en PayPal', [
+                    'plan_id' => $plan->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+
         $plan->delete();
 
         $this->logActivity('delete_plan', "Eliminó el plan: {$planNombre}");
 
-        return redirect()->route('admin.plans.index')->with('success', 'Plan eliminado correctamente.');
+        return redirect()->route('admin.plans.index')->with('success', 'Plan eliminado correctamente. Los planes de PayPal permanecen para suscripciones existentes.');
     }
 }

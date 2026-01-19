@@ -183,6 +183,7 @@ Route::middleware(['auth', 'verified.identity'])->group(function () {
     Route::post('/subscribe/paypal', [\App\Http\Controllers\SubscriptionController::class, 'processPayPal'])->name('subscriptions.paypal');
     Route::post('/subscribe/paypal/create', [\App\Http\Controllers\SubscriptionController::class, 'createPayPalSubscription'])->name('subscriptions.paypal.create');
     Route::post('/subscribe/paypal/activate', [\App\Http\Controllers\SubscriptionController::class, 'activatePayPalSubscription'])->name('subscriptions.paypal.activate');
+    Route::get('/subscribe/paypal/success', [\App\Http\Controllers\SubscriptionController::class, 'paypalSuccess'])->name('subscriptions.paypal.success');
     Route::post('/subscription/cancel', [\App\Http\Controllers\SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
     Route::post('/subscription/reactivate', [\App\Http\Controllers\SubscriptionController::class, 'reactivate'])->name('subscriptions.reactivate');
 

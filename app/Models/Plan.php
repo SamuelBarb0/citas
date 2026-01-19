@@ -16,6 +16,8 @@ class Plan extends Model
         'stripe_price_id_yearly',
         'paypal_plan_id_monthly',
         'paypal_plan_id_yearly',
+        'paypal_plan_id_mensual',
+        'paypal_plan_id_anual',
         'likes_diarios',
         'super_likes_mes',
         'ver_quien_te_gusta',

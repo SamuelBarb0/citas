@@ -130,21 +130,56 @@ class SubscriptionController extends Controller
     {
         $request->validate([
             'plan_id' => 'required|exists:plans,id',
+            'tipo' => 'required|in:mensual,anual',
         ]);
 
         try {
             $plan = Plan::findOrFail($request->plan_id);
+            $tipo = $request->tipo;
 
-            // TODO: Integrar con PayPal SDK para crear la suscripción
-            // Por ahora retornamos un subscription_id de ejemplo
+            // Obtener el ID del plan de PayPal según el tipo
+            $paypalPlanId = $tipo === 'mensual'
+                ? $plan->paypal_plan_id_mensual
+                : $plan->paypal_plan_id_anual;
+
+            if (!$paypalPlanId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El plan no está configurado en PayPal. Por favor contacta con soporte.'
+                ], 400);
+            }
+
+            $paypalService = new \App\Services\PayPalService();
+
+            // Crear la suscripción en PayPal
+            $subscription = $paypalService->createSubscription(
+                $paypalPlanId,
+                route('subscriptions.paypal.success', ['plan_id' => $plan->id, 'tipo' => $tipo]),
+                route('subscriptions.checkout', ['planSlug' => $plan->slug])
+            );
+
+            // Obtener la URL de aprobación
+            $approvalUrl = null;
+            foreach ($subscription['links'] as $link) {
+                if ($link['rel'] === 'approve') {
+                    $approvalUrl = $link['href'];
+                    break;
+                }
+            }
 
             return response()->json([
                 'success' => true,
-                'subscription_id' => 'I-' . strtoupper(uniqid()), // ID temporal de ejemplo
+                'subscription_id' => $subscription['id'],
+                'approval_url' => $approvalUrl,
                 'message' => 'Suscripción creada exitosamente'
             ]);
 
         } catch (\Exception $e) {
+            \Log::error('PayPal subscription creation error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al crear la suscripción: ' . $e->getMessage()
@@ -160,26 +195,56 @@ class SubscriptionController extends Controller
         $request->validate([
             'subscription_id' => 'required',
             'plan_id' => 'required|exists:plans,id',
+            'tipo' => 'required|in:mensual,anual',
         ]);
 
         try {
             $plan = Plan::findOrFail($request->plan_id);
             $user = Auth::user();
 
-            // TODO: Verificar con PayPal que la suscripción está activa
+            // Verificar con PayPal que la suscripción está activa
+            $paypalService = new \App\Services\PayPalService();
+            $paypalSubscription = $paypalService->getSubscription($request->subscription_id);
+
+            if (!$paypalSubscription) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se pudo verificar la suscripción con PayPal.'
+                ], 400);
+            }
+
+            if ($paypalSubscription['status'] !== 'ACTIVE') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'La suscripción no está activa en PayPal.'
+                ], 400);
+            }
 
             // Crear la suscripción en nuestra base de datos
             $subscription = UserSubscription::create([
                 'user_id' => $user->id,
                 'plan_id' => $plan->id,
-                'tipo' => $plan->slug === 'mensual' ? 'mensual' : 'anual',
+                'tipo' => $request->tipo,
                 'estado' => 'activa',
                 'metodo_pago' => 'paypal',
                 'paypal_subscription_id' => $request->subscription_id,
-                'monto_pagado' => $plan->slug === 'mensual' ? $plan->precio_mensual : $plan->precio_anual,
+                'monto_pagado' => $request->tipo === 'mensual' ? $plan->precio_mensual : $plan->precio_anual,
             ]);
 
             $subscription->activate();
+
+            // Enviar email de confirmación (solo si el email está configurado correctamente)
+            try {
+                if (config('mail.username') !== 'tu-email@gmail.com') {
+                    $user->notify(new \App\Notifications\SubscriptionActivatedNotification($subscription));
+                }
+            } catch (\Exception $e) {
+                \Log::warning('Failed to send subscription notification email', [
+                    'error' => $e->getMessage(),
+                    'user_id' => $user->id,
+                    'subscription_id' => $subscription->id
+                ]);
+            }
 
             return response()->json([
                 'success' => true,
@@ -188,11 +253,35 @@ class SubscriptionController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            \Log::error('PayPal subscription activation error', [
+                'message' => $e->getMessage(),
+                'subscription_id' => $request->subscription_id
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al activar la suscripción: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Manejar retorno exitoso de PayPal
+     */
+    public function paypalSuccess(Request $request)
+    {
+        $subscriptionId = $request->query('subscription_id');
+        $planId = $request->query('plan_id');
+        $tipo = $request->query('tipo');
+
+        if (!$subscriptionId || !$planId || !$tipo) {
+            return redirect()->route('subscriptions.index')
+                ->with('error', 'Información de suscripción incompleta.');
+        }
+
+        $plan = Plan::find($planId);
+
+        return view('subscriptions.paypal-success', compact('subscriptionId', 'plan', 'tipo'));
     }
 
     /**
