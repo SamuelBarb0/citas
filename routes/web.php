@@ -71,15 +71,18 @@ Route::middleware(['auth', 'verified.identity'])->group(function () {
 
         // Filtro de compatibilidad automático basado en el perfil del usuario
         // Solo mostrar personas cuyo género coincida con lo que busco
-        if ($myProfile && $myProfile->busco && $myProfile->busco !== 'cualquiera') {
+        // Si no tengo preferencia definida o busco "cualquiera", mostrar todos
+        if ($myProfile && $myProfile->busco && $myProfile->busco !== 'cualquiera' && $myProfile->busco !== '') {
             $query->where('genero', $myProfile->busco);
         }
 
-        // Solo mostrar personas que busquen mi género (o "cualquiera")
+        // Solo mostrar personas que busquen mi género (o "cualquiera" o no tengan preferencia definida)
         if ($myProfile && $myProfile->genero) {
             $query->where(function($q) use ($myProfile) {
                 $q->where('busco', $myProfile->genero)
-                  ->orWhere('busco', 'cualquiera');
+                  ->orWhere('busco', 'cualquiera')
+                  ->orWhereNull('busco')
+                  ->orWhere('busco', '');
             });
         }
 
