@@ -98,16 +98,13 @@
                         <img src="{{ asset('images/LOGOCITAS.png') }}" alt="Citas Mallorca" class="w-16 h-16 sm:w-20 sm:h-20">
                     </div>
                     <p class="text-gray-600 mb-3 sm:mb-4 text-xs sm:text-sm">
-                        Tu punto de encuentro para conocer gente auténtica en la isla.
-                        Conversa sin complicaciones y pásatelo bien en Mallorca.
+                        {{ \App\Models\SiteContent::get('footer_description', 'Tu punto de encuentro para conocer gente auténtica en la isla. Conversa sin complicaciones y pásatelo bien en Mallorca.') }}
                     </p>
                     <div class="text-xs sm:text-sm text-gray-500">
-                        <p class="font-semibold text-brown">Citas Mallorca S.L</p>
-                        <p>Carrer Gremi de Porgadors, 2 -2ºB</p>
-                        <p>07009 Palma, Illes Balears</p>
+                        <p class="font-semibold text-brown">{{ \App\Models\SiteContent::get('footer_company_name', 'Citas Mallorca S.L') }}</p>
                         <p class="mt-2">
-                            <a href="mailto:info@citasmallorca.es" class="text-heart-red hover:underline font-semibold text-xs sm:text-sm break-all">
-                                info@citasmallorca.es
+                            <a href="mailto:{{ \App\Models\SiteContent::get('contact_email', 'info@citasmallorca.es') }}" class="text-heart-red hover:underline font-semibold text-xs sm:text-sm break-all">
+                                {{ \App\Models\SiteContent::get('contact_email', 'info@citasmallorca.es') }}
                             </a>
                         </p>
                     </div>
@@ -161,7 +158,7 @@
             <div class="border-t border-gray-200 mt-6 sm:mt-8 pt-6 sm:pt-8">
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
                     <p class="text-gray-600 text-center sm:text-left text-xs sm:text-sm">
-                        &copy; {{ date('Y') }} Citas Mallorca S.L.
+                        &copy; {{ date('Y') }} {{ \App\Models\SiteContent::get('footer_company_name', 'Citas Mallorca S.L') }}
                     </p>
                     <div class="flex flex-wrap justify-center gap-2 sm:gap-4">
                         <a href="{{ route('legal.privacidad') }}" class="text-xs text-gray-500 hover:text-heart-red transition">

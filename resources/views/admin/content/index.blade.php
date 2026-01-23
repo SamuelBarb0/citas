@@ -31,7 +31,9 @@
             @php
                 $sectionNames = [
                     'hero' => 'Sección Principal (Hero)',
-                    'features' => 'Características',
+                    'profiles' => 'Sección Perfiles',
+                    'features' => 'Cómo Funciona',
+                    'safety' => 'Consejos de Seguridad',
                     'cta' => 'Llamada a la Acción',
                     'footer' => 'Pie de Página',
                     'general' => 'General',

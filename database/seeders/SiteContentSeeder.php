@@ -316,6 +316,24 @@ class SiteContentSeeder extends Seeder
                 'order' => 5,
             ],
 
+            // ========== FOOTER ==========
+            [
+                'key' => 'footer_company_name',
+                'section' => 'footer',
+                'label' => 'Nombre de la empresa',
+                'type' => 'text',
+                'default_value' => 'Citas Mallorca S.L',
+                'order' => 1,
+            ],
+            [
+                'key' => 'footer_description',
+                'section' => 'footer',
+                'label' => 'Descripción del footer',
+                'type' => 'textarea',
+                'default_value' => 'Tu punto de encuentro para conocer gente auténtica en la isla. Conversa sin complicaciones y pásatelo bien en Mallorca.',
+                'order' => 2,
+            ],
+
             // ========== GENERAL ==========
             [
                 'key' => 'contact_email',

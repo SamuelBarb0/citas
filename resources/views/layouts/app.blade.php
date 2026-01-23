@@ -97,17 +97,11 @@
                             <h3 class="text-sm font-semibold text-brown uppercase tracking-wider mb-3">Contacto</h3>
                             <ul class="space-y-2 text-sm text-gray-600">
                                 <li>
-                                    <strong class="text-brown">Citas Mallorca S.L</strong>
-                                </li>
-                                <li>
-                                    Carrer Gremi de Porgadors, 2 -2ºB
-                                </li>
-                                <li>
-                                    07009 Palma, Illes Balears
+                                    <strong class="text-brown">{{ \App\Models\SiteContent::get('footer_company_name', 'Citas Mallorca S.L') }}</strong>
                                 </li>
                                 <li class="pt-2">
-                                    <a href="mailto:info@citasmallorca.es" class="text-heart-red hover:underline font-semibold">
-                                        info@citasmallorca.es
+                                    <a href="mailto:{{ \App\Models\SiteContent::get('contact_email', 'info@citasmallorca.es') }}" class="text-heart-red hover:underline font-semibold">
+                                        {{ \App\Models\SiteContent::get('contact_email', 'info@citasmallorca.es') }}
                                     </a>
                                 </li>
                             </ul>
@@ -118,7 +112,7 @@
                     <div class="border-t border-gray-200 pt-6">
                         <div class="flex flex-col md:flex-row justify-between items-center">
                             <p class="text-sm text-gray-500 text-center md:text-left">
-                                &copy; {{ date('Y') }} Citas Mallorca S.L. Todos los derechos reservados.
+                                &copy; {{ date('Y') }} {{ \App\Models\SiteContent::get('footer_company_name', 'Citas Mallorca S.L') }}. Todos los derechos reservados.
                             </p>
                             <div class="flex space-x-4 mt-4 md:mt-0">
                                 <a href="{{ route('legal.privacidad') }}" class="text-xs text-gray-500 hover:text-heart-red transition">
