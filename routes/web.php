@@ -49,6 +49,7 @@ Route::middleware(['auth', 'verified.identity'])->group(function () {
 
         $query = Profile::with('user')
             ->where('activo', true)
+            ->where('verified', true) // Solo mostrar perfiles verificados
             ->where('user_id', '!=', $currentUserId)
             ->whereDoesntHave('likedBy', function ($query) use ($currentUserId) {
                 $query->where('user_id', $currentUserId);
