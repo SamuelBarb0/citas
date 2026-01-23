@@ -1,8 +1,8 @@
 <!-- Overlay oscuro para el banner de cookies -->
-<div id="cookie-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998]" style="display: none;"></div>
+<div id="cookie-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] hidden"></div>
 
 <!-- Banner de Cookies - Modal centrado y prominente -->
-<div id="cookie-banner" class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4" style="display: none;">
+<div id="cookie-banner" class="fixed inset-0 z-[9999] items-center justify-center p-3 sm:p-4 hidden">
     <div class="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-lg w-full" id="cookie-banner-inner">
         <!-- Header con icono grande -->
         <div class="bg-gradient-to-r from-brown to-heart-red text-white p-4 sm:p-6 rounded-t-2xl sm:rounded-t-3xl text-center">
@@ -41,7 +41,7 @@
 </div>
 
 <!-- Modal de Configuración de Cookies -->
-<div id="cookie-config-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[10000] flex items-center justify-center p-3" style="display: none;">
+<div id="cookie-config-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[10000] items-center justify-center p-3 hidden">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[95vh] overflow-y-auto">
         <!-- Header del modal -->
         <div class="bg-gradient-to-r from-brown to-heart-red text-white p-4 rounded-t-2xl sticky top-0 z-10">
@@ -173,8 +173,14 @@
         const banner = document.getElementById('cookie-banner');
         const overlay = document.getElementById('cookie-overlay');
 
-        if (banner) banner.style.display = 'none';
-        if (overlay) overlay.style.display = 'none';
+        if (banner) {
+            banner.classList.add('hidden');
+            banner.classList.remove('flex');
+        }
+        if (overlay) {
+            overlay.classList.add('hidden');
+            overlay.classList.remove('block');
+        }
     }
 
     // Mostrar el banner de cookies
@@ -185,12 +191,14 @@
         console.log('showCookieBanner llamado');
 
         if (overlay) {
-            overlay.style.cssText = 'display: block !important;';
-            console.log('Overlay display ahora es:', overlay.style.display);
+            overlay.classList.remove('hidden');
+            overlay.classList.add('block');
+            console.log('Overlay classes:', overlay.className);
         }
         if (banner) {
-            banner.style.cssText = 'display: flex !important;';
-            console.log('Banner display ahora es:', banner.style.display);
+            banner.classList.remove('hidden');
+            banner.classList.add('flex');
+            console.log('Banner classes:', banner.className);
             console.log('Banner computed style:', window.getComputedStyle(banner).display);
         }
     }
@@ -224,13 +232,19 @@
     // Abrir modal de configuración
     function configureCookies() {
         const modal = document.getElementById('cookie-config-modal');
-        if (modal) modal.style.display = 'flex';
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
     }
 
     // Cerrar modal de configuración
     function closeConfigModal() {
         const modal = document.getElementById('cookie-config-modal');
-        if (modal) modal.style.display = 'none';
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
     }
 
     // Guardar preferencias personalizadas
