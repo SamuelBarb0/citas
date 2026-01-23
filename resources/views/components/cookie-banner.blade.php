@@ -174,12 +174,10 @@
         const overlay = document.getElementById('cookie-overlay');
 
         if (banner) {
-            banner.classList.add('hidden');
-            banner.classList.remove('flex');
+            banner.setAttribute('style', 'display: none !important;');
         }
         if (overlay) {
-            overlay.classList.add('hidden');
-            overlay.classList.remove('block');
+            overlay.setAttribute('style', 'display: none !important;');
         }
     }
 
@@ -192,13 +190,12 @@
 
         if (overlay) {
             overlay.classList.remove('hidden');
-            overlay.classList.add('block');
-            console.log('Overlay classes:', overlay.className);
+            overlay.setAttribute('style', 'display: block !important;');
+            console.log('Overlay computed style:', window.getComputedStyle(overlay).display);
         }
         if (banner) {
             banner.classList.remove('hidden');
-            banner.classList.add('flex');
-            console.log('Banner classes:', banner.className);
+            banner.setAttribute('style', 'display: flex !important;');
             console.log('Banner computed style:', window.getComputedStyle(banner).display);
         }
     }
@@ -233,8 +230,7 @@
     function configureCookies() {
         const modal = document.getElementById('cookie-config-modal');
         if (modal) {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+            modal.setAttribute('style', 'display: flex !important;');
         }
     }
 
@@ -242,8 +238,7 @@
     function closeConfigModal() {
         const modal = document.getElementById('cookie-config-modal');
         if (modal) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
+            modal.setAttribute('style', 'display: none !important;');
         }
     }
 
