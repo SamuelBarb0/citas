@@ -183,16 +183,15 @@
         const overlay = document.getElementById('cookie-overlay');
 
         console.log('showCookieBanner llamado');
-        console.log('Banner element:', banner);
-        console.log('Overlay element:', overlay);
 
         if (overlay) {
-            overlay.style.display = 'block';
-            console.log('Overlay mostrado');
+            overlay.style.cssText = 'display: block !important;';
+            console.log('Overlay display ahora es:', overlay.style.display);
         }
         if (banner) {
-            banner.style.display = 'flex';
-            console.log('Banner mostrado');
+            banner.style.cssText = 'display: flex !important;';
+            console.log('Banner display ahora es:', banner.style.display);
+            console.log('Banner computed style:', window.getComputedStyle(banner).display);
         }
     }
 
