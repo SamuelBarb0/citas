@@ -10,13 +10,6 @@
             <h2 id="cookie-banner-title" class="text-xl sm:text-2xl font-black">Tu privacidad es importante</h2>
         </div>
 
-        <!-- Aviso de actualización (oculto por defecto) -->
-        <div id="cookie-update-notice" class="hidden bg-amber-50 border-b border-amber-200 p-3 text-center">
-            <p class="text-amber-800 text-sm font-medium">
-                🔄 Hemos actualizado nuestra política de cookies. Por favor, revisa tus preferencias.
-            </p>
-        </div>
-
         <!-- Contenido -->
         <div class="p-4 sm:p-6">
             <p id="cookie-banner-text" class="text-gray-700 text-sm sm:text-base leading-relaxed text-center mb-4 sm:mb-6">
@@ -148,44 +141,15 @@
 </div>
 
 <script>
-// Versión actual de la política de cookies - se obtiene desde la configuración del servidor
-const COOKIE_POLICY_VERSION = {{ config('cookies.policy_version', 2) }};
-
 // Verificar si ya existe una preferencia de cookies guardada
 document.addEventListener('DOMContentLoaded', function() {
     const cookieConsent = getCookie('cookie_consent');
 
+    // Solo mostrar el banner si NO hay cookie guardada
     if (!cookieConsent) {
-        // Si no hay preferencia guardada, mostrar el banner después de 500ms
         setTimeout(function() {
-            showCookieBanner(false);
+            showCookieBanner();
         }, 500);
-    } else {
-        try {
-            // Si ya aceptaron cookies anteriormente, simplemente aplicar sus preferencias
-            const preferences = JSON.parse(cookieConsent);
-
-            // Actualizar versión silenciosamente si es antigua
-            if (!preferences.version || preferences.version < COOKIE_POLICY_VERSION) {
-                preferences.version = COOKIE_POLICY_VERSION;
-                setCookie('cookie_consent', JSON.stringify(preferences), 365);
-            }
-
-            applyCookiePreferences(preferences);
-        } catch (e) {
-            // Si la cookie está corrupta, eliminarla y no mostrar nada
-            // (el usuario ya aceptó antes, asumimos que acepta todo)
-            console.log('Cookie corrupta, regenerando...');
-            const defaultPreferences = {
-                version: COOKIE_POLICY_VERSION,
-                necessary: true,
-                analytics: true,
-                marketing: false,
-                preferences: true
-            };
-            setCookie('cookie_consent', JSON.stringify(defaultPreferences), 365);
-            applyCookiePreferences(defaultPreferences);
-        }
     }
 });
 
@@ -195,18 +159,6 @@ function getCookie(name) {
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
     return null;
-}
-
-// Función para eliminar cookie (útil para debug)
-function deleteCookie(name) {
-    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-}
-
-// Función global para resetear cookies (llamar desde consola: resetCookieConsent())
-window.resetCookieConsent = function() {
-    deleteCookie('cookie_consent');
-    console.log('Cookie de consentimiento eliminada. Recarga la página.');
-    location.reload();
 }
 
 // Función para establecer cookie
@@ -220,7 +172,6 @@ function setCookie(name, value, days) {
 // Aceptar todas las cookies
 function acceptAllCookies() {
     const preferences = {
-        version: COOKIE_POLICY_VERSION,
         necessary: true,
         analytics: true,
         marketing: true,
@@ -228,14 +179,12 @@ function acceptAllCookies() {
     };
 
     setCookie('cookie_consent', JSON.stringify(preferences), 365);
-    applyCookiePreferences(preferences);
     hideCookieBanner();
 }
 
 // Rechazar cookies (solo necesarias)
 function rejectCookies() {
     const preferences = {
-        version: COOKIE_POLICY_VERSION,
         necessary: true,
         analytics: false,
         marketing: false,
@@ -243,7 +192,6 @@ function rejectCookies() {
     };
 
     setCookie('cookie_consent', JSON.stringify(preferences), 365);
-    applyCookiePreferences(preferences);
     hideCookieBanner();
 }
 
@@ -260,15 +208,13 @@ function closeConfigModal() {
 // Guardar preferencias personalizadas
 function saveCustomCookies() {
     const preferences = {
-        version: COOKIE_POLICY_VERSION,
-        necessary: true, // Siempre true
+        necessary: true,
         analytics: document.getElementById('cookie-analytics').checked,
         marketing: document.getElementById('cookie-marketing').checked,
         preferences: document.getElementById('cookie-preferences').checked
     };
 
     setCookie('cookie_consent', JSON.stringify(preferences), 365);
-    applyCookiePreferences(preferences);
     closeConfigModal();
     hideCookieBanner();
 }
@@ -282,52 +228,12 @@ function hideCookieBanner() {
     if (overlay) overlay.style.display = 'none';
 }
 
-// Mostrar el banner de cookies manualmente (desde el footer)
-function showCookieBanner(isUpdate = false) {
+// Mostrar el banner de cookies (para el botón del footer)
+function showCookieBanner() {
     const banner = document.getElementById('cookie-banner');
     const overlay = document.getElementById('cookie-overlay');
-    const updateNotice = document.getElementById('cookie-update-notice');
-    const title = document.getElementById('cookie-banner-title');
-
-    // Mostrar/ocultar aviso de actualización
-    if (updateNotice) {
-        if (isUpdate) {
-            updateNotice.classList.remove('hidden');
-            if (title) title.textContent = 'Política de cookies actualizada';
-        } else {
-            updateNotice.classList.add('hidden');
-            if (title) title.textContent = 'Tu privacidad es importante';
-        }
-    }
 
     if (overlay) overlay.style.display = 'block';
     if (banner) banner.style.display = 'flex';
-}
-
-// Aplicar preferencias de cookies
-function applyCookiePreferences(preferences) {
-    // Aquí puedes agregar la lógica para activar/desactivar scripts según las preferencias
-
-    if (preferences.analytics) {
-        // Activar Google Analytics u otras herramientas analíticas
-        console.log('Cookies analíticas activadas');
-        // Ejemplo: gtag('config', 'GA_MEASUREMENT_ID');
-    } else {
-        console.log('Cookies analíticas desactivadas');
-    }
-
-    if (preferences.marketing) {
-        // Activar scripts de marketing (Facebook Pixel, Google Ads, etc.)
-        console.log('Cookies de marketing activadas');
-    } else {
-        console.log('Cookies de marketing desactivadas');
-    }
-
-    if (preferences.preferences) {
-        // Activar cookies de preferencias
-        console.log('Cookies de preferencias activadas');
-    } else {
-        console.log('Cookies de preferencias desactivadas');
-    }
 }
 </script>
