@@ -149,7 +149,7 @@
 
 <script>
 // Versión actual de la política de cookies - cambiar este número cuando se actualice la política
-const COOKIE_POLICY_VERSION = 2;
+const COOKIE_POLICY_VERSION = 3;
 
 // Verificar si ya existe una preferencia de cookies guardada
 document.addEventListener('DOMContentLoaded', function() {
