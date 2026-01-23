@@ -265,21 +265,21 @@
                             @endforeach
                         </div>
 
-                        <!-- Botones de acción grandes -->
-                        <div class="absolute -bottom-28 left-1/2 transform -translate-x-1/2 flex items-center gap-6">
-                            <button id="nope-btn" class="w-16 h-16 bg-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform text-heart-red border-4 border-red-100">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
+                    </div>
 
-                            <button id="like-btn" class="w-20 h-20 bg-gradient-to-br from-heart-red to-heart-red-light rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform text-white">
-                                <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
-                                </svg>
-                            </button>
+                    <!-- Botones de acción grandes (fuera del contenedor de tarjetas) -->
+                    <div class="flex items-center justify-center gap-8 mt-6">
+                        <button id="nope-btn" class="w-[72px] h-[72px] bg-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform text-heart-red border-4 border-red-100">
+                            <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
 
-                        </div>
+                        <button id="like-btn" class="w-[72px] h-[72px] bg-gradient-to-br from-heart-red to-heart-red-light rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform text-white">
+                            <svg class="w-9 h-9" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                            </svg>
+                        </button>
                     </div>
 
                 @else
