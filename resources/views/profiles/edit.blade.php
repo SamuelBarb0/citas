@@ -68,29 +68,91 @@
                 @csrf
                 @method('PUT')
 
-                <!-- Foto de Perfil -->
-                <div class="text-center">
-                    <label class="block text-sm font-semibold text-brown mb-3">Foto de Perfil</label>
-                    <div class="flex flex-col items-center">
-                        <div class="relative">
-                            <div id="preview-container" class="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden mb-4">
-                                @if($profile->foto_principal)
-                                    <img id="preview-image" src="{{ str_starts_with($profile->foto_principal, 'http') ? $profile->foto_principal : Storage::url($profile->foto_principal) }}" alt="{{ $profile->nombre }}" class="w-full h-full object-cover">
-                                @else
-                                    <svg class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                <!-- Galería de Fotos -->
+                <div>
+                    <label class="block text-sm font-semibold text-brown mb-3">Mis Fotos</label>
+                    <p class="text-xs text-gray-500 mb-4">Sube hasta 7 fotos. La foto con la estrella sera tu foto principal.</p>
+
+                    @php
+                        $fotosActuales = [];
+                        if ($profile->foto_principal) {
+                            $fotosActuales[] = $profile->foto_principal;
+                        }
+                        if ($profile->fotos_adicionales && is_array($profile->fotos_adicionales)) {
+                            $fotosActuales = array_merge($fotosActuales, $profile->fotos_adicionales);
+                        }
+                        $fotosActuales = array_slice(array_unique($fotosActuales), 0, 7);
+                    @endphp
+
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="photos-grid">
+                        <!-- Fotos existentes -->
+                        @foreach($fotosActuales as $index => $foto)
+                            <div class="photo-item relative aspect-square rounded-xl overflow-hidden bg-gray-100 group" data-index="{{ $index }}" data-photo="{{ $foto }}">
+                                <img src="{{ str_starts_with($foto, 'http') ? $foto : Storage::url($foto) }}"
+                                     alt="Foto {{ $index + 1 }}"
+                                     class="w-full h-full object-cover">
+
+                                <!-- Overlay con acciones -->
+                                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                    <!-- Boton establecer como principal -->
+                                    <button type="button"
+                                            onclick="setAsMain({{ $index }})"
+                                            class="set-main-btn w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-yellow-100 transition {{ $index === 0 ? 'ring-2 ring-yellow-400' : '' }}"
+                                            title="Establecer como principal">
+                                        <svg class="w-4 h-4 {{ $index === 0 ? 'text-yellow-500' : 'text-gray-600' }}" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                        </svg>
+                                    </button>
+                                    <!-- Boton eliminar -->
+                                    <button type="button"
+                                            onclick="removePhoto({{ $index }})"
+                                            class="w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-red-100 transition"
+                                            title="Eliminar foto">
+                                        <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Badge de foto principal -->
+                                <div class="main-badge absolute top-2 left-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-[10px] font-bold items-center gap-1 shadow-lg {{ $index === 0 ? 'flex' : 'hidden' }}">
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                     </svg>
-                                    <img id="preview-image" src="" alt="Preview" class="hidden w-full h-full object-cover">
-                                @endif
+                                    Principal
+                                </div>
+
+                                <!-- Input oculto para mantener el orden -->
+                                <input type="hidden" name="fotos_orden[]" value="{{ $foto }}" class="foto-orden-input">
                             </div>
-                        </div>
-                        <label for="foto_principal" class="cursor-pointer bg-brown text-white px-6 py-2 rounded-full hover:bg-opacity-90 transition text-sm sm:text-base">
-                            Cambiar Foto
-                        </label>
-                        <input type="file" id="foto_principal" name="foto_principal" accept="image/*" class="hidden" onchange="previewImage(event)">
-                        <p class="text-xs text-gray-500 mt-2">JPG, PNG (máx. 2MB)</p>
+                        @endforeach
+
+                        <!-- Slot para anadir nuevas fotos (si hay espacio) -->
+                        @if(count($fotosActuales) < 7)
+                            <label for="nuevas_fotos" class="add-photo-slot aspect-square rounded-xl border-2 border-dashed border-gray-300 hover:border-brown hover:bg-cream/50 transition cursor-pointer flex flex-col items-center justify-center">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                </svg>
+                                <span class="text-xs text-gray-500 mt-1">Anadir</span>
+                            </label>
+                        @endif
                     </div>
-                    @error('foto_principal')
+
+                    <!-- Input para nuevas fotos -->
+                    <input type="file" id="nuevas_fotos" name="nuevas_fotos[]" accept="image/*" multiple class="hidden" onchange="handleNewPhotos(event)">
+
+                    <!-- Input oculto para fotos a eliminar -->
+                    <input type="hidden" name="fotos_eliminar" id="fotos_eliminar" value="">
+
+                    <!-- Input oculto para indice de foto principal -->
+                    <input type="hidden" name="foto_principal_index" id="foto_principal_index" value="0">
+
+                    <p class="text-xs text-gray-500 mt-3">JPG, PNG (max. 2MB por foto). <span id="espacios-disponibles">{{ 7 - count($fotosActuales) }}</span> espacios disponibles.</p>
+
+                    @error('nuevas_fotos.*')
+                        <p class="text-heart-red text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                    @error('fotos_orden')
                         <p class="text-heart-red text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
@@ -235,21 +297,191 @@
 </div>
 
 <script>
-function previewImage(event) {
-    const input = event.target;
-    const preview = document.getElementById('preview-image');
-    const container = document.getElementById('preview-container');
+let fotosAEliminar = [];
+let mainPhotoIndex = 0;
+let photoCount = {{ count($fotosActuales) }};
+const MAX_PHOTOS = 7;
 
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
+// Establecer foto como principal
+function setAsMain(index) {
+    mainPhotoIndex = index;
+    document.getElementById('foto_principal_index').value = index;
 
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            preview.classList.remove('hidden');
-            container.querySelector('svg')?.classList.add('hidden');
+    // Actualizar badges visuales
+    document.querySelectorAll('.photo-item').forEach((item, i) => {
+        const badge = item.querySelector('.main-badge');
+        const starBtn = item.querySelector('.set-main-btn');
+        const starSvg = starBtn?.querySelector('svg');
+
+        if (parseInt(item.dataset.index) === index) {
+            badge?.classList.remove('hidden');
+            badge?.classList.add('flex');
+            starBtn?.classList.add('ring-2', 'ring-yellow-400');
+            starSvg?.classList.remove('text-gray-600');
+            starSvg?.classList.add('text-yellow-500');
+        } else {
+            badge?.classList.add('hidden');
+            badge?.classList.remove('flex');
+            starBtn?.classList.remove('ring-2', 'ring-yellow-400');
+            starSvg?.classList.add('text-gray-600');
+            starSvg?.classList.remove('text-yellow-500');
         }
+    });
+}
 
-        reader.readAsDataURL(input.files[0]);
+// Eliminar foto
+function removePhoto(index) {
+    const photoItem = document.querySelector(`.photo-item[data-index="${index}"]`);
+    if (!photoItem) return;
+
+    const photoPath = photoItem.dataset.photo;
+    if (photoPath) {
+        fotosAEliminar.push(photoPath);
+        document.getElementById('fotos_eliminar').value = JSON.stringify(fotosAEliminar);
+    }
+
+    // Remover el elemento del DOM
+    photoItem.remove();
+    photoCount--;
+
+    // Actualizar espacios disponibles
+    document.getElementById('espacios-disponibles').textContent = MAX_PHOTOS - photoCount;
+
+    // Reindexar las fotos restantes
+    reindexPhotos();
+
+    // Mostrar el boton de anadir si hay espacio
+    updateAddPhotoSlot();
+
+    // Si eliminamos la foto principal, la primera pasa a ser la principal
+    if (index === mainPhotoIndex) {
+        const firstPhoto = document.querySelector('.photo-item');
+        if (firstPhoto) {
+            setAsMain(0);
+        }
+    } else if (index < mainPhotoIndex) {
+        mainPhotoIndex--;
+        document.getElementById('foto_principal_index').value = mainPhotoIndex;
+    }
+}
+
+// Reindexar fotos despues de eliminar
+function reindexPhotos() {
+    document.querySelectorAll('.photo-item').forEach((item, i) => {
+        item.dataset.index = i;
+        item.querySelector('.set-main-btn')?.setAttribute('onclick', `setAsMain(${i})`);
+        item.querySelector('button[title="Eliminar foto"]')?.setAttribute('onclick', `removePhoto(${i})`);
+    });
+}
+
+// Manejar nuevas fotos
+function handleNewPhotos(event) {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const grid = document.getElementById('photos-grid');
+    const availableSlots = MAX_PHOTOS - photoCount;
+
+    if (files.length > availableSlots) {
+        alert(`Solo puedes subir ${availableSlots} foto(s) mas. Maximo 7 fotos en total.`);
+        event.target.value = '';
+        return;
+    }
+
+    // Validar tamano de archivos
+    for (let file of files) {
+        if (file.size > 2 * 1024 * 1024) {
+            alert(`El archivo "${file.name}" supera los 2MB.`);
+            event.target.value = '';
+            return;
+        }
+    }
+
+    // Crear previews para las nuevas fotos
+    Array.from(files).forEach((file, i) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const newIndex = photoCount;
+            const photoDiv = document.createElement('div');
+            photoDiv.className = 'photo-item relative aspect-square rounded-xl overflow-hidden bg-gray-100 group';
+            photoDiv.dataset.index = newIndex;
+            photoDiv.dataset.photo = '';
+            photoDiv.dataset.isNew = 'true';
+
+            photoDiv.innerHTML = `
+                <img src="${e.target.result}" alt="Nueva foto" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <button type="button" onclick="setAsMain(${newIndex})" class="set-main-btn w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-yellow-100 transition" title="Establecer como principal">
+                        <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                    </button>
+                    <button type="button" onclick="removeNewPhoto(this)" class="w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-red-100 transition" title="Eliminar foto">
+                        <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="main-badge absolute top-2 left-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-[10px] font-bold items-center gap-1 shadow-lg hidden">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                    Principal
+                </div>
+                <div class="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-[10px] font-bold">Nueva</div>
+            `;
+
+            // Insertar antes del boton de anadir
+            const addSlot = grid.querySelector('.add-photo-slot');
+            if (addSlot) {
+                grid.insertBefore(photoDiv, addSlot);
+            } else {
+                grid.appendChild(photoDiv);
+            }
+
+            photoCount++;
+            document.getElementById('espacios-disponibles').textContent = MAX_PHOTOS - photoCount;
+            updateAddPhotoSlot();
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// Eliminar foto nueva (que aun no se ha subido)
+function removeNewPhoto(btn) {
+    const photoItem = btn.closest('.photo-item');
+    if (!photoItem) return;
+
+    photoItem.remove();
+    photoCount--;
+    document.getElementById('espacios-disponibles').textContent = MAX_PHOTOS - photoCount;
+    reindexPhotos();
+    updateAddPhotoSlot();
+
+    // Limpiar el input de archivos para permitir volver a seleccionar
+    document.getElementById('nuevas_fotos').value = '';
+}
+
+// Actualizar visibilidad del boton de anadir fotos
+function updateAddPhotoSlot() {
+    const grid = document.getElementById('photos-grid');
+    let addSlot = grid.querySelector('.add-photo-slot');
+
+    if (photoCount < MAX_PHOTOS) {
+        if (!addSlot) {
+            addSlot = document.createElement('label');
+            addSlot.htmlFor = 'nuevas_fotos';
+            addSlot.className = 'add-photo-slot aspect-square rounded-xl border-2 border-dashed border-gray-300 hover:border-brown hover:bg-cream/50 transition cursor-pointer flex flex-col items-center justify-center';
+            addSlot.innerHTML = `
+                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                <span class="text-xs text-gray-500 mt-1">Anadir</span>
+            `;
+            grid.appendChild(addSlot);
+        }
+    } else {
+        addSlot?.remove();
     }
 }
 </script>

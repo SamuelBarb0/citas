@@ -90,26 +90,77 @@ class UserProfileController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'edad' => 'required|integer|min:18|max:100',
-            'genero' => 'required|in:hombre,mujer,no-binario,genero-fluido,otro,prefiero-no-decir',
-            'orientacion_sexual' => 'nullable|in:heterosexual,gay,lesbiana,bisexual,pansexual,asexual,queer,otra,prefiero-no-decir',
-            'busco' => 'required|in:hombre,mujer,no-binario,cualquiera',
+            'genero' => 'required|string|max:50',
+            'orientacion_sexual' => 'nullable|string|max:50',
+            'busco' => 'required|string|max:50',
             'ciudad' => 'required|string|max:255',
             'biografia' => 'nullable|string|max:500',
             'intereses' => 'nullable|array',
             'intereses.*' => 'string|max:50',
-            'foto_principal' => 'nullable|image|max:2048',
+            'nuevas_fotos.*' => 'nullable|image|max:2048',
+            'fotos_orden' => 'nullable|array',
+            'fotos_eliminar' => 'nullable|string',
+            'foto_principal_index' => 'nullable|integer|min:0',
         ]);
 
-        // Procesar nueva foto si existe
-        if ($request->hasFile('foto_principal')) {
-            // Eliminar foto anterior si no es de pravatar
-            if ($profile->foto_principal && !str_contains($profile->foto_principal, 'pravatar')) {
-                Storage::disk('public')->delete($profile->foto_principal);
-            }
-
-            $path = $request->file('foto_principal')->store('profiles', 'public');
-            $validated['foto_principal'] = $path;
+        // Obtener fotos actuales
+        $fotosActuales = [];
+        if ($profile->foto_principal) {
+            $fotosActuales[] = $profile->foto_principal;
         }
+        if ($profile->fotos_adicionales && is_array($profile->fotos_adicionales)) {
+            $fotosActuales = array_merge($fotosActuales, $profile->fotos_adicionales);
+        }
+        $fotosActuales = array_values(array_unique($fotosActuales));
+
+        // Procesar fotos a eliminar
+        $fotosAEliminar = [];
+        if ($request->has('fotos_eliminar') && $request->fotos_eliminar) {
+            $fotosAEliminar = json_decode($request->fotos_eliminar, true) ?? [];
+            foreach ($fotosAEliminar as $fotoEliminar) {
+                if (!str_contains($fotoEliminar, 'pravatar') && !str_starts_with($fotoEliminar, 'http')) {
+                    Storage::disk('public')->delete($fotoEliminar);
+                }
+                $fotosActuales = array_values(array_filter($fotosActuales, fn($f) => $f !== $fotoEliminar));
+            }
+        }
+
+        // Procesar nuevas fotos
+        $nuevasFotos = [];
+        if ($request->hasFile('nuevas_fotos')) {
+            foreach ($request->file('nuevas_fotos') as $foto) {
+                $path = $foto->store('profiles', 'public');
+                $nuevasFotos[] = $path;
+            }
+        }
+
+        // Combinar fotos existentes con nuevas
+        $todasLasFotos = array_merge($fotosActuales, $nuevasFotos);
+        $todasLasFotos = array_slice($todasLasFotos, 0, 7); // Maximo 7 fotos
+
+        // Determinar foto principal segun el indice seleccionado
+        $fotoPrincipalIndex = (int) ($request->foto_principal_index ?? 0);
+        if ($fotoPrincipalIndex >= count($todasLasFotos)) {
+            $fotoPrincipalIndex = 0;
+        }
+
+        // Reorganizar: foto principal primero
+        if ($fotoPrincipalIndex > 0 && isset($todasLasFotos[$fotoPrincipalIndex])) {
+            $fotoPrincipal = $todasLasFotos[$fotoPrincipalIndex];
+            unset($todasLasFotos[$fotoPrincipalIndex]);
+            array_unshift($todasLasFotos, $fotoPrincipal);
+            $todasLasFotos = array_values($todasLasFotos);
+        }
+
+        // Asignar foto principal y adicionales
+        $validated['foto_principal'] = $todasLasFotos[0] ?? null;
+        $validated['fotos_adicionales'] = count($todasLasFotos) > 1 ? array_slice($todasLasFotos, 1) : [];
+
+        // Limpiar campos no necesarios antes de actualizar
+        unset($validated['nuevas_fotos']);
+        unset($validated['fotos_orden']);
+        unset($validated['fotos_eliminar']);
+        unset($validated['foto_principal_index']);
 
         $profile->update($validated);
 
