@@ -101,17 +101,14 @@
                     <!-- Filtro de Orientación Sexual -->
                     <div class="mb-6">
                         <label class="block text-sm font-bold text-brown mb-3">Orientación Sexual</label>
-                        <select name="orientacion_sexual" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-heart-red focus:outline-none">
-                            <option value="">Todas</option>
-                            <option value="heterosexual" {{ request('orientacion_sexual') == 'heterosexual' ? 'selected' : '' }}>Heterosexual</option>
-                            <option value="gay" {{ request('orientacion_sexual') == 'gay' ? 'selected' : '' }}>Gay</option>
-                            <option value="lesbiana" {{ request('orientacion_sexual') == 'lesbiana' ? 'selected' : '' }}>Lesbiana</option>
-                            <option value="bisexual" {{ request('orientacion_sexual') == 'bisexual' ? 'selected' : '' }}>Bisexual</option>
-                            <option value="pansexual" {{ request('orientacion_sexual') == 'pansexual' ? 'selected' : '' }}>Pansexual</option>
-                            <option value="asexual" {{ request('orientacion_sexual') == 'asexual' ? 'selected' : '' }}>Asexual</option>
-                            <option value="queer" {{ request('orientacion_sexual') == 'queer' ? 'selected' : '' }}>Queer</option>
-                            <option value="otra" {{ request('orientacion_sexual') == 'otra' ? 'selected' : '' }}>Otra</option>
-                        </select>
+                        <x-dynamic-select
+                            tipo="orientacion_sexual"
+                            name="orientacion_sexual"
+                            id="filter_orientacion_sexual"
+                            :value="request('orientacion_sexual')"
+                            placeholder="Todas"
+                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-heart-red focus:outline-none"
+                        />
                     </div>
 
                     <!-- Filtro de Intereses -->
