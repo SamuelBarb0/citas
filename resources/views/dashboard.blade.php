@@ -28,7 +28,7 @@
         </div>
 
         <!-- Panel de filtros deslizante -->
-        <div id="filters-panel" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 overflow-y-auto">
+        <div id="filters-panel" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-[200] overflow-y-auto">
             <div class="p-6">
                 <!-- Header del panel -->
                 <div class="flex items-center justify-between mb-6">
@@ -132,7 +132,7 @@
         </div>
 
         <!-- Overlay oscuro para el panel de filtros -->
-        <div id="filters-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+        <div id="filters-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] opacity-0 pointer-events-none transition-opacity duration-300"></div>
 
         <div class="py-6 px-4 sm:px-6 lg:px-8">
             <div class="max-w-lg mx-auto">
