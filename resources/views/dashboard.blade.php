@@ -10,7 +10,6 @@
                         </div>
                         <div>
                             <h1 class="font-bold text-brown text-lg">Descubre</h1>
-                            <p class="text-xs text-gray-500"><span id="profiles-count">{{ count($perfiles) }}</span> perfiles</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
@@ -267,7 +266,7 @@
                         </div>
 
                         <!-- Botones de acción grandes -->
-                        <div class="absolute -bottom-20 left-1/2 transform -translate-x-1/2 flex items-center gap-6">
+                        <div class="absolute -bottom-28 left-1/2 transform -translate-x-1/2 flex items-center gap-6">
                             <button id="nope-btn" class="w-16 h-16 bg-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform text-heart-red border-4 border-red-100">
                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
@@ -281,11 +280,6 @@
                             </button>
 
                         </div>
-                    </div>
-
-                    <!-- Contador de perfiles -->
-                    <div class="text-center mt-28 text-gray-500 text-sm">
-                        <span id="profiles-count">{{ count($perfiles) }}</span> perfiles disponibles
                     </div>
 
                 @else
@@ -346,7 +340,6 @@
             const cards = Array.from(document.querySelectorAll('.swipe-card'));
             const likeBtn = document.getElementById('like-btn');
             const nopeBtn = document.getElementById('nope-btn');
-            const profilesCount = document.getElementById('profiles-count');
 
             let currentCardIndex = 0;
             let isDragging = false;
@@ -357,11 +350,6 @@
             @if(isset($newMatch) && $newMatch)
                 showMatchNotification('{{ $newMatch['photo'] }}', '{{ $newMatch['name'] }}', null);
             @endif
-
-            function updateProfilesCount() {
-                const remaining = cards.length - currentCardIndex;
-                profilesCount.textContent = remaining;
-            }
 
             function removeCard(direction) {
                 if (currentCardIndex >= cards.length) return;
@@ -384,7 +372,6 @@
                 setTimeout(() => {
                     card.remove();
                     currentCardIndex++;
-                    updateProfilesCount();
 
                     // Animar las tarjetas restantes
                     updateCardsPosition();
