@@ -1,9 +1,9 @@
 <!-- Overlay oscuro para el banner de cookies -->
-<div id="cookie-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] opacity-0 transition-opacity duration-500" style="display: none;"></div>
+<div id="cookie-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] hidden"></div>
 
 <!-- Banner de Cookies - Modal centrado y prominente -->
-<div id="cookie-banner" class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 opacity-0 transition-opacity duration-500" style="display: none;">
-    <div class="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-lg w-full transform scale-95 transition-transform duration-500" id="cookie-banner-inner">
+<div id="cookie-banner" class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 hidden">
+    <div class="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-lg w-full" id="cookie-banner-inner">
         <!-- Header con icono grande -->
         <div class="bg-gradient-to-r from-brown to-heart-red text-white p-4 sm:p-6 rounded-t-2xl sm:rounded-t-3xl text-center">
             <span class="text-4xl sm:text-6xl block mb-2 sm:mb-3">🍪</span>
@@ -146,21 +146,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const cookieConsent = getCookie('cookie_consent');
 
     if (!cookieConsent) {
-        // Si no hay preferencia guardada, mostrar el banner
+        // Si no hay preferencia guardada, mostrar el banner después de 500ms
         setTimeout(function() {
-            const banner = document.getElementById('cookie-banner');
-            const overlay = document.getElementById('cookie-overlay');
-            const bannerInner = document.getElementById('cookie-banner-inner');
-
-            overlay.style.display = 'block';
-            banner.style.display = 'flex';
-
-            setTimeout(function() {
-                overlay.style.opacity = '1';
-                banner.style.opacity = '1';
-                bannerInner.style.transform = 'scale(1)';
-            }, 100);
-        }, 500); // Mostrar después de 0.5 segundos
+            showCookieBanner();
+        }, 500);
     } else {
         // Si ya hay preferencia, aplicar las cookies según la configuración
         applyCookiePreferences(JSON.parse(cookieConsent));
@@ -240,41 +229,18 @@ function saveCustomCookies() {
 function hideCookieBanner() {
     const banner = document.getElementById('cookie-banner');
     const overlay = document.getElementById('cookie-overlay');
-    const bannerInner = document.getElementById('cookie-banner-inner');
 
-    if (banner) banner.style.opacity = '0';
-    if (overlay) overlay.style.opacity = '0';
-    if (bannerInner) bannerInner.style.transform = 'scale(0.95)';
-
-    setTimeout(function() {
-        if (banner) banner.style.display = 'none';
-        if (overlay) overlay.style.display = 'none';
-    }, 500);
+    if (banner) banner.classList.add('hidden');
+    if (overlay) overlay.classList.add('hidden');
 }
 
 // Mostrar el banner de cookies manualmente (desde el footer)
 function showCookieBanner() {
     const banner = document.getElementById('cookie-banner');
     const overlay = document.getElementById('cookie-overlay');
-    const bannerInner = document.getElementById('cookie-banner-inner');
 
-    if (overlay) {
-        overlay.style.display = 'block';
-        overlay.style.opacity = '0';
-    }
-    if (banner) {
-        banner.style.display = 'flex';
-        banner.style.opacity = '0';
-    }
-    if (bannerInner) {
-        bannerInner.style.transform = 'scale(0.95)';
-    }
-
-    setTimeout(function() {
-        if (overlay) overlay.style.opacity = '1';
-        if (banner) banner.style.opacity = '1';
-        if (bannerInner) bannerInner.style.transform = 'scale(1)';
-    }, 100);
+    if (overlay) overlay.classList.remove('hidden');
+    if (banner) banner.classList.remove('hidden');
 }
 
 // Aplicar preferencias de cookies
