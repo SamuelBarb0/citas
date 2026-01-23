@@ -148,8 +148,8 @@
 </div>
 
 <script>
-// Versión actual de la política de cookies - cambiar este número cuando se actualice la política
-const COOKIE_POLICY_VERSION = 2;
+// Versión actual de la política de cookies - se obtiene desde la configuración del servidor
+const COOKIE_POLICY_VERSION = {{ config('cookies.policy_version', 2) }};
 
 // Verificar si ya existe una preferencia de cookies guardada
 document.addEventListener('DOMContentLoaded', function() {
@@ -161,18 +161,17 @@ document.addEventListener('DOMContentLoaded', function() {
             showCookieBanner(false);
         }, 500);
     } else {
+        // Si ya aceptaron cookies anteriormente, simplemente aplicar sus preferencias
+        // y actualizar la versión silenciosamente
         const preferences = JSON.parse(cookieConsent);
 
-        // Verificar si la versión de cookies es antigua
+        // Actualizar versión silenciosamente si es antigua
         if (!preferences.version || preferences.version < COOKIE_POLICY_VERSION) {
-            // Mostrar banner con aviso de actualización
-            setTimeout(function() {
-                showCookieBanner(true);
-            }, 500);
-        } else {
-            // Si ya hay preferencia actualizada, aplicar las cookies según la configuración
-            applyCookiePreferences(preferences);
+            preferences.version = COOKIE_POLICY_VERSION;
+            setCookie('cookie_consent', JSON.stringify(preferences), 365);
         }
+
+        applyCookiePreferences(preferences);
     }
 });
 
