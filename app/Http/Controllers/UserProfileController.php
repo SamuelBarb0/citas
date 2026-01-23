@@ -97,70 +97,61 @@ class UserProfileController extends Controller
             'biografia' => 'nullable|string|max:500',
             'intereses' => 'nullable|array',
             'intereses.*' => 'string|max:50',
-            'nuevas_fotos.*' => 'nullable|image|max:2048',
-            'fotos_orden' => 'nullable|array',
+            'foto_principal' => 'nullable|image|max:2048',
+            'fotos_adicionales.*' => 'nullable|image|max:2048',
+            'fotos_adicionales_existentes' => 'nullable|array',
             'fotos_eliminar' => 'nullable|string',
-            'foto_principal_index' => 'nullable|integer|min:0',
         ]);
 
-        // Obtener fotos actuales
-        $fotosActuales = [];
-        if ($profile->foto_principal) {
-            $fotosActuales[] = $profile->foto_principal;
+        // === FOTO PRINCIPAL ===
+        if ($request->hasFile('foto_principal')) {
+            // Eliminar foto principal anterior si no es de pravatar
+            if ($profile->foto_principal && !str_contains($profile->foto_principal, 'pravatar') && !str_starts_with($profile->foto_principal, 'http')) {
+                Storage::disk('public')->delete($profile->foto_principal);
+            }
+            $validated['foto_principal'] = $request->file('foto_principal')->store('profiles', 'public');
+        } else {
+            // Mantener la foto principal actual
+            unset($validated['foto_principal']);
         }
-        if ($profile->fotos_adicionales && is_array($profile->fotos_adicionales)) {
-            $fotosActuales = array_merge($fotosActuales, $profile->fotos_adicionales);
+
+        // === FOTOS ADICIONALES ===
+        // Obtener fotos adicionales existentes que se mantienen
+        $fotosAdicionalesExistentes = $request->input('fotos_adicionales_existentes', []);
+        if (!is_array($fotosAdicionalesExistentes)) {
+            $fotosAdicionalesExistentes = [];
         }
-        $fotosActuales = array_values(array_unique($fotosActuales));
 
         // Procesar fotos a eliminar
-        $fotosAEliminar = [];
         if ($request->has('fotos_eliminar') && $request->fotos_eliminar) {
             $fotosAEliminar = json_decode($request->fotos_eliminar, true) ?? [];
             foreach ($fotosAEliminar as $fotoEliminar) {
                 if (!str_contains($fotoEliminar, 'pravatar') && !str_starts_with($fotoEliminar, 'http')) {
                     Storage::disk('public')->delete($fotoEliminar);
                 }
-                $fotosActuales = array_values(array_filter($fotosActuales, fn($f) => $f !== $fotoEliminar));
+                // Quitar de las existentes
+                $fotosAdicionalesExistentes = array_values(array_filter($fotosAdicionalesExistentes, fn($f) => $f !== $fotoEliminar));
             }
         }
 
-        // Procesar nuevas fotos
-        $nuevasFotos = [];
-        if ($request->hasFile('nuevas_fotos')) {
-            foreach ($request->file('nuevas_fotos') as $foto) {
+        // Procesar nuevas fotos adicionales
+        $nuevasFotosAdicionales = [];
+        if ($request->hasFile('fotos_adicionales')) {
+            foreach ($request->file('fotos_adicionales') as $foto) {
                 $path = $foto->store('profiles', 'public');
-                $nuevasFotos[] = $path;
+                $nuevasFotosAdicionales[] = $path;
             }
         }
 
-        // Combinar fotos existentes con nuevas
-        $todasLasFotos = array_merge($fotosActuales, $nuevasFotos);
-        $todasLasFotos = array_slice($todasLasFotos, 0, 7); // Maximo 7 fotos
+        // Combinar fotos adicionales existentes con nuevas (maximo 6)
+        $todasFotosAdicionales = array_merge($fotosAdicionalesExistentes, $nuevasFotosAdicionales);
+        $todasFotosAdicionales = array_slice($todasFotosAdicionales, 0, 6);
 
-        // Determinar foto principal segun el indice seleccionado
-        $fotoPrincipalIndex = (int) ($request->foto_principal_index ?? 0);
-        if ($fotoPrincipalIndex >= count($todasLasFotos)) {
-            $fotoPrincipalIndex = 0;
-        }
-
-        // Reorganizar: foto principal primero
-        if ($fotoPrincipalIndex > 0 && isset($todasLasFotos[$fotoPrincipalIndex])) {
-            $fotoPrincipal = $todasLasFotos[$fotoPrincipalIndex];
-            unset($todasLasFotos[$fotoPrincipalIndex]);
-            array_unshift($todasLasFotos, $fotoPrincipal);
-            $todasLasFotos = array_values($todasLasFotos);
-        }
-
-        // Asignar foto principal y adicionales
-        $validated['foto_principal'] = $todasLasFotos[0] ?? null;
-        $validated['fotos_adicionales'] = count($todasLasFotos) > 1 ? array_slice($todasLasFotos, 1) : [];
+        $validated['fotos_adicionales'] = $todasFotosAdicionales;
 
         // Limpiar campos no necesarios antes de actualizar
-        unset($validated['nuevas_fotos']);
-        unset($validated['fotos_orden']);
+        unset($validated['fotos_adicionales_existentes']);
         unset($validated['fotos_eliminar']);
-        unset($validated['foto_principal_index']);
 
         $profile->update($validated);
 
