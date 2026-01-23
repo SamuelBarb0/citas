@@ -1,8 +1,8 @@
 <!-- Overlay oscuro para el banner de cookies -->
-<div id="cookie-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] hidden"></div>
+<div id="cookie-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998]" style="display: none !important;"></div>
 
 <!-- Banner de Cookies - Modal centrado y prominente -->
-<div id="cookie-banner" class="fixed inset-0 z-[9999] items-center justify-center p-3 sm:p-4 hidden">
+<div id="cookie-banner" class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4" style="display: none !important;">
     <div class="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-lg w-full" id="cookie-banner-inner">
         <!-- Header con icono grande -->
         <div class="bg-gradient-to-r from-brown to-heart-red text-white p-4 sm:p-6 rounded-t-2xl sm:rounded-t-3xl text-center">
@@ -41,7 +41,7 @@
 </div>
 
 <!-- Modal de Configuración de Cookies -->
-<div id="cookie-config-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[10000] items-center justify-center p-3 hidden">
+<div id="cookie-config-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[10000] flex items-center justify-center p-3" style="display: none !important;">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[95vh] overflow-y-auto">
         <!-- Header del modal -->
         <div class="bg-gradient-to-r from-brown to-heart-red text-white p-4 rounded-t-2xl sticky top-0 z-10">
@@ -174,10 +174,10 @@
         const overlay = document.getElementById('cookie-overlay');
 
         if (banner) {
-            banner.setAttribute('style', 'display: none !important;');
+            banner.style.cssText = 'display: none !important;';
         }
         if (overlay) {
-            overlay.setAttribute('style', 'display: none !important;');
+            overlay.style.cssText = 'display: none !important;';
         }
     }
 
@@ -186,17 +186,11 @@
         const banner = document.getElementById('cookie-banner');
         const overlay = document.getElementById('cookie-overlay');
 
-        console.log('showCookieBanner llamado');
-
         if (overlay) {
-            overlay.classList.remove('hidden');
-            overlay.setAttribute('style', 'display: block !important;');
-            console.log('Overlay computed style:', window.getComputedStyle(overlay).display);
+            overlay.style.cssText = 'display: block !important;';
         }
         if (banner) {
-            banner.classList.remove('hidden');
-            banner.setAttribute('style', 'display: flex !important;');
-            console.log('Banner computed style:', window.getComputedStyle(banner).display);
+            banner.style.cssText = 'display: flex !important;';
         }
     }
 
@@ -230,7 +224,7 @@
     function configureCookies() {
         const modal = document.getElementById('cookie-config-modal');
         if (modal) {
-            modal.setAttribute('style', 'display: flex !important;');
+            modal.style.cssText = 'display: flex !important;';
         }
     }
 
@@ -238,7 +232,7 @@
     function closeConfigModal() {
         const modal = document.getElementById('cookie-config-modal');
         if (modal) {
-            modal.setAttribute('style', 'display: none !important;');
+            modal.style.cssText = 'display: none !important;';
         }
     }
 
@@ -267,20 +261,15 @@
 
     // Verificar si ya existe una preferencia de cookies guardada
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('Cookie banner: DOMContentLoaded');
-
         const cookieConsent = getCookie('cookie_consent');
-        console.log('cookie_consent:', cookieConsent);
 
         // Solo mostrar el banner si NO hay cookie guardada
         if (!cookieConsent) {
-            console.log('No hay cookie, mostrando banner en 500ms...');
             setTimeout(function() {
                 showCookieBanner();
             }, 500);
-        } else {
-            console.log('Ya existe cookie, no mostrando banner');
         }
+        // Si ya tiene cookie, no hacemos nada - el banner ya está oculto por defecto
     });
 })();
 </script>
