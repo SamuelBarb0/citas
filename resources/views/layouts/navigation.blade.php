@@ -72,6 +72,10 @@
                             <div class="border-t border-gray-200 my-1"></div>
                         @endif
 
+                        <x-dropdown-link :href="route('subscriptions.dashboard')">
+                            💳 Mi Suscripción
+                        </x-dropdown-link>
+
                         <x-dropdown-link :href="route('subscriptions.index')">
                             ⭐ Planes Premium
                         </x-dropdown-link>
@@ -154,6 +158,10 @@
                         👑 Panel de Administración
                     </x-responsive-nav-link>
                 @endif
+
+                <x-responsive-nav-link :href="route('subscriptions.dashboard')">
+                    💳 Mi Suscripción
+                </x-responsive-nav-link>
 
                 <x-responsive-nav-link :href="route('subscriptions.index')">
                     ⭐ Planes Premium

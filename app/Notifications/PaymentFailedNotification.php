@@ -35,22 +35,19 @@ class PaymentFailedNotification extends Notification
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail(object $notifiable): \Illuminate\Notifications\Messages\MailMessage
     {
         $plan = $this->subscription->plan;
 
-        return (new MailMessage)
-            ->subject('⚠️ Problema con tu pago de Citas Mallorca')
-            ->greeting('Hola ' . $notifiable->name . ',')
-            ->line('Hemos detectado un problema al procesar tu último pago.')
-            ->line('**Plan:** ' . $plan->nombre)
-            ->line('**Estado:** Pago rechazado')
-            ->line('')
-            ->line('Tu acceso a las funcionalidades premium ha sido suspendido temporalmente.')
-            ->line('Por favor, actualiza tu método de pago para continuar disfrutando del servicio.')
-            ->action('Actualizar Método de Pago', route('subscriptions.dashboard'))
-            ->line('Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos.')
-            ->salutation('Equipo de Citas Mallorca');
+        $mailable = (new MailMessage)
+            ->subject('Problema con tu pago - Citas Mallorca')
+            ->view('emails.payment-failed', [
+                'user' => $notifiable,
+                'subscription' => $this->subscription,
+                'plan' => $plan,
+            ]);
+
+        return $mailable;
     }
 
     /**

@@ -97,13 +97,13 @@ class PayPalWebhookController extends Controller
         // Renovar la suscripción
         $subscription->renew($transactionId, $montoPagado);
 
-        // Enviar email de confirmación de pago
+        // Enviar email de confirmación de renovación
         try {
             if (config('mail.username') !== 'tu-email@gmail.com') {
-                $subscription->user->notify(new \App\Notifications\SubscriptionActivatedNotification($subscription));
+                $subscription->user->notify(new \App\Notifications\SubscriptionRenewedNotification($subscription));
             }
         } catch (\Exception $e) {
-            Log::warning('Failed to send payment notification email', [
+            Log::warning('Failed to send renewal notification email', [
                 'error' => $e->getMessage(),
                 'subscription_id' => $subscription->id
             ]);

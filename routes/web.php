@@ -187,6 +187,85 @@ Route::middleware(['auth', 'verified.identity'])->group(function () {
     Route::post('/subscription/cancel', [\App\Http\Controllers\SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
     Route::post('/subscription/reactivate', [\App\Http\Controllers\SubscriptionController::class, 'reactivate'])->name('subscriptions.reactivate');
 
+    // Preview de emails (solo admin, para desarrollo)
+    Route::prefix('email-preview')->middleware('admin')->group(function () {
+        Route::get('/subscription-activated', function () {
+            $user = auth()->user();
+            $subscription = \App\Models\UserSubscription::where('user_id', $user->id)->first();
+
+            if (!$subscription) {
+                // Crear datos de prueba
+                $plan = \App\Models\Plan::where('activo', true)->where('precio_mensual', '>', 0)->first();
+                $subscription = new \App\Models\UserSubscription([
+                    'user_id' => $user->id,
+                    'plan_id' => $plan->id,
+                    'tipo' => 'mensual',
+                    'estado' => 'activa',
+                    'monto_pagado' => $plan->precio_mensual,
+                    'fecha_inicio' => now(),
+                    'fecha_expiracion' => now()->addMonth(),
+                ]);
+                $subscription->setRelation('plan', $plan);
+            }
+
+            return view('emails.subscription-activated', [
+                'user' => $user,
+                'subscription' => $subscription,
+                'plan' => $subscription->plan,
+            ]);
+        });
+
+        Route::get('/payment-failed', function () {
+            $user = auth()->user();
+            $subscription = \App\Models\UserSubscription::where('user_id', $user->id)->first();
+
+            if (!$subscription) {
+                $plan = \App\Models\Plan::where('activo', true)->where('precio_mensual', '>', 0)->first();
+                $subscription = new \App\Models\UserSubscription([
+                    'user_id' => $user->id,
+                    'plan_id' => $plan->id,
+                    'tipo' => 'mensual',
+                    'estado' => 'impagada',
+                    'monto_pagado' => $plan->precio_mensual,
+                    'fecha_inicio' => now()->subMonth(),
+                    'fecha_expiracion' => now(),
+                ]);
+                $subscription->setRelation('plan', $plan);
+            }
+
+            return view('emails.payment-failed', [
+                'user' => $user,
+                'subscription' => $subscription,
+                'plan' => $subscription->plan,
+            ]);
+        });
+
+        Route::get('/subscription-renewed', function () {
+            $user = auth()->user();
+            $subscription = \App\Models\UserSubscription::where('user_id', $user->id)->first();
+
+            if (!$subscription) {
+                $plan = \App\Models\Plan::where('activo', true)->where('precio_mensual', '>', 0)->first();
+                $subscription = new \App\Models\UserSubscription([
+                    'user_id' => $user->id,
+                    'plan_id' => $plan->id,
+                    'tipo' => 'mensual',
+                    'estado' => 'activa',
+                    'monto_pagado' => $plan->precio_mensual,
+                    'fecha_inicio' => now()->subMonth(),
+                    'fecha_expiracion' => now()->addMonth(),
+                ]);
+                $subscription->setRelation('plan', $plan);
+            }
+
+            return view('emails.subscription-renewed', [
+                'user' => $user,
+                'subscription' => $subscription,
+                'plan' => $subscription->plan,
+            ]);
+        });
+    });
+
     // Panel de Administración (solo para administradores)
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');

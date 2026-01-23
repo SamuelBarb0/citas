@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Models\UserSubscription;
 
-class SubscriptionActivatedNotification extends Notification
+class SubscriptionRenewedNotification extends Notification
 {
     use Queueable;
 
@@ -35,19 +35,17 @@ class SubscriptionActivatedNotification extends Notification
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): \Illuminate\Notifications\Messages\MailMessage
+    public function toMail(object $notifiable): MailMessage
     {
         $plan = $this->subscription->plan;
 
-        $mailable = (new MailMessage)
-            ->subject('¡Tu suscripción a Citas Mallorca está activa!')
-            ->view('emails.subscription-activated', [
+        return (new MailMessage)
+            ->subject('Suscripción renovada - Citas Mallorca')
+            ->view('emails.subscription-renewed', [
                 'user' => $notifiable,
                 'subscription' => $this->subscription,
                 'plan' => $plan,
             ]);
-
-        return $mailable;
     }
 
     /**
