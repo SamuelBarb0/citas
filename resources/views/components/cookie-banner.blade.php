@@ -141,99 +141,138 @@
 </div>
 
 <script>
-// Verificar si ya existe una preferencia de cookies guardada
-document.addEventListener('DOMContentLoaded', function() {
-    const cookieConsent = getCookie('cookie_consent');
+(function() {
+    'use strict';
 
-    // Solo mostrar el banner si NO hay cookie guardada
-    if (!cookieConsent) {
-        setTimeout(function() {
-            showCookieBanner();
-        }, 500);
+    // Función para obtener cookie
+    function getCookie(name) {
+        try {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        } catch (e) {
+            console.error('Error leyendo cookie:', e);
+        }
+        return null;
     }
-});
 
-// Función para obtener cookie
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null;
-}
+    // Función para establecer cookie
+    function setCookie(name, value, days) {
+        try {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = `expires=${date.toUTCString()}`;
+            document.cookie = `${name}=${value};${expires};path=/`;
+        } catch (e) {
+            console.error('Error guardando cookie:', e);
+        }
+    }
 
-// Función para establecer cookie
-function setCookie(name, value, days) {
-    const date = new Date();
-    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-    const expires = `expires=${date.toUTCString()}`;
-    document.cookie = `${name}=${value};${expires};path=/`;
-}
+    // Ocultar el banner de cookies
+    function hideCookieBanner() {
+        const banner = document.getElementById('cookie-banner');
+        const overlay = document.getElementById('cookie-overlay');
 
-// Aceptar todas las cookies
-function acceptAllCookies() {
-    const preferences = {
-        necessary: true,
-        analytics: true,
-        marketing: true,
-        preferences: true
-    };
+        if (banner) banner.style.display = 'none';
+        if (overlay) overlay.style.display = 'none';
+    }
 
-    setCookie('cookie_consent', JSON.stringify(preferences), 365);
-    hideCookieBanner();
-}
+    // Mostrar el banner de cookies
+    function showCookieBanner() {
+        const banner = document.getElementById('cookie-banner');
+        const overlay = document.getElementById('cookie-overlay');
 
-// Rechazar cookies (solo necesarias)
-function rejectCookies() {
-    const preferences = {
-        necessary: true,
-        analytics: false,
-        marketing: false,
-        preferences: false
-    };
+        console.log('showCookieBanner llamado');
+        console.log('Banner element:', banner);
+        console.log('Overlay element:', overlay);
 
-    setCookie('cookie_consent', JSON.stringify(preferences), 365);
-    hideCookieBanner();
-}
+        if (overlay) {
+            overlay.style.display = 'block';
+            console.log('Overlay mostrado');
+        }
+        if (banner) {
+            banner.style.display = 'flex';
+            console.log('Banner mostrado');
+        }
+    }
 
-// Abrir modal de configuración
-function configureCookies() {
-    document.getElementById('cookie-config-modal').style.display = 'flex';
-}
+    // Aceptar todas las cookies
+    function acceptAllCookies() {
+        const preferences = {
+            necessary: true,
+            analytics: true,
+            marketing: true,
+            preferences: true
+        };
 
-// Cerrar modal de configuración
-function closeConfigModal() {
-    document.getElementById('cookie-config-modal').style.display = 'none';
-}
+        setCookie('cookie_consent', JSON.stringify(preferences), 365);
+        hideCookieBanner();
+    }
 
-// Guardar preferencias personalizadas
-function saveCustomCookies() {
-    const preferences = {
-        necessary: true,
-        analytics: document.getElementById('cookie-analytics').checked,
-        marketing: document.getElementById('cookie-marketing').checked,
-        preferences: document.getElementById('cookie-preferences').checked
-    };
+    // Rechazar cookies (solo necesarias)
+    function rejectCookies() {
+        const preferences = {
+            necessary: true,
+            analytics: false,
+            marketing: false,
+            preferences: false
+        };
 
-    setCookie('cookie_consent', JSON.stringify(preferences), 365);
-    closeConfigModal();
-    hideCookieBanner();
-}
+        setCookie('cookie_consent', JSON.stringify(preferences), 365);
+        hideCookieBanner();
+    }
 
-// Ocultar el banner de cookies
-function hideCookieBanner() {
-    const banner = document.getElementById('cookie-banner');
-    const overlay = document.getElementById('cookie-overlay');
+    // Abrir modal de configuración
+    function configureCookies() {
+        const modal = document.getElementById('cookie-config-modal');
+        if (modal) modal.style.display = 'flex';
+    }
 
-    if (banner) banner.style.display = 'none';
-    if (overlay) overlay.style.display = 'none';
-}
+    // Cerrar modal de configuración
+    function closeConfigModal() {
+        const modal = document.getElementById('cookie-config-modal');
+        if (modal) modal.style.display = 'none';
+    }
 
-// Mostrar el banner de cookies (para el botón del footer)
-function showCookieBanner() {
-    const banner = document.getElementById('cookie-banner');
-    const overlay = document.getElementById('cookie-overlay');
+    // Guardar preferencias personalizadas
+    function saveCustomCookies() {
+        const preferences = {
+            necessary: true,
+            analytics: document.getElementById('cookie-analytics')?.checked || false,
+            marketing: document.getElementById('cookie-marketing')?.checked || false,
+            preferences: document.getElementById('cookie-preferences')?.checked || false
+        };
 
-    if (overlay) overlay.style.display = 'block';
-    if (banner) banner.style.display = 'flex';
-}
+        setCookie('cookie_consent', JSON.stringify(preferences), 365);
+        closeConfigModal();
+        hideCookieBanner();
+    }
+
+    // Exponer funciones globalmente
+    window.showCookieBanner = showCookieBanner;
+    window.hideCookieBanner = hideCookieBanner;
+    window.acceptAllCookies = acceptAllCookies;
+    window.rejectCookies = rejectCookies;
+    window.configureCookies = configureCookies;
+    window.closeConfigModal = closeConfigModal;
+    window.saveCustomCookies = saveCustomCookies;
+
+    // Verificar si ya existe una preferencia de cookies guardada
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Cookie banner: DOMContentLoaded');
+
+        const cookieConsent = getCookie('cookie_consent');
+        console.log('cookie_consent:', cookieConsent);
+
+        // Solo mostrar el banner si NO hay cookie guardada
+        if (!cookieConsent) {
+            console.log('No hay cookie, mostrando banner en 500ms...');
+            setTimeout(function() {
+                showCookieBanner();
+            }, 500);
+        } else {
+            console.log('Ya existe cookie, no mostrando banner');
+        }
+    });
+})();
 </script>
