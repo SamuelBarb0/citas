@@ -1,8 +1,8 @@
 <!-- Overlay oscuro para el banner de cookies -->
-<div id="cookie-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] hidden"></div>
+<div id="cookie-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998]" style="display: none;"></div>
 
 <!-- Banner de Cookies - Modal centrado y prominente -->
-<div id="cookie-banner" class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 hidden">
+<div id="cookie-banner" class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4" style="display: none;">
     <div class="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-lg w-full" id="cookie-banner-inner">
         <!-- Header con icono grande -->
         <div class="bg-gradient-to-r from-brown to-heart-red text-white p-4 sm:p-6 rounded-t-2xl sm:rounded-t-3xl text-center">
@@ -278,8 +278,8 @@ function hideCookieBanner() {
     const banner = document.getElementById('cookie-banner');
     const overlay = document.getElementById('cookie-overlay');
 
-    if (banner) banner.classList.add('hidden');
-    if (overlay) overlay.classList.add('hidden');
+    if (banner) banner.style.display = 'none';
+    if (overlay) overlay.style.display = 'none';
 }
 
 // Mostrar el banner de cookies manualmente (desde el footer)
@@ -300,8 +300,8 @@ function showCookieBanner(isUpdate = false) {
         }
     }
 
-    if (overlay) overlay.classList.remove('hidden');
-    if (banner) banner.classList.remove('hidden');
+    if (overlay) overlay.style.display = 'block';
+    if (banner) banner.style.display = 'flex';
 }
 
 // Aplicar preferencias de cookies
