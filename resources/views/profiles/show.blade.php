@@ -300,7 +300,7 @@
                         $matchCount = \App\Models\UserMatch::where('user_id_1', Auth::id())
                             ->orWhere('user_id_2', Auth::id())
                             ->count();
-                        $likesReceived = \App\Models\UserLike::where('liked_user_id', Auth::id())->count();
+                        $likesReceived = \App\Models\Like::where('liked_user_id', Auth::id())->count();
                     @endphp
                     <div class="grid grid-cols-3 gap-4 py-6 border-t border-gray-200">
                         <div class="text-center bg-gradient-to-br from-heart-red/10 to-heart-red/5 rounded-2xl p-4">
