@@ -161,17 +161,31 @@ document.addEventListener('DOMContentLoaded', function() {
             showCookieBanner(false);
         }, 500);
     } else {
-        // Si ya aceptaron cookies anteriormente, simplemente aplicar sus preferencias
-        // y actualizar la versión silenciosamente
-        const preferences = JSON.parse(cookieConsent);
+        try {
+            // Si ya aceptaron cookies anteriormente, simplemente aplicar sus preferencias
+            const preferences = JSON.parse(cookieConsent);
 
-        // Actualizar versión silenciosamente si es antigua
-        if (!preferences.version || preferences.version < COOKIE_POLICY_VERSION) {
-            preferences.version = COOKIE_POLICY_VERSION;
-            setCookie('cookie_consent', JSON.stringify(preferences), 365);
+            // Actualizar versión silenciosamente si es antigua
+            if (!preferences.version || preferences.version < COOKIE_POLICY_VERSION) {
+                preferences.version = COOKIE_POLICY_VERSION;
+                setCookie('cookie_consent', JSON.stringify(preferences), 365);
+            }
+
+            applyCookiePreferences(preferences);
+        } catch (e) {
+            // Si la cookie está corrupta, eliminarla y no mostrar nada
+            // (el usuario ya aceptó antes, asumimos que acepta todo)
+            console.log('Cookie corrupta, regenerando...');
+            const defaultPreferences = {
+                version: COOKIE_POLICY_VERSION,
+                necessary: true,
+                analytics: true,
+                marketing: false,
+                preferences: true
+            };
+            setCookie('cookie_consent', JSON.stringify(defaultPreferences), 365);
+            applyCookiePreferences(defaultPreferences);
         }
-
-        applyCookiePreferences(preferences);
     }
 });
 
@@ -181,6 +195,18 @@ function getCookie(name) {
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
     return null;
+}
+
+// Función para eliminar cookie (útil para debug)
+function deleteCookie(name) {
+    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+}
+
+// Función global para resetear cookies (llamar desde consola: resetCookieConsent())
+window.resetCookieConsent = function() {
+    deleteCookie('cookie_consent');
+    console.log('Cookie de consentimiento eliminada. Recarga la página.');
+    location.reload();
 }
 
 // Función para establecer cookie
