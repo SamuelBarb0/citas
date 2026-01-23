@@ -106,7 +106,7 @@
                             name="genero"
                             id="genero"
                             :required="true"
-                            :selected="old('genero', $profileData['genero'] ?? '')"
+                            :value="old('genero', $profileData['genero'] ?? '')"
                             placeholder="Selecciona..."
                             class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brown focus:border-transparent transition text-sm sm:text-base"
                         />
@@ -123,7 +123,7 @@
                             name="orientacion_sexual"
                             id="orientacion_sexual"
                             :required="false"
-                            :selected="old('orientacion_sexual', $profileData['orientacion_sexual'] ?? '')"
+                            :value="old('orientacion_sexual', $profileData['orientacion_sexual'] ?? '')"
                             placeholder="Selecciona..."
                             class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brown focus:border-transparent transition text-sm sm:text-base"
                         />
@@ -143,7 +143,7 @@
                             name="busco"
                             id="busco"
                             :required="true"
-                            :selected="old('busco', $profileData['busco'] ?? '')"
+                            :value="old('busco', $profileData['busco'] ?? '')"
                             placeholder="Selecciona..."
                             class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brown focus:border-transparent transition text-sm sm:text-base"
                         />
@@ -160,7 +160,7 @@
                             name="ciudad"
                             id="ciudad"
                             :required="true"
-                            :selected="old('ciudad', $profileData['ciudad'] ?? '')"
+                            :value="old('ciudad', $profileData['ciudad'] ?? '')"
                             placeholder="Busca tu ciudad..."
                             class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brown focus:border-transparent transition text-sm sm:text-base"
                         />

@@ -125,7 +125,7 @@
                             name="genero"
                             id="genero"
                             :required="true"
-                            :selected="old('genero', $profile->genero)"
+                            :value="old('genero', $profile->genero)"
                             placeholder="Selecciona..."
                             class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brown focus:border-transparent transition text-sm sm:text-base"
                         />
@@ -142,7 +142,7 @@
                             name="orientacion_sexual"
                             id="orientacion_sexual"
                             :required="false"
-                            :selected="old('orientacion_sexual', $profile->orientacion_sexual)"
+                            :value="old('orientacion_sexual', $profile->orientacion_sexual)"
                             placeholder="Selecciona..."
                             class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brown focus:border-transparent transition text-sm sm:text-base"
                         />
@@ -162,7 +162,7 @@
                             name="busco"
                             id="busco"
                             :required="true"
-                            :selected="old('busco', $profile->busco)"
+                            :value="old('busco', $profile->busco)"
                             placeholder="Selecciona..."
                             class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brown focus:border-transparent transition text-sm sm:text-base"
                         />
@@ -179,7 +179,7 @@
                             name="ciudad"
                             id="ciudad"
                             :required="true"
-                            :selected="old('ciudad', $profile->ciudad)"
+                            :value="old('ciudad', $profile->ciudad)"
                             placeholder="Busca tu ciudad..."
                             class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brown focus:border-transparent transition text-sm sm:text-base"
                         />
