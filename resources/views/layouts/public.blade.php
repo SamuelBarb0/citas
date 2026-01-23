@@ -19,12 +19,12 @@
 <body class="antialiased">
     <!-- Navbar -->
     <nav class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
+        <div class="max-w-7xl mx-auto px-2 xs:px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-14 sm:h-16">
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="{{ url('/') }}" class="flex items-center">
-                        <img src="{{ asset('images/LOGOCITAS.png') }}" alt="Citas Mallorca" class="w-16 h-16">
+                        <img src="{{ asset('images/LOGOCITAS.png') }}" alt="Citas Mallorca" class="w-12 h-12 sm:w-16 sm:h-16">
                     </a>
                 </div>
 
@@ -51,7 +51,7 @@
 
                 <!-- Mobile menu button -->
                 <div class="md:hidden">
-                    <button type="button" class="text-gray-700 hover:text-gray-900" id="mobile-menu-button">
+                    <button type="button" class="text-gray-700 hover:text-gray-900 p-2" id="mobile-menu-button">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
@@ -64,16 +64,16 @@
         <div class="md:hidden hidden" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1">
                 @guest
-                    <a href="{{ route('subscriptions.index') }}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Planes</a>
-                    <a href="{{ route('login') }}" class="block px-3 py-2 bg-heart-red text-white rounded-full text-center font-medium mx-2 shadow-lg">Entrar / Registrarse</a>
+                    <a href="{{ route('subscriptions.index') }}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md text-sm">Planes</a>
+                    <a href="{{ route('login') }}" class="block px-3 py-2 bg-heart-red text-white rounded-full text-center font-medium mx-2 shadow-lg text-sm">Entrar / Registrarse</a>
                 @else
-                    <a href="{{ route('dashboard') }}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Descubrir</a>
-                    <a href="{{ route('matches') }}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Mis Matches</a>
-                    <a href="{{ route('messages') }}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Mensajes</a>
-                    <a href="{{ route('user.profile.show') }}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Mi Perfil</a>
+                    <a href="{{ route('dashboard') }}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md text-sm">Descubrir</a>
+                    <a href="{{ route('matches') }}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md text-sm">Mis Matches</a>
+                    <a href="{{ route('messages') }}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md text-sm">Mensajes</a>
+                    <a href="{{ route('user.profile.show') }}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md text-sm">Mi Perfil</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Cerrar Sesión</button>
+                        <button type="submit" class="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md text-sm">Cerrar Sesión</button>
                     </form>
                 @endguest
             </div>
@@ -89,24 +89,24 @@
     @include('components.cookie-banner')
 
     <!-- Footer -->
-    <footer class="bg-white mt-20 border-t border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer class="bg-white mt-12 sm:mt-20 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12">
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
                 <!-- Logo y descripción -->
-                <div class="col-span-1 md:col-span-2">
-                    <div class="flex items-center mb-4">
-                        <img src="{{ asset('images/LOGOCITAS.png') }}" alt="Citas Mallorca" class="w-20 h-20">
+                <div class="col-span-2">
+                    <div class="flex items-center mb-3 sm:mb-4">
+                        <img src="{{ asset('images/LOGOCITAS.png') }}" alt="Citas Mallorca" class="w-16 h-16 sm:w-20 sm:h-20">
                     </div>
-                    <p class="text-gray-600 mb-4">
+                    <p class="text-gray-600 mb-3 sm:mb-4 text-xs sm:text-sm">
                         Tu punto de encuentro para conocer gente auténtica en la isla.
                         Conversa sin complicaciones y pásatelo bien en Mallorca.
                     </p>
-                    <div class="text-sm text-gray-500">
+                    <div class="text-xs sm:text-sm text-gray-500">
                         <p class="font-semibold text-brown">Citas Mallorca S.L</p>
                         <p>Carrer Gremi de Porgadors, 2 -2ºB</p>
                         <p>07009 Palma, Illes Balears</p>
                         <p class="mt-2">
-                            <a href="mailto:info@citasmallorca.es" class="text-heart-red hover:underline font-semibold">
+                            <a href="mailto:info@citasmallorca.es" class="text-heart-red hover:underline font-semibold text-xs sm:text-sm break-all">
                                 info@citasmallorca.es
                             </a>
                         </p>
@@ -115,21 +115,21 @@
 
                 <!-- Información Legal -->
                 <div>
-                    <h3 class="font-semibold mb-4 text-brown">Información Legal</h3>
-                    <ul class="space-y-2">
+                    <h3 class="font-semibold mb-3 sm:mb-4 text-brown text-sm sm:text-base">Legal</h3>
+                    <ul class="space-y-1.5 sm:space-y-2">
                         <li>
-                            <a href="{{ route('legal.aviso-legal') }}" class="text-gray-600 hover:text-heart-red transition">
+                            <a href="{{ route('legal.aviso-legal') }}" class="text-gray-600 hover:text-heart-red transition text-xs sm:text-sm">
                                 Aviso Legal
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('legal.privacidad') }}" class="text-gray-600 hover:text-heart-red transition">
-                                Política de Privacidad
+                            <a href="{{ route('legal.privacidad') }}" class="text-gray-600 hover:text-heart-red transition text-xs sm:text-sm">
+                                Privacidad
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('legal.cookies') }}" class="text-gray-600 hover:text-heart-red transition">
-                                Política de Cookies
+                            <a href="{{ route('legal.cookies') }}" class="text-gray-600 hover:text-heart-red transition text-xs sm:text-sm">
+                                Cookies
                             </a>
                         </li>
                     </ul>
@@ -137,42 +137,42 @@
 
                 <!-- Términos y Condiciones -->
                 <div>
-                    <h3 class="font-semibold mb-4 text-brown">Términos y Condiciones</h3>
-                    <ul class="space-y-2">
+                    <h3 class="font-semibold mb-3 sm:mb-4 text-brown text-sm sm:text-base">Términos</h3>
+                    <ul class="space-y-1.5 sm:space-y-2">
                         <li>
-                            <a href="{{ route('legal.terminos') }}" class="text-gray-600 hover:text-heart-red transition">
-                                Términos de Uso
+                            <a href="{{ route('legal.terminos') }}" class="text-gray-600 hover:text-heart-red transition text-xs sm:text-sm">
+                                Uso
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('legal.contract-terms') }}" class="text-gray-600 hover:text-heart-red transition">
-                                Condiciones de Contratación
+                            <a href="{{ route('legal.contract-terms') }}" class="text-gray-600 hover:text-heart-red transition text-xs sm:text-sm">
+                                Contratación
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('legal.payment-conditions') }}" class="text-gray-600 hover:text-heart-red transition">
-                                Condiciones de Pago
+                            <a href="{{ route('legal.payment-conditions') }}" class="text-gray-600 hover:text-heart-red transition text-xs sm:text-sm">
+                                Pago
                             </a>
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <div class="border-t border-gray-200 mt-8 pt-8">
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <p class="text-gray-600 text-center md:text-left mb-4 md:mb-0">
-                        &copy; {{ date('Y') }} Citas Mallorca S.L. Todos los derechos reservados.
+            <div class="border-t border-gray-200 mt-6 sm:mt-8 pt-6 sm:pt-8">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <p class="text-gray-600 text-center sm:text-left text-xs sm:text-sm">
+                        &copy; {{ date('Y') }} Citas Mallorca S.L.
                     </p>
-                    <div class="flex space-x-4">
-                        <a href="{{ route('legal.privacidad') }}" class="text-sm text-gray-500 hover:text-heart-red transition">
+                    <div class="flex flex-wrap justify-center gap-2 sm:gap-4">
+                        <a href="{{ route('legal.privacidad') }}" class="text-xs text-gray-500 hover:text-heart-red transition">
                             Privacidad
                         </a>
-                        <span class="text-gray-300">|</span>
-                        <a href="{{ route('legal.cookies') }}" class="text-sm text-gray-500 hover:text-heart-red transition">
+                        <span class="text-gray-300 hidden sm:inline">|</span>
+                        <a href="{{ route('legal.cookies') }}" class="text-xs text-gray-500 hover:text-heart-red transition">
                             Cookies
                         </a>
-                        <span class="text-gray-300">|</span>
-                        <a href="{{ route('legal.terminos') }}" class="text-sm text-gray-500 hover:text-heart-red transition">
+                        <span class="text-gray-300 hidden sm:inline">|</span>
+                        <a href="{{ route('legal.terminos') }}" class="text-xs text-gray-500 hover:text-heart-red transition">
                             Términos
                         </a>
                     </div>

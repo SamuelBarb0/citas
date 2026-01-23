@@ -1,32 +1,40 @@
-<!-- Banner de Cookies -->
-<div id="cookie-banner" class="fixed bottom-0 left-0 right-0 bg-white shadow-2xl border-t-4 border-brown z-50 transform translate-y-full transition-transform duration-500" style="display: none;">
-    <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
-        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 lg:gap-4">
-            <!-- Texto informativo -->
-            <div class="flex-1">
-                <div class="flex items-start gap-2">
-                    <span class="text-2xl flex-shrink-0">🍪</span>
-                    <div>
-                        <h3 class="text-base font-bold text-brown mb-1">Utilizamos cookies</h3>
-                        <p class="text-gray-700 text-xs sm:text-sm leading-snug">
-                            Utilizamos cookies para mejorar tu experiencia. Puedes aceptar todas, rechazarlas o configurar tus preferencias.
-                            <a href="{{ route('legal.cookies') }}" class="text-brown font-semibold hover:underline ml-1">Más información</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
+<!-- Overlay oscuro para el banner de cookies -->
+<div id="cookie-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] opacity-0 transition-opacity duration-500" style="display: none;"></div>
 
-            <!-- Botones de acción -->
-            <div class="flex flex-row gap-2 w-full lg:w-auto lg:flex-shrink-0">
-                <button onclick="configureCookies()" class="flex-1 lg:flex-initial px-4 py-2 bg-white border-2 border-brown text-brown rounded-full font-semibold hover:bg-cream transition text-xs sm:text-sm whitespace-nowrap">
-                    ⚙️ Configurar
+<!-- Banner de Cookies - Modal centrado y prominente -->
+<div id="cookie-banner" class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 opacity-0 transition-opacity duration-500" style="display: none;">
+    <div class="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-lg w-full transform scale-95 transition-transform duration-500" id="cookie-banner-inner">
+        <!-- Header con icono grande -->
+        <div class="bg-gradient-to-r from-brown to-heart-red text-white p-4 sm:p-6 rounded-t-2xl sm:rounded-t-3xl text-center">
+            <span class="text-4xl sm:text-6xl block mb-2 sm:mb-3">🍪</span>
+            <h2 class="text-xl sm:text-2xl font-black">Tu privacidad es importante</h2>
+        </div>
+
+        <!-- Contenido -->
+        <div class="p-4 sm:p-6">
+            <p class="text-gray-700 text-sm sm:text-base leading-relaxed text-center mb-4 sm:mb-6">
+                Utilizamos cookies para mejorar tu experiencia en <strong class="text-brown">Citas Mallorca</strong>.
+                Puedes aceptar todas, rechazarlas o personalizar tus preferencias.
+            </p>
+
+            <a href="{{ route('legal.cookies') }}" class="block text-center text-brown font-semibold hover:underline mb-4 sm:mb-6 text-sm sm:text-base">
+                Leer política de cookies
+            </a>
+
+            <!-- Botones de acción grandes y claros -->
+            <div class="space-y-2 sm:space-y-3">
+                <button onclick="acceptAllCookies()" class="w-full py-3 sm:py-4 bg-gradient-to-r from-brown to-heart-red text-white rounded-full font-bold text-base sm:text-lg hover:shadow-lg hover:scale-[1.02] transition-all">
+                    Aceptar todas
                 </button>
-                <button onclick="rejectCookies()" class="flex-1 lg:flex-initial px-4 py-2 bg-gray-200 text-gray-700 rounded-full font-semibold hover:bg-gray-300 transition text-xs sm:text-sm whitespace-nowrap">
-                    Rechazar
-                </button>
-                <button onclick="acceptAllCookies()" class="flex-1 lg:flex-initial px-4 py-2 bg-gradient-to-r from-brown to-heart-red text-white rounded-full font-semibold hover:shadow-lg transition text-xs sm:text-sm whitespace-nowrap">
-                    Aceptar
-                </button>
+
+                <div class="grid grid-cols-2 gap-2 sm:gap-3">
+                    <button onclick="rejectCookies()" class="py-2.5 sm:py-3 bg-gray-200 text-gray-700 rounded-full font-semibold hover:bg-gray-300 transition text-xs sm:text-sm">
+                        Solo necesarias
+                    </button>
+                    <button onclick="configureCookies()" class="py-2.5 sm:py-3 bg-white border-2 border-brown text-brown rounded-full font-semibold hover:bg-cream transition text-xs sm:text-sm">
+                        Configurar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -141,11 +149,18 @@ document.addEventListener('DOMContentLoaded', function() {
         // Si no hay preferencia guardada, mostrar el banner
         setTimeout(function() {
             const banner = document.getElementById('cookie-banner');
-            banner.style.display = 'block';
+            const overlay = document.getElementById('cookie-overlay');
+            const bannerInner = document.getElementById('cookie-banner-inner');
+
+            overlay.style.display = 'block';
+            banner.style.display = 'flex';
+
             setTimeout(function() {
-                banner.style.transform = 'translateY(0)';
+                overlay.style.opacity = '1';
+                banner.style.opacity = '1';
+                bannerInner.style.transform = 'scale(1)';
             }, 100);
-        }, 1000); // Mostrar después de 1 segundo
+        }, 500); // Mostrar después de 0.5 segundos
     } else {
         // Si ya hay preferencia, aplicar las cookies según la configuración
         applyCookiePreferences(JSON.parse(cookieConsent));
@@ -224,9 +239,16 @@ function saveCustomCookies() {
 // Ocultar el banner de cookies
 function hideCookieBanner() {
     const banner = document.getElementById('cookie-banner');
-    banner.style.transform = 'translateY(100%)';
+    const overlay = document.getElementById('cookie-overlay');
+    const bannerInner = document.getElementById('cookie-banner-inner');
+
+    banner.style.opacity = '0';
+    overlay.style.opacity = '0';
+    bannerInner.style.transform = 'scale(0.95)';
+
     setTimeout(function() {
         banner.style.display = 'none';
+        overlay.style.display = 'none';
     }, 500);
 }
 

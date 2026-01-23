@@ -80,10 +80,6 @@
                             ⭐ Planes Premium
                         </x-dropdown-link>
 
-                        <x-dropdown-link :href="route('profile.edit')">
-                            ⚙️ Configuración
-                        </x-dropdown-link>
-
                         <x-dropdown-link :href="route('blocked.index')">
                             🚫 Usuarios Bloqueados
                         </x-dropdown-link>
@@ -161,10 +157,6 @@
 
                 <x-responsive-nav-link :href="route('subscriptions.index')">
                     ⭐ Planes Premium
-                </x-responsive-nav-link>
-
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    ⚙️ Configuración
                 </x-responsive-nav-link>
 
                 <x-responsive-nav-link :href="route('blocked.index')">

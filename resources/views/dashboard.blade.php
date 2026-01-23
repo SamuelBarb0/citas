@@ -2,24 +2,24 @@
     <div class="min-h-screen bg-gradient-to-br from-cream via-white to-cream">
         <!-- Header compacto y moderno -->
         <div class="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-200 shadow-sm">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-4">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-heart-red to-heart-red-light rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-heart-red to-heart-red-light rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-lg">
                             {{ substr(Auth::user()->name, 0, 1) }}
                         </div>
                         <div>
-                            <h1 class="font-bold text-brown text-lg">Descubre</h1>
+                            <h1 class="font-bold text-brown text-base sm:text-lg">Descubre</h1>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button id="filters-btn" class="bg-white text-brown px-4 py-2 rounded-full hover:bg-cream transition font-semibold text-sm border-2 border-brown/20 flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex items-center gap-1.5 sm:gap-2">
+                        <button id="filters-btn" class="bg-white text-brown px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full hover:bg-cream transition font-semibold text-xs sm:text-sm border-2 border-brown/20 flex items-center gap-1 sm:gap-2">
+                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
                             </svg>
-                            Filtros
+                            <span class="hidden xs:inline">Filtros</span>
                         </button>
-                        <a href="{{ route('user.profile.show') }}" class="bg-gradient-to-r from-heart-red to-heart-red-light text-white px-6 py-2 rounded-full hover:shadow-glow transition font-semibold text-sm">
+                        <a href="{{ route('user.profile.show') }}" class="bg-gradient-to-r from-heart-red to-heart-red-light text-white px-3 sm:px-6 py-1.5 sm:py-2 rounded-full hover:shadow-glow transition font-semibold text-xs sm:text-sm">
                             Mi Perfil
                         </a>
                     </div>
@@ -41,20 +41,32 @@
                 </div>
 
                 <form id="filters-form" method="GET" action="{{ route('dashboard') }}">
-                    <!-- Filtro de Edad -->
+                    <!-- Filtro de Edad con Slider Dual -->
                     <div class="mb-6">
                         <label class="block text-sm font-bold text-brown mb-3">Rango de Edad</label>
-                        <div class="flex items-center gap-4">
-                            <div class="flex-1">
-                                <input type="number" name="edad_min" value="{{ request('edad_min', 18) }}" min="18" max="99"
-                                       class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-heart-red focus:outline-none">
-                                <p class="text-xs text-gray-500 mt-1">Mínimo</p>
+                        <div class="bg-gray-50 rounded-xl p-4 border-2 border-gray-200">
+                            <!-- Display de valores -->
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-2xl font-bold text-brown" id="filter-edad-min-display">{{ request('edad_min', 18) }}</span>
+                                <span class="text-gray-400 text-sm">a</span>
+                                <span class="text-2xl font-bold text-heart-red" id="filter-edad-max-display">{{ request('edad_max', 99) == 99 ? '99+' : request('edad_max', 99) }}</span>
                             </div>
-                            <span class="text-gray-400">-</span>
-                            <div class="flex-1">
-                                <input type="number" name="edad_max" value="{{ request('edad_max', 99) }}" min="18" max="99"
-                                       class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-heart-red focus:outline-none">
-                                <p class="text-xs text-gray-500 mt-1">Máximo</p>
+                            <!-- Slider container -->
+                            <div class="relative h-2 mt-4 mb-2">
+                                <!-- Track background -->
+                                <div class="absolute inset-0 bg-gray-300 rounded-full"></div>
+                                <!-- Track active -->
+                                <div id="filter-slider-track" class="absolute h-full bg-gradient-to-r from-brown to-heart-red rounded-full"></div>
+                                <!-- Range inputs -->
+                                <input type="range" name="edad_min" id="filter-edad-min-slider" min="18" max="99" value="{{ request('edad_min', 18) }}"
+                                    class="absolute w-full h-2 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-brown [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:bg-brown [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:shadow-lg [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white">
+                                <input type="range" name="edad_max" id="filter-edad-max-slider" min="18" max="99" value="{{ request('edad_max', 99) }}"
+                                    class="absolute w-full h-2 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-heart-red [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:bg-heart-red [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:shadow-lg [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white">
+                            </div>
+                            <!-- Labels -->
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>18</span>
+                                <span>99+</span>
                             </div>
                         </div>
                     </div>
@@ -89,25 +101,18 @@
                                 </div>
                             </label>
                             <label class="relative cursor-pointer">
-                                <input type="radio" name="busco" value="no-binario" {{ request('busco') == 'no-binario' ? 'checked' : '' }} class="peer sr-only">
+                                <input type="radio" name="busco" value="persona_no_binaria" {{ request('busco') == 'persona_no_binaria' ? 'checked' : '' }} class="peer sr-only">
                                 <div class="px-4 py-3 rounded-xl border-2 border-gray-200 text-center font-semibold text-sm peer-checked:border-heart-red peer-checked:bg-heart-red peer-checked:text-white transition">
                                     No binario
                                 </div>
                             </label>
+                            <label class="relative cursor-pointer col-span-2">
+                                <input type="radio" name="busco" value="genero_fluido" {{ request('busco') == 'genero_fluido' ? 'checked' : '' }} class="peer sr-only">
+                                <div class="px-4 py-3 rounded-xl border-2 border-gray-200 text-center font-semibold text-sm peer-checked:border-heart-red peer-checked:bg-heart-red peer-checked:text-white transition">
+                                    Género fluido
+                                </div>
+                            </label>
                         </div>
-                    </div>
-
-                    <!-- Filtro de Orientación Sexual -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-bold text-brown mb-3">Orientación Sexual</label>
-                        <x-dynamic-select
-                            tipo="orientacion_sexual"
-                            name="orientacion_sexual"
-                            id="filter_orientacion_sexual"
-                            :value="request('orientacion_sexual')"
-                            placeholder="Todas"
-                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-heart-red focus:outline-none"
-                        />
                     </div>
 
                     <!-- Filtro de Intereses -->
@@ -134,11 +139,11 @@
         <!-- Overlay oscuro para el panel de filtros -->
         <div id="filters-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] opacity-0 pointer-events-none transition-opacity duration-300"></div>
 
-        <div class="py-6 px-4 sm:px-6 lg:px-8">
+        <div class="py-3 sm:py-6 px-2 sm:px-4 md:px-6 lg:px-8">
             <div class="max-w-lg mx-auto">
                 @if(isset($searchExpanded) && $searchExpanded)
-                    <div class="mb-4 bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
-                        <p class="text-blue-700 text-sm">
+                    <div class="mb-3 sm:mb-4 bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4 text-center">
+                        <p class="text-blue-700 text-xs sm:text-sm">
                             <span class="font-semibold">Ampliamos tu búsqueda</span> para mostrarte más personas.
                             <a href="{{ route('user.profile.edit') }}" class="underline hover:text-blue-900">Actualiza tus preferencias</a>
                         </p>
@@ -147,10 +152,10 @@
 
                 @if(count($perfiles) > 0)
                     <!-- Contenedor de tarjetas apiladas estilo Tinder -->
-                    <div class="relative" style="height: 600px;">
+                    <div class="relative" style="height: calc(100vh - 180px); min-height: 400px; max-height: 600px;">
                         <div id="cards-stack" class="relative w-full h-full">
                             @foreach($perfiles as $index => $perfil)
-                                <div class="swipe-card absolute inset-0 bg-white rounded-3xl shadow-2xl overflow-hidden cursor-grab active:cursor-grabbing transition-all duration-300"
+                                <div class="swipe-card absolute inset-0 bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden cursor-grab active:cursor-grabbing transition-all duration-300"
                                      data-profile-id="{{ $perfil->id }}"
                                      data-index="{{ $index }}"
                                      style="transform: translateY({{ $index * 10 }}px) scale({{ 1 - ($index * 0.03) }}); z-index: {{ 100 - $index }}; opacity: {{ $index < 3 ? 1 : 0 }};">
@@ -268,15 +273,15 @@
                     </div>
 
                     <!-- Botones de acción grandes (fuera del contenedor de tarjetas) -->
-                    <div class="flex items-center justify-center gap-8 mt-6">
-                        <button id="nope-btn" class="w-[72px] h-[72px] bg-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform text-heart-red border-4 border-red-100">
-                            <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex items-center justify-center gap-6 sm:gap-8 mt-4 sm:mt-6">
+                        <button id="nope-btn" class="w-14 h-14 sm:w-[72px] sm:h-[72px] bg-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform text-heart-red border-3 sm:border-4 border-red-100">
+                            <svg class="w-7 h-7 sm:w-9 sm:h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
 
-                        <button id="like-btn" class="w-[72px] h-[72px] bg-gradient-to-br from-heart-red to-heart-red-light rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform text-white">
-                            <svg class="w-9 h-9" fill="currentColor" viewBox="0 0 20 20">
+                        <button id="like-btn" class="w-14 h-14 sm:w-[72px] sm:h-[72px] bg-gradient-to-br from-heart-red to-heart-red-light rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform text-white">
+                            <svg class="w-7 h-7 sm:w-9 sm:h-9" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
                             </svg>
                         </button>
@@ -284,15 +289,15 @@
 
                 @else
                     <!-- Sin perfiles disponibles -->
-                    <div class="text-center py-20">
-                        <div class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-cream to-brown/10 rounded-full flex items-center justify-center">
-                            <svg class="w-16 h-16 text-brown/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="text-center py-12 sm:py-20 px-4">
+                        <div class="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-4 sm:mb-6 bg-gradient-to-br from-cream to-brown/10 rounded-full flex items-center justify-center">
+                            <svg class="w-12 h-12 sm:w-16 sm:h-16 text-brown/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                             </svg>
                         </div>
-                        <h3 class="text-2xl font-bold text-brown mb-3">No hay más perfiles</h3>
-                        <p class="text-gray-600 mb-8 max-w-md mx-auto">Has visto todos los perfiles disponibles. Vuelve más tarde para ver nuevas personas.</p>
-                        <a href="{{ route('user.profile.show') }}" class="inline-block bg-gradient-to-r from-heart-red to-heart-red-light text-white px-8 py-4 rounded-full hover:shadow-glow transition font-bold shadow-lg">
+                        <h3 class="text-xl sm:text-2xl font-bold text-brown mb-2 sm:mb-3">No hay más perfiles</h3>
+                        <p class="text-gray-600 mb-6 sm:mb-8 max-w-md mx-auto text-sm sm:text-base">Has visto todos los perfiles disponibles. Vuelve más tarde para ver nuevas personas.</p>
+                        <a href="{{ route('user.profile.show') }}" class="inline-block bg-gradient-to-r from-heart-red to-heart-red-light text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:shadow-glow transition font-bold shadow-lg text-sm sm:text-base">
                             Ver Mi Perfil
                         </a>
                     </div>
@@ -330,6 +335,55 @@
                     window.location.href = '{{ route('dashboard') }}';
                 });
             }
+
+            // Dual Range Slider para filtro de edad
+            const filterMinSlider = document.getElementById('filter-edad-min-slider');
+            const filterMaxSlider = document.getElementById('filter-edad-max-slider');
+            const filterMinDisplay = document.getElementById('filter-edad-min-display');
+            const filterMaxDisplay = document.getElementById('filter-edad-max-display');
+            const filterSliderTrack = document.getElementById('filter-slider-track');
+
+            function updateFilterSlider() {
+                if (!filterMinSlider || !filterMaxSlider) return;
+
+                const min = parseInt(filterMinSlider.value);
+                const max = parseInt(filterMaxSlider.value);
+                const minPercent = ((min - 18) / (99 - 18)) * 100;
+                const maxPercent = ((max - 18) / (99 - 18)) * 100;
+
+                // Actualizar display
+                filterMinDisplay.textContent = min;
+                filterMaxDisplay.textContent = max === 99 ? '99+' : max;
+
+                // Actualizar track activo
+                filterSliderTrack.style.left = minPercent + '%';
+                filterSliderTrack.style.right = (100 - maxPercent) + '%';
+            }
+
+            if (filterMinSlider) {
+                filterMinSlider.addEventListener('input', function() {
+                    const min = parseInt(filterMinSlider.value);
+                    const max = parseInt(filterMaxSlider.value);
+                    if (min > max) {
+                        filterMinSlider.value = max;
+                    }
+                    updateFilterSlider();
+                });
+            }
+
+            if (filterMaxSlider) {
+                filterMaxSlider.addEventListener('input', function() {
+                    const min = parseInt(filterMinSlider.value);
+                    const max = parseInt(filterMaxSlider.value);
+                    if (max < min) {
+                        filterMaxSlider.value = min;
+                    }
+                    updateFilterSlider();
+                });
+            }
+
+            // Inicializar slider
+            updateFilterSlider();
         });
     </script>
 

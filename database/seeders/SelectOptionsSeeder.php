@@ -90,10 +90,9 @@ class SelectOptionsSeeder extends Seeder
         $generos = [
             ['valor' => 'hombre', 'etiqueta' => 'Hombre', 'orden' => 1],
             ['valor' => 'mujer', 'etiqueta' => 'Mujer', 'orden' => 2],
-            ['valor' => 'hombre_trans', 'etiqueta' => 'Hombre Trans', 'orden' => 3],
-            ['valor' => 'mujer_trans', 'etiqueta' => 'Mujer Trans', 'orden' => 4],
-            ['valor' => 'no_binario', 'etiqueta' => 'No Binario', 'orden' => 5],
-            ['valor' => 'otro', 'etiqueta' => 'Otro', 'orden' => 6],
+            ['valor' => 'persona_no_binaria', 'etiqueta' => 'Persona no binaria', 'orden' => 3],
+            ['valor' => 'genero_fluido', 'etiqueta' => 'Género fluido', 'orden' => 4],
+            ['valor' => 'prefiero_no_decirlo', 'etiqueta' => 'Prefiero no decirlo', 'orden' => 5],
         ];
 
         foreach ($generos as $genero) {
@@ -111,10 +110,9 @@ class SelectOptionsSeeder extends Seeder
         $busco = [
             ['valor' => 'hombre', 'etiqueta' => 'Hombres', 'orden' => 1],
             ['valor' => 'mujer', 'etiqueta' => 'Mujeres', 'orden' => 2],
-            ['valor' => 'hombre_trans', 'etiqueta' => 'Hombres Trans', 'orden' => 3],
-            ['valor' => 'mujer_trans', 'etiqueta' => 'Mujeres Trans', 'orden' => 4],
-            ['valor' => 'no_binario', 'etiqueta' => 'Personas No Binarias', 'orden' => 5],
-            ['valor' => 'cualquiera', 'etiqueta' => 'Cualquiera', 'orden' => 6],
+            ['valor' => 'persona_no_binaria', 'etiqueta' => 'Personas no binarias', 'orden' => 3],
+            ['valor' => 'genero_fluido', 'etiqueta' => 'Personas de género fluido', 'orden' => 4],
+            ['valor' => 'cualquiera', 'etiqueta' => 'Cualquiera', 'orden' => 5],
         ];
 
         foreach ($busco as $opcion) {
@@ -124,29 +122,6 @@ class SelectOptionsSeeder extends Seeder
                 'etiqueta' => $opcion['etiqueta'],
                 'grupo' => null,
                 'orden' => $opcion['orden'],
-                'activo' => true,
-            ]);
-        }
-
-        // Orientaciones sexuales
-        $orientaciones = [
-            ['valor' => 'heterosexual', 'etiqueta' => 'Heterosexual', 'orden' => 1],
-            ['valor' => 'homosexual', 'etiqueta' => 'Homosexual', 'orden' => 2],
-            ['valor' => 'bisexual', 'etiqueta' => 'Bisexual', 'orden' => 3],
-            ['valor' => 'pansexual', 'etiqueta' => 'Pansexual', 'orden' => 4],
-            ['valor' => 'asexual', 'etiqueta' => 'Asexual', 'orden' => 5],
-            ['valor' => 'queer', 'etiqueta' => 'Queer', 'orden' => 6],
-            ['valor' => 'otro', 'etiqueta' => 'Otro', 'orden' => 7],
-            ['valor' => 'prefiero_no_decir', 'etiqueta' => 'Prefiero no decir', 'orden' => 8],
-        ];
-
-        foreach ($orientaciones as $orientacion) {
-            SelectOption::create([
-                'tipo' => 'orientacion_sexual',
-                'valor' => $orientacion['valor'],
-                'etiqueta' => $orientacion['etiqueta'],
-                'grupo' => null,
-                'orden' => $orientacion['orden'],
                 'activo' => true,
             ]);
         }

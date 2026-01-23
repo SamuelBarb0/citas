@@ -115,41 +115,21 @@
                     @enderror
                 </div>
 
-                <!-- Género y Orientación Sexual en Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Género (Identidad) -->
-                    <div>
-                        <label for="genero" class="block text-sm font-semibold text-brown mb-2">Identidad de Género</label>
-                        <x-dynamic-select
-                            tipo="genero"
-                            name="genero"
-                            id="genero"
-                            :required="true"
-                            :value="old('genero', $profile->genero)"
-                            placeholder="Selecciona..."
-                            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brown focus:border-transparent transition text-sm sm:text-base"
-                        />
-                        @error('genero')
-                            <p class="text-heart-red text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Orientación Sexual -->
-                    <div>
-                        <label for="orientacion_sexual" class="block text-sm font-semibold text-brown mb-2">Orientación Sexual</label>
-                        <x-dynamic-select
-                            tipo="orientacion_sexual"
-                            name="orientacion_sexual"
-                            id="orientacion_sexual"
-                            :required="false"
-                            :value="old('orientacion_sexual', $profile->orientacion_sexual)"
-                            placeholder="Selecciona..."
-                            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brown focus:border-transparent transition text-sm sm:text-base"
-                        />
-                        @error('orientacion_sexual')
-                            <p class="text-heart-red text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+                <!-- Género -->
+                <div>
+                    <label for="genero" class="block text-sm font-semibold text-brown mb-2">Identidad de Género</label>
+                    <x-dynamic-select
+                        tipo="genero"
+                        name="genero"
+                        id="genero"
+                        :required="true"
+                        :value="old('genero', $profile->genero)"
+                        placeholder="Selecciona..."
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brown focus:border-transparent transition text-sm sm:text-base"
+                    />
+                    @error('genero')
+                        <p class="text-heart-red text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Busco y Ciudad en Grid -->
@@ -204,16 +184,34 @@
                 <!-- Intereses -->
                 <div>
                     <label class="block text-sm font-semibold text-brown mb-3">Intereses</label>
-                    <div id="intereses-container" class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
+                    <div id="intereses-container" class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3 max-h-80 overflow-y-auto pr-2">
                         @php
                             $interesesActuales = old('intereses', $profile->intereses ?? []);
+                            $interesesDisponibles = [
+                                'Tomar un café', 'Paseo tranquilo', 'Conversaciones picantes', 'Picnic en la playa',
+                                'Series', 'Cine', 'Noche de peli en casa', 'Salir a comer o cenar', 'Cocinar',
+                                'Tomar una copa', 'Yoga', 'Spa', 'Leer', 'Museos o exposiciones', 'Jardinería',
+                                'Pintura y dibujos', 'Mercadillos', 'Gastronomía', 'Naturaleza', 'Astronomía',
+                                'Conversaciones', 'Planes tranquis', 'Poesía', '¿Desayunamos?', 'Paseos con mascotas',
+                                'Viajar', 'Senderismo', 'Paseo en bicicleta', 'Karting', 'Parques de atracciones',
+                                'Escapadas de fin de semana', '¿Exploramos la isla?', '¿Vamos de cañas/tapas?', 'Tardeo',
+                                'Fútbol', 'Pádel', 'Gimnasio', 'Natación', '¿Salimos a bailar?', 'Camping/autocaravana',
+                                'Shopping', '¿Salimos de marcha?', 'Baloncesto', 'Quedar en grupo', 'Aventuras improvisadas',
+                                'Aventuras planeadas', 'Juegos', 'Probar sitios nuevos', 'Fotografía', 'Aprender idiomas',
+                                'Espiritualidad', 'Crecimiento personal', 'Autoconocimiento', 'Vida consciente', 'Numerología',
+                                'Astrología', 'Personas PAS', 'Personas TDAH', 'MBTI', 'Profundidad', 'Voluntariado',
+                                'Cuidado de mascotas', 'Monogamia', 'Relación abierta', 'Respeto', 'Empatía',
+                                'Relación estable', 'Amistades', 'Charlas profundas', 'Conversaciones nocturnas',
+                                'Solo disfrutar', 'Poco a poco', 'Conexión', 'Responsabilidad afectiva', 'Hablar cuando pueda',
+                                'Hablar cada día', 'LGBTQ+ friendly', 'Detalles', 'Enamorarse', 'Citas'
+                            ];
                         @endphp
-                        @foreach(['playa', 'senderismo', 'gastronomía', 'deportes', 'música', 'arte', 'viajes', 'yoga', 'lectura', 'cine', 'fotografía', 'cocina'] as $interes)
-                        <label class="flex items-center space-x-2 p-3 rounded-lg border border-gray-200 hover:bg-cream transition cursor-pointer">
+                        @foreach($interesesDisponibles as $interes)
+                        <label class="flex items-center space-x-2 p-2 rounded-lg border border-gray-200 hover:bg-cream transition cursor-pointer">
                             <input type="checkbox" name="intereses[]" value="{{ $interes }}"
                                 {{ in_array($interes, $interesesActuales) ? 'checked' : '' }}
-                                class="rounded text-heart-red focus:ring-heart-red">
-                            <span class="text-sm">{{ ucfirst($interes) }}</span>
+                                class="rounded text-heart-red focus:ring-heart-red flex-shrink-0">
+                            <span class="text-xs">{{ $interes }}</span>
                         </label>
                         @endforeach
                     </div>
