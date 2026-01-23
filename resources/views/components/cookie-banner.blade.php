@@ -7,12 +7,19 @@
         <!-- Header con icono grande -->
         <div class="bg-gradient-to-r from-brown to-heart-red text-white p-4 sm:p-6 rounded-t-2xl sm:rounded-t-3xl text-center">
             <span class="text-4xl sm:text-6xl block mb-2 sm:mb-3">🍪</span>
-            <h2 class="text-xl sm:text-2xl font-black">Tu privacidad es importante</h2>
+            <h2 id="cookie-banner-title" class="text-xl sm:text-2xl font-black">Tu privacidad es importante</h2>
+        </div>
+
+        <!-- Aviso de actualización (oculto por defecto) -->
+        <div id="cookie-update-notice" class="hidden bg-amber-50 border-b border-amber-200 p-3 text-center">
+            <p class="text-amber-800 text-sm font-medium">
+                🔄 Hemos actualizado nuestra política de cookies. Por favor, revisa tus preferencias.
+            </p>
         </div>
 
         <!-- Contenido -->
         <div class="p-4 sm:p-6">
-            <p class="text-gray-700 text-sm sm:text-base leading-relaxed text-center mb-4 sm:mb-6">
+            <p id="cookie-banner-text" class="text-gray-700 text-sm sm:text-base leading-relaxed text-center mb-4 sm:mb-6">
                 Utilizamos cookies para mejorar tu experiencia en <strong class="text-brown">Citas Mallorca</strong>.
                 Puedes aceptar todas, rechazarlas o personalizar tus preferencias.
             </p>
@@ -141,6 +148,9 @@
 </div>
 
 <script>
+// Versión actual de la política de cookies - cambiar este número cuando se actualice la política
+const COOKIE_POLICY_VERSION = 2;
+
 // Verificar si ya existe una preferencia de cookies guardada
 document.addEventListener('DOMContentLoaded', function() {
     const cookieConsent = getCookie('cookie_consent');
@@ -148,11 +158,21 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!cookieConsent) {
         // Si no hay preferencia guardada, mostrar el banner después de 500ms
         setTimeout(function() {
-            showCookieBanner();
+            showCookieBanner(false);
         }, 500);
     } else {
-        // Si ya hay preferencia, aplicar las cookies según la configuración
-        applyCookiePreferences(JSON.parse(cookieConsent));
+        const preferences = JSON.parse(cookieConsent);
+
+        // Verificar si la versión de cookies es antigua
+        if (!preferences.version || preferences.version < COOKIE_POLICY_VERSION) {
+            // Mostrar banner con aviso de actualización
+            setTimeout(function() {
+                showCookieBanner(true);
+            }, 500);
+        } else {
+            // Si ya hay preferencia actualizada, aplicar las cookies según la configuración
+            applyCookiePreferences(preferences);
+        }
     }
 });
 
@@ -175,6 +195,7 @@ function setCookie(name, value, days) {
 // Aceptar todas las cookies
 function acceptAllCookies() {
     const preferences = {
+        version: COOKIE_POLICY_VERSION,
         necessary: true,
         analytics: true,
         marketing: true,
@@ -189,6 +210,7 @@ function acceptAllCookies() {
 // Rechazar cookies (solo necesarias)
 function rejectCookies() {
     const preferences = {
+        version: COOKIE_POLICY_VERSION,
         necessary: true,
         analytics: false,
         marketing: false,
@@ -213,6 +235,7 @@ function closeConfigModal() {
 // Guardar preferencias personalizadas
 function saveCustomCookies() {
     const preferences = {
+        version: COOKIE_POLICY_VERSION,
         necessary: true, // Siempre true
         analytics: document.getElementById('cookie-analytics').checked,
         marketing: document.getElementById('cookie-marketing').checked,
@@ -235,9 +258,22 @@ function hideCookieBanner() {
 }
 
 // Mostrar el banner de cookies manualmente (desde el footer)
-function showCookieBanner() {
+function showCookieBanner(isUpdate = false) {
     const banner = document.getElementById('cookie-banner');
     const overlay = document.getElementById('cookie-overlay');
+    const updateNotice = document.getElementById('cookie-update-notice');
+    const title = document.getElementById('cookie-banner-title');
+
+    // Mostrar/ocultar aviso de actualización
+    if (updateNotice) {
+        if (isUpdate) {
+            updateNotice.classList.remove('hidden');
+            if (title) title.textContent = 'Política de cookies actualizada';
+        } else {
+            updateNotice.classList.add('hidden');
+            if (title) title.textContent = 'Tu privacidad es importante';
+        }
+    }
 
     if (overlay) overlay.classList.remove('hidden');
     if (banner) banner.classList.remove('hidden');
