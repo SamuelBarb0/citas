@@ -41,7 +41,7 @@
 </div>
 
 <!-- Modal de Configuración de Cookies -->
-<div id="cookie-config-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-3" style="display: none;">
+<div id="cookie-config-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[10000] flex items-center justify-center p-3" style="display: none;">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[95vh] overflow-y-auto">
         <!-- Header del modal -->
         <div class="bg-gradient-to-r from-brown to-heart-red text-white p-4 rounded-t-2xl sticky top-0 z-10">
@@ -242,14 +242,39 @@ function hideCookieBanner() {
     const overlay = document.getElementById('cookie-overlay');
     const bannerInner = document.getElementById('cookie-banner-inner');
 
-    banner.style.opacity = '0';
-    overlay.style.opacity = '0';
-    bannerInner.style.transform = 'scale(0.95)';
+    if (banner) banner.style.opacity = '0';
+    if (overlay) overlay.style.opacity = '0';
+    if (bannerInner) bannerInner.style.transform = 'scale(0.95)';
 
     setTimeout(function() {
-        banner.style.display = 'none';
-        overlay.style.display = 'none';
+        if (banner) banner.style.display = 'none';
+        if (overlay) overlay.style.display = 'none';
     }, 500);
+}
+
+// Mostrar el banner de cookies manualmente (desde el footer)
+function showCookieBanner() {
+    const banner = document.getElementById('cookie-banner');
+    const overlay = document.getElementById('cookie-overlay');
+    const bannerInner = document.getElementById('cookie-banner-inner');
+
+    if (overlay) {
+        overlay.style.display = 'block';
+        overlay.style.opacity = '0';
+    }
+    if (banner) {
+        banner.style.display = 'flex';
+        banner.style.opacity = '0';
+    }
+    if (bannerInner) {
+        bannerInner.style.transform = 'scale(0.95)';
+    }
+
+    setTimeout(function() {
+        if (overlay) overlay.style.opacity = '1';
+        if (banner) banner.style.opacity = '1';
+        if (bannerInner) bannerInner.style.transform = 'scale(1)';
+    }, 100);
 }
 
 // Aplicar preferencias de cookies

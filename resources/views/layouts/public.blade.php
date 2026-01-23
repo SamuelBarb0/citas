@@ -175,6 +175,10 @@
                         <a href="{{ route('legal.terminos') }}" class="text-xs text-gray-500 hover:text-heart-red transition">
                             Términos
                         </a>
+                        <span class="text-gray-300 hidden sm:inline">|</span>
+                        <button onclick="showCookieBanner()" class="text-xs text-gray-500 hover:text-heart-red transition">
+                            Configurar Cookies
+                        </button>
                     </div>
                 </div>
             </div>
