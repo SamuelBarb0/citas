@@ -68,30 +68,22 @@ Route::middleware(['auth', 'verified.identity'])->group(function () {
 
         // Obtener el perfil del usuario actual para filtros inteligentes
         $myProfile = auth()->user()->profile;
+        $searchExpanded = false; // Indica si ampliamos la búsqueda
 
-        // Filtro de compatibilidad automático basado en el perfil del usuario
-        // Solo mostrar personas cuyo género coincida con lo que busco
-        // Si no tengo preferencia definida o busco "cualquiera", mostrar todos
-        if ($myProfile && $myProfile->busco && $myProfile->busco !== 'cualquiera' && $myProfile->busco !== '') {
-            $query->where('genero', $myProfile->busco);
-        }
+        // Verificar si el usuario está aplicando filtros manuales
+        $hasManualFilters = request()->filled('busco') ||
+                           request()->filled('ciudad') ||
+                           request()->filled('orientacion_sexual') ||
+                           request()->filled('intereses') ||
+                           (request()->has('edad_min') && request('edad_min') != 18) ||
+                           (request()->has('edad_max') && request('edad_max') != 99);
 
-        // Solo mostrar personas que busquen mi género (o "cualquiera" o no tengan preferencia definida)
-        if ($myProfile && $myProfile->genero) {
-            $query->where(function($q) use ($myProfile) {
-                $q->where('busco', $myProfile->genero)
-                  ->orWhere('busco', 'cualquiera')
-                  ->orWhereNull('busco')
-                  ->orWhere('busco', '');
-            });
-        }
-
-        // Aplicar filtros manuales (sobrescriben los automáticos)
-        if (request()->has('edad_min')) {
+        // Aplicar filtros manuales si existen
+        if (request()->has('edad_min') && request('edad_min') != 18) {
             $query->where('edad', '>=', request('edad_min'));
         }
 
-        if (request()->has('edad_max')) {
+        if (request()->has('edad_max') && request('edad_max') != 99) {
             $query->where('edad', '<=', request('edad_max'));
         }
 
@@ -99,9 +91,8 @@ Route::middleware(['auth', 'verified.identity'])->group(function () {
             $query->where('ciudad', 'LIKE', '%' . request('ciudad') . '%');
         }
 
-        // Filtro manual de género (sobrescribe el automático)
+        // Filtro manual de género
         if (request()->filled('busco')) {
-            // Remover el filtro automático y aplicar el manual
             $query->where('genero', request('busco'));
         }
 
@@ -118,7 +109,41 @@ Route::middleware(['auth', 'verified.identity'])->group(function () {
             });
         }
 
-        $perfiles = $query->inRandomOrder()->limit(12)->get();
+        // Si NO hay filtros manuales, aplicar filtro de compatibilidad automático
+        if (!$hasManualFilters && $myProfile) {
+            // Clonar la query para probar con filtros de compatibilidad
+            $compatibleQuery = clone $query;
+
+            // Filtrar por lo que busco
+            if ($myProfile->busco && $myProfile->busco !== 'cualquiera' && $myProfile->busco !== '') {
+                $compatibleQuery->where('genero', $myProfile->busco);
+            }
+
+            // Filtrar personas que me busquen a mí
+            if ($myProfile->genero) {
+                $compatibleQuery->where(function($q) use ($myProfile) {
+                    $q->where('busco', $myProfile->genero)
+                      ->orWhere('busco', 'cualquiera')
+                      ->orWhereNull('busco')
+                      ->orWhere('busco', '');
+                });
+            }
+
+            // Verificar si hay resultados compatibles
+            $compatibleCount = $compatibleQuery->count();
+
+            if ($compatibleCount > 0) {
+                // Usar la query con filtros de compatibilidad
+                $perfiles = $compatibleQuery->inRandomOrder()->limit(12)->get();
+            } else {
+                // No hay compatibles, mostrar todos (fallback)
+                $searchExpanded = true;
+                $perfiles = $query->inRandomOrder()->limit(12)->get();
+            }
+        } else {
+            // Hay filtros manuales, usarlos directamente
+            $perfiles = $query->inRandomOrder()->limit(12)->get();
+        }
 
         // Verificar si hay un nuevo match pendiente de mostrar
         $newMatch = session('new_match');
@@ -126,7 +151,7 @@ Route::middleware(['auth', 'verified.identity'])->group(function () {
             session()->forget('new_match');
         }
 
-        return view('dashboard', compact('perfiles', 'newMatch'));
+        return view('dashboard', compact('perfiles', 'newMatch', 'searchExpanded'));
     })->name('dashboard');
 
     // Gestión de Perfil de Usuario (Dating Profile) - requiere verificación

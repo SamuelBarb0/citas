@@ -140,6 +140,15 @@
 
         <div class="py-6 px-4 sm:px-6 lg:px-8">
             <div class="max-w-lg mx-auto">
+                @if(isset($searchExpanded) && $searchExpanded)
+                    <div class="mb-4 bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
+                        <p class="text-blue-700 text-sm">
+                            <span class="font-semibold">Ampliamos tu búsqueda</span> para mostrarte más personas.
+                            <a href="{{ route('user.profile.edit') }}" class="underline hover:text-blue-900">Actualiza tus preferencias</a>
+                        </p>
+                    </div>
+                @endif
+
                 @if(count($perfiles) > 0)
                     <!-- Contenedor de tarjetas apiladas estilo Tinder -->
                     <div class="relative" style="height: 600px;">
