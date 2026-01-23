@@ -87,9 +87,6 @@
                             <div class="flex-1">
                                 <p class="text-gray-500 text-xs font-semibold uppercase">Total Likes</p>
                                 <p class="text-3xl font-black text-gray-900 mt-2">{{ number_format($stats['total_likes']) }}</p>
-                                <div class="mt-3 space-y-1">
-                                    <p class="text-xs text-gray-600">Super Likes: <span class="font-bold text-red-600">{{ $stats['super_likes'] }}</span></p>
-                                </div>
                             </div>
                             <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
                                 <svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 20 20">

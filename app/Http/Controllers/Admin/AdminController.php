@@ -350,7 +350,6 @@ class AdminController extends Controller
             'total_messages' => Message::count(),
             'messages_today' => Message::whereDate('created_at', today())->count(),
             'total_likes' => Like::count(),
-            'super_likes' => Like::where('is_super_like', true)->count(),
             'pending_reports' => Report::where('status', 'pendiente')->count(),
         ];
 
@@ -562,7 +561,6 @@ class AdminController extends Controller
             'precio_mensual' => 'required|numeric|min:0',
             'precio_anual' => 'nullable|numeric|min:0',
             'likes_diarios' => 'nullable|integer|min:0',
-            'super_likes_mes' => 'nullable|integer|min:0',
             'mensajes_semanales_gratis' => 'nullable|integer|min:0',
             'fotos_adicionales' => 'nullable|integer|min:0',
             'boost_mensual' => 'nullable|integer|min:0',
@@ -654,7 +652,6 @@ class AdminController extends Controller
             'precio_mensual' => 'required|numeric|min:0',
             'precio_anual' => 'nullable|numeric|min:0',
             'likes_diarios' => 'nullable|integer|min:0',
-            'super_likes_mes' => 'nullable|integer|min:0',
             'mensajes_semanales_gratis' => 'nullable|integer|min:0',
             'fotos_adicionales' => 'nullable|integer|min:0',
             'boost_mensual' => 'nullable|integer|min:0',

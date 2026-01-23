@@ -22,7 +22,6 @@ class UserSubscription extends Model
         'monto_pagado',
         'likes_usados_hoy',
         'ultimo_reset_likes',
-        'super_likes_restantes',
         'boosts_restantes',
         'ultimo_boost',
         'mensajes_enviados_esta_semana',
@@ -120,26 +119,6 @@ class UserSubscription extends Model
     }
 
     /**
-     * Verificar si tiene super likes disponibles
-     */
-    public function hasSuperLikes()
-    {
-        return $this->super_likes_restantes > 0;
-    }
-
-    /**
-     * Usar un super like
-     */
-    public function useSuperLike()
-    {
-        if ($this->super_likes_restantes > 0) {
-            $this->decrement('super_likes_restantes');
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * Verificar si tiene boosts disponibles
      */
     public function hasBoosts()
@@ -202,7 +181,6 @@ class UserSubscription extends Model
             'estado' => 'activa',
             'fecha_inicio' => now(),
             'fecha_expiracion' => now()->addMonths($duracionMeses),
-            'super_likes_restantes' => $this->plan->super_likes_mes,
             'boosts_restantes' => $this->plan->boost_mensual ? 1 : 0,
             'ultimo_reset_likes' => now(),
             'mensajes_enviados_esta_semana' => 0,
@@ -253,7 +231,6 @@ class UserSubscription extends Model
         $updateData = [
             'estado' => 'activa',
             'fecha_expiracion' => now()->addMonths($duracionMeses),
-            'super_likes_restantes' => $this->plan->super_likes_mes,
             'boosts_restantes' => $this->plan->boost_mensual ? 1 : 0,
         ];
 

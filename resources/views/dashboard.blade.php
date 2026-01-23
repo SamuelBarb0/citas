@@ -274,11 +274,6 @@
                                 </svg>
                             </button>
 
-                            <button id="super-like-btn" class="w-16 h-16 bg-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform text-blue-500 border-4 border-blue-100">
-                                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                </svg>
-                            </button>
                         </div>
                     </div>
 
@@ -306,21 +301,9 @@
         </div>
     </div>
 
-    @if(count($perfiles) > 0)
+    <!-- Script para filtros (siempre disponible) -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const cardsStack = document.getElementById('cards-stack');
-            const cards = Array.from(document.querySelectorAll('.swipe-card'));
-            const likeBtn = document.getElementById('like-btn');
-            const nopeBtn = document.getElementById('nope-btn');
-            const superLikeBtn = document.getElementById('super-like-btn');
-            const profilesCount = document.getElementById('profiles-count');
-
-            let currentCardIndex = 0;
-            let isDragging = false;
-            let startX = 0;
-            let currentX = 0;
-
             // Panel de filtros
             const filtersBtn = document.getElementById('filters-btn');
             const filtersPanel = document.getElementById('filters-panel');
@@ -338,13 +321,31 @@
                 filtersOverlay.classList.add('opacity-0', 'pointer-events-none');
             }
 
-            filtersBtn.addEventListener('click', openFilters);
-            closeFilters.addEventListener('click', closeFiltersPanel);
-            filtersOverlay.addEventListener('click', closeFiltersPanel);
+            if (filtersBtn) filtersBtn.addEventListener('click', openFilters);
+            if (closeFilters) closeFilters.addEventListener('click', closeFiltersPanel);
+            if (filtersOverlay) filtersOverlay.addEventListener('click', closeFiltersPanel);
 
-            clearFilters.addEventListener('click', () => {
-                window.location.href = '{{ route('dashboard') }}';
-            });
+            if (clearFilters) {
+                clearFilters.addEventListener('click', () => {
+                    window.location.href = '{{ route('dashboard') }}';
+                });
+            }
+        });
+    </script>
+
+    @if(count($perfiles) > 0)
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cardsStack = document.getElementById('cards-stack');
+            const cards = Array.from(document.querySelectorAll('.swipe-card'));
+            const likeBtn = document.getElementById('like-btn');
+            const nopeBtn = document.getElementById('nope-btn');
+            const profilesCount = document.getElementById('profiles-count');
+
+            let currentCardIndex = 0;
+            let isDragging = false;
+            let startX = 0;
+            let currentX = 0;
 
             // Verificar si hay un nuevo match para mostrar
             @if(isset($newMatch) && $newMatch)
@@ -370,9 +371,6 @@
                     sendLike(profileId);
                 } else if (direction === 'left') {
                     card.style.transform = 'translateX(-800px) rotate(-30deg)';
-                } else if (direction === 'up') {
-                    card.style.transform = 'translateY(-800px) scale(0.8)';
-                    sendSuperLike(profileId);
                 }
 
                 card.style.opacity = '0';
@@ -409,7 +407,7 @@
                 });
             }
 
-            function sendLike(profileId, isSuperLike = false) {
+            function sendLike(profileId) {
                 fetch(`/like/${profileId}`, {
                     method: 'POST',
                     headers: {
@@ -418,8 +416,7 @@
                         'Accept': 'application/json',
                     },
                     body: JSON.stringify({
-                        liked_user_id: profileId,
-                        is_super_like: isSuperLike
+                        liked_user_id: profileId
                     })
                 }).then(response => response.json())
                   .then(data => {
@@ -431,10 +428,6 @@
                   .catch(error => {
                       console.error('Error sending like:', error);
                   });
-            }
-
-            function sendSuperLike(profileId) {
-                sendLike(profileId, true);
             }
 
             function showMatchNotification(matchedPhoto, matchedName, profileId) {
@@ -536,7 +529,6 @@
             // Event listeners para botones
             likeBtn.addEventListener('click', () => removeCard('right'));
             nopeBtn.addEventListener('click', () => removeCard('left'));
-            superLikeBtn.addEventListener('click', () => removeCard('up'));
 
             // Drag functionality - Inicializar eventos para todas las tarjetas
             function initCardDragListeners() {
@@ -731,7 +723,6 @@
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'ArrowRight') removeCard('right');
                 if (e.key === 'ArrowLeft') removeCard('left');
-                if (e.key === 'ArrowUp') removeCard('up');
             });
 
             // ==================== POLLING PARA NUEVOS MATCHES ====================

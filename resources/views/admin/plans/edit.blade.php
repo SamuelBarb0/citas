@@ -75,11 +75,6 @@
                                        class="w-full px-4 py-3 border rounded-lg" placeholder="0 = Ilimitado">
                             </div>
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Super Likes/Mes</label>
-                                <input type="number" name="super_likes_mes" value="{{ old('super_likes_mes', $plan->super_likes_mes) }}" min="0"
-                                       class="w-full px-4 py-3 border rounded-lg">
-                            </div>
-                            <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Mensajes Gratis/Semana</label>
                                 <input type="number" name="mensajes_semanales_gratis" value="{{ old('mensajes_semanales_gratis', $plan->mensajes_semanales_gratis) }}" min="0"
                                        class="w-full px-4 py-3 border rounded-lg">

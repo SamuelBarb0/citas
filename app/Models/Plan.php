@@ -19,7 +19,6 @@ class Plan extends Model
         'paypal_plan_id_mensual',
         'paypal_plan_id_anual',
         'likes_diarios',
-        'super_likes_mes',
         'ver_quien_te_gusta',
         'matches_ilimitados',
         'puede_iniciar_conversacion',

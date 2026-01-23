@@ -144,17 +144,6 @@
                         @endif
                     </div>
 
-                    <!-- Super Likes -->
-                    @if($subscription->plan->super_likes_mes > 0)
-                        <div class="bg-white rounded-2xl shadow-lg p-6">
-                            <h3 class="font-bold text-brown mb-4 flex items-center gap-2">
-                                <span class="text-2xl">⭐</span>
-                                Super Likes
-                            </h3>
-                            <p class="text-3xl font-black text-blue-500 mb-2">{{ $subscription->super_likes_restantes }}</p>
-                            <p class="text-gray-600 text-sm">Disponibles este mes</p>
-                        </div>
-                    @endif
 
                     <!-- Boosts -->
                     @if($subscription->plan->boost_mensual)

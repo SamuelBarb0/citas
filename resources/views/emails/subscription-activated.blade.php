@@ -119,14 +119,6 @@
             </td>
         </tr>
         @endif
-        @if($plan->super_likes_mes > 0)
-        <tr>
-            <td style="padding: 8px 0;">
-                <span style="color: #22C55E; font-size: 18px; margin-right: 10px;">&#10003;</span>
-                <span style="color: #666666; font-size: 14px;">{{ $plan->super_likes_mes }} Super Likes al mes</span>
-            </td>
-        </tr>
-        @endif
     </table>
 </div>
 @endsection

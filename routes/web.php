@@ -145,7 +145,6 @@ Route::middleware(['auth', 'verified.identity'])->group(function () {
     Route::delete('/like/{likedUserId}', [LikeController::class, 'destroy'])->name('like.destroy');
     Route::get('/mis-likes', [LikeController::class, 'myLikes'])->name('likes.my');
     Route::get('/quien-me-gusta', [LikeController::class, 'whoLikesMe'])->name('likes.who');
-    Route::get('/super-likes', [LikeController::class, 'superLikesReceived'])->name('likes.super');
 
     // Matches
     Route::get('/matches', [MatchController::class, 'index'])->name('matches');

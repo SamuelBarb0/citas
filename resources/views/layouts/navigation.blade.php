@@ -88,10 +88,6 @@
                             🚫 Usuarios Bloqueados
                         </x-dropdown-link>
 
-                        <x-dropdown-link :href="route('likes.super')">
-                            ⭐ Super Likes Recibidos
-                        </x-dropdown-link>
-
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -173,10 +169,6 @@
 
                 <x-responsive-nav-link :href="route('blocked.index')">
                     🚫 Usuarios Bloqueados
-                </x-responsive-nav-link>
-
-                <x-responsive-nav-link :href="route('likes.super')">
-                    ⭐ Super Likes Recibidos
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->

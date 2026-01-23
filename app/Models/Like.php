@@ -9,11 +9,6 @@ class Like extends Model
     protected $fillable = [
         'user_id',
         'liked_user_id',
-        'is_super_like',
-    ];
-
-    protected $casts = [
-        'is_super_like' => 'boolean',
     ];
 
     public function user()

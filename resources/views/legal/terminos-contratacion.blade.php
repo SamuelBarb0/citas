@@ -26,7 +26,6 @@
                     <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4 mt-3">
                         <li>Likes ilimitados</li>
                         <li>Ver quién te ha dado like</li>
-                        <li>Super Likes destacados</li>
                         <li>Mensajería sin restricciones</li>
                     </ul>
                 </section>

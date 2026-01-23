@@ -87,13 +87,6 @@
                                         </div>
                                     @endif
 
-                                    @if($plan->super_likes_mes)
-                                        <div class="flex items-center text-sm text-gray-700">
-                                            <span class="text-brown mr-2">✓</span>
-                                            <span>{{ $plan->super_likes_mes }} super likes al mes</span>
-                                        </div>
-                                    @endif
-
                                     @if($plan->ver_quien_te_gusta)
                                         <div class="flex items-center text-sm text-gray-700">
                                             <span class="text-brown mr-2">✓</span>

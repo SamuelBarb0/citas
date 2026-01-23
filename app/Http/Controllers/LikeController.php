@@ -15,12 +15,10 @@ class LikeController extends Controller
     {
         $request->validate([
             'liked_user_id' => 'required|exists:users,id',
-            'is_super_like' => 'nullable|boolean',
         ]);
 
         $currentUserId = auth()->id();
         $likedUserId = $request->liked_user_id;
-        $isSuperLike = $request->input('is_super_like', false);
 
         // Verificar que no se esté intentando dar like a sí mismo
         if ($currentUserId == $likedUserId) {
@@ -40,7 +38,6 @@ class LikeController extends Controller
         Like::create([
             'user_id' => $currentUserId,
             'liked_user_id' => $likedUserId,
-            'is_super_like' => $isSuperLike,
         ]);
 
         // Verificar si el otro usuario también nos ha dado like (MATCH!)
@@ -173,19 +170,4 @@ class LikeController extends Controller
         return view('likes.who-likes-me', compact('likes'));
     }
 
-    /**
-     * Ver quién me ha dado super like
-     */
-    public function superLikesReceived()
-    {
-        $currentUserId = auth()->id();
-
-        $superLikes = Like::where('liked_user_id', $currentUserId)
-            ->where('is_super_like', true)
-            ->with(['user.profile'])
-            ->latest()
-            ->get();
-
-        return view('likes.super-likes', compact('superLikes'));
-    }
 }

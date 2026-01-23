@@ -21,7 +21,6 @@ class PlanSeeder extends Seeder
                 'precio_mensual' => 0.00,
                 'precio_anual' => 0.00,
                 'likes_diarios' => -1,
-                'super_likes_mes' => 0,
                 'ver_quien_te_gusta' => false,
                 'matches_ilimitados' => true,
                 'puede_iniciar_conversacion' => false, // NO puede enviar mensajes, solo responder
@@ -43,7 +42,6 @@ class PlanSeeder extends Seeder
                 'precio_mensual' => 4.99,
                 'precio_anual' => 39.99,
                 'likes_diarios' => -1,
-                'super_likes_mes' => 0,
                 'ver_quien_te_gusta' => false,
                 'matches_ilimitados' => true,
                 'puede_iniciar_conversacion' => true, // Puede enviar mensajes
@@ -65,7 +63,6 @@ class PlanSeeder extends Seeder
                 'precio_mensual' => 9.99,
                 'precio_anual' => 79.99,
                 'likes_diarios' => -1,
-                'super_likes_mes' => 0,
                 'ver_quien_te_gusta' => false,
                 'matches_ilimitados' => true,
                 'puede_iniciar_conversacion' => true, // Puede enviar mensajes
