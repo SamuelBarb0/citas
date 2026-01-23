@@ -118,9 +118,47 @@
                     <!-- Filtro de Intereses -->
                     <div class="mb-6">
                         <label class="block text-sm font-bold text-brown mb-3">Intereses</label>
-                        <input type="text" name="intereses" value="{{ request('intereses') }}" placeholder="Ej: Deportes, Música, Viajes"
-                               class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-heart-red focus:outline-none">
-                        <p class="text-xs text-gray-500 mt-1">Separa con comas</p>
+                        @php
+                            $interesesDisponibles = [
+                                'Tomar un café', 'Paseo tranquilo', 'Conversaciones picantes', 'Picnic en la playa',
+                                'Series', 'Cine', 'Noche de peli en casa', 'Salir a comer o cenar', 'Cocinar',
+                                'Tomar una copa', 'Yoga', 'Spa', 'Leer', 'Museos o exposiciones', 'Jardinería',
+                                'Pintura y dibujos', 'Mercadillos', 'Gastronomía', 'Naturaleza', 'Astronomía',
+                                'Conversaciones', 'Planes tranquis', 'Poesía', '¿Desayunamos?', 'Paseos con mascotas',
+                                'Viajar', 'Senderismo', 'Paseo en bicicleta', 'Karting', 'Parques de atracciones',
+                                'Escapadas de fin de semana', '¿Exploramos la isla?', '¿Vamos de cañas/tapas?', 'Tardeo',
+                                'Fútbol', 'Pádel', 'Gimnasio', 'Natación', '¿Salimos a bailar?', 'Camping/autocaravana',
+                                'Shopping', '¿Salimos de marcha?', 'Baloncesto', 'Quedar en grupo', 'Aventuras improvisadas',
+                                'Aventuras planeadas', 'Juegos', 'Probar sitios nuevos', 'Fotografía', 'Aprender idiomas',
+                                'Espiritualidad', 'Crecimiento personal', 'Autoconocimiento', 'Vida consciente', 'Numerología',
+                                'Astrología', 'Personas PAS', 'Personas TDAH', 'MBTI', 'Profundidad', 'Voluntariado',
+                                'Cuidado de mascotas', 'Monogamia', 'Relación abierta', 'Respeto', 'Empatía',
+                                'Relación estable', 'Amistades', 'Charlas profundas', 'Conversaciones nocturnas',
+                                'Solo disfrutar', 'Poco a poco', 'Conexión', 'Responsabilidad afectiva', 'Hablar cuando pueda',
+                                'Hablar cada día', 'LGBTQ+ friendly', 'Detalles', 'Enamorarse', 'Citas'
+                            ];
+                            $interesesSeleccionados = request('intereses', []);
+                            if (is_string($interesesSeleccionados)) {
+                                $interesesSeleccionados = array_filter(array_map('trim', explode(',', $interesesSeleccionados)));
+                            }
+                        @endphp
+                        <div class="bg-gray-50 rounded-xl p-3 border-2 border-gray-200 max-h-64 overflow-y-auto">
+                            <div class="flex flex-wrap gap-2">
+                                @foreach($interesesDisponibles as $interes)
+                                    <label class="cursor-pointer">
+                                        <input type="checkbox" name="intereses[]" value="{{ $interes }}"
+                                               {{ in_array($interes, $interesesSeleccionados) ? 'checked' : '' }}
+                                               class="peer sr-only">
+                                        <span class="inline-block px-3 py-1.5 rounded-full text-xs font-semibold border-2 transition-all
+                                            peer-checked:bg-heart-red peer-checked:text-white peer-checked:border-heart-red
+                                            bg-white text-gray-700 border-gray-300 hover:border-heart-red/50">
+                                            {{ $interes }}
+                                        </span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">Selecciona los intereses que buscas</p>
                     </div>
 
                     <!-- Botones de acción -->

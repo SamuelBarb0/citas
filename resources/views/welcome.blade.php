@@ -49,6 +49,9 @@
 @endpush
 
 @section('content')
+@php
+    use App\Models\SiteContent;
+@endphp
 <!-- Hero Section con formulario lateral (según REFERENCIA1 y REFERENCIA2) -->
 <div class="relative overflow-hidden bg-cream">
     <!-- Elementos decorativos sutiles -->
@@ -60,20 +63,20 @@
             <!-- Text Content - 7 columnas -->
             <div class="lg:col-span-7 fade-in">
                 <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-3 sm:mb-4 leading-tight">
-                    <span class="text-brown">Citas, contactos</span>
+                    <span class="text-brown">{{ SiteContent::get('hero_title_1', 'Citas, contactos') }}</span>
                     <br>
-                    <span class="text-brown">y amor en </span><span class="gradient-text">Mallorca</span>
+                    <span class="text-brown">{{ SiteContent::get('hero_title_2', 'y amor en') }} </span><span class="gradient-text">{{ SiteContent::get('hero_title_highlight', 'Mallorca') }}</span>
                 </h1>
                 <p class="text-base sm:text-lg md:text-xl text-gray-700 mb-6 sm:mb-8 leading-relaxed max-w-xl">
-                    Encuentra gente con tus mismas ganas de compartir momentos en la isla
+                    {{ SiteContent::get('hero_subtitle', 'Encuentra gente con tus mismas ganas de compartir momentos en la isla') }}
                 </p>
 
                 <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
                     <a href="{{ route('register') }}" class="gradient-button text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base text-center shadow-lg">
-                        Crear mi perfil gratis
+                        {{ SiteContent::get('hero_btn_register', 'Crear mi perfil gratis') }}
                     </a>
                     <a href="{{ route('login') }}" class="bg-white text-brown border-2 border-brown px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base text-center hover:bg-brown hover:text-white transition">
-                        Entrar mi perfil
+                        {{ SiteContent::get('hero_btn_login', 'Entrar mi perfil') }}
                     </a>
                 </div>
             </div>
@@ -84,7 +87,7 @@
                     <!-- Logo del formulario -->
                     <div class="text-center mb-4 sm:mb-6">
                         <img src="{{ asset('images/LOGOCITAS.png') }}" alt="Citas Mallorca" class="w-16 h-16 sm:w-24 sm:h-24 mx-auto mb-3 sm:mb-4">
-                        <h3 class="text-xl sm:text-2xl font-bold text-brown mb-2">Crear mi perfil</h3>
+                        <h3 class="text-xl sm:text-2xl font-bold text-brown mb-2">{{ SiteContent::get('hero_form_title', 'Crear mi perfil') }}</h3>
                     </div>
 
                     <!-- Formulario de registro rápido -->
@@ -159,7 +162,7 @@
 
                         <!-- Botón submit -->
                         <button type="submit" class="w-full gradient-button text-white py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg shadow-lg hover:shadow-glow transition">
-                            Empezar ahora
+                            {{ SiteContent::get('hero_form_btn', 'Empezar ahora') }}
                         </button>
                     </form>
                 </div>
@@ -174,10 +177,10 @@
     <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div class="text-center mb-8 sm:mb-12 fade-in">
             <h2 class="text-2xl sm:text-4xl md:text-5xl font-extrabold mb-3 sm:mb-4 text-brown">
-                Conoce gente increíble
+                {{ SiteContent::get('profiles_title', 'Conoce gente increíble') }}
             </h2>
             <p class="text-gray-600 text-sm sm:text-lg max-w-2xl mx-auto px-2">
-                Miles de personas en Mallorca ya están conectando. ¡Únete ahora!
+                {{ SiteContent::get('profiles_subtitle', 'Miles de personas en Mallorca ya están conectando. ¡Únete ahora!') }}
             </p>
         </div>
 
@@ -223,7 +226,7 @@
         @if($perfiles->count() >= 20)
             <div class="text-center mt-12">
                 <a href="{{ route('register') }}" class="inline-block gradient-button text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-glow transition">
-                    Ver más perfiles
+                    {{ SiteContent::get('profiles_btn_more', 'Ver más perfiles') }}
                 </a>
             </div>
         @endif
@@ -243,42 +246,42 @@
             <!-- Feature 1 -->
             <div class="text-center group fade-in">
                 <div class="bg-cream rounded-2xl sm:rounded-3xl w-20 h-20 sm:w-28 sm:h-28 flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-smooth group-hover:shadow-glow transition-all group-hover:scale-110 duration-300">
-                    <span class="text-4xl sm:text-6xl">👤</span>
+                    <span class="text-4xl sm:text-6xl">{{ SiteContent::get('feature1_emoji', '👤') }}</span>
                 </div>
                 <div class="bg-gradient-to-br from-brown to-heart-red text-white rounded-full px-4 sm:px-6 py-1.5 sm:py-2 inline-block mb-3 sm:mb-4 font-bold text-xs sm:text-sm">
                     Paso 1
                 </div>
-                <h3 class="text-lg sm:text-2xl font-bold text-brown mb-2 sm:mb-4">Crea tu perfil</h3>
+                <h3 class="text-lg sm:text-2xl font-bold text-brown mb-2 sm:mb-4">{{ SiteContent::get('feature1_title', 'Crea tu perfil') }}</h3>
                 <p class="text-gray-600 leading-relaxed text-sm sm:text-base px-4 sm:px-0">
-                    Regístrate gratis y completa tu perfil con tus fotos y preferencias.
+                    {{ SiteContent::get('feature1_desc', 'Regístrate gratis y completa tu perfil con tus fotos y preferencias.') }}
                 </p>
             </div>
 
             <!-- Feature 2 -->
             <div class="text-center group fade-in" style="animation-delay: 0.1s;">
                 <div class="bg-cream rounded-2xl sm:rounded-3xl w-20 h-20 sm:w-28 sm:h-28 flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-smooth group-hover:shadow-glow transition-all group-hover:scale-110 duration-300">
-                    <span class="text-4xl sm:text-6xl">💕</span>
+                    <span class="text-4xl sm:text-6xl">{{ SiteContent::get('feature2_emoji', '💕') }}</span>
                 </div>
                 <div class="bg-gradient-to-br from-brown to-heart-red text-white rounded-full px-4 sm:px-6 py-1.5 sm:py-2 inline-block mb-3 sm:mb-4 font-bold text-xs sm:text-sm">
                     Paso 2
                 </div>
-                <h3 class="text-lg sm:text-2xl font-bold text-brown mb-2 sm:mb-4">Encuentra matches</h3>
+                <h3 class="text-lg sm:text-2xl font-bold text-brown mb-2 sm:mb-4">{{ SiteContent::get('feature2_title', 'Encuentra matches') }}</h3>
                 <p class="text-gray-600 leading-relaxed text-sm sm:text-base px-4 sm:px-0">
-                    Descubre perfiles de personas auténticas en Mallorca.
+                    {{ SiteContent::get('feature2_desc', 'Descubre perfiles de personas auténticas en Mallorca.') }}
                 </p>
             </div>
 
             <!-- Feature 3 -->
             <div class="text-center group fade-in" style="animation-delay: 0.2s;">
                 <div class="bg-cream rounded-2xl sm:rounded-3xl w-20 h-20 sm:w-28 sm:h-28 flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-smooth group-hover:shadow-glow transition-all group-hover:scale-110 duration-300">
-                    <span class="text-4xl sm:text-6xl">💬</span>
+                    <span class="text-4xl sm:text-6xl">{{ SiteContent::get('feature3_emoji', '💬') }}</span>
                 </div>
                 <div class="bg-gradient-to-br from-brown to-heart-red text-white rounded-full px-4 sm:px-6 py-1.5 sm:py-2 inline-block mb-3 sm:mb-4 font-bold text-xs sm:text-sm">
                     Paso 3
                 </div>
-                <h3 class="text-lg sm:text-2xl font-bold text-brown mb-2 sm:mb-4">Conversa y conoce</h3>
+                <h3 class="text-lg sm:text-2xl font-bold text-brown mb-2 sm:mb-4">{{ SiteContent::get('feature3_title', 'Conversa y conoce') }}</h3>
                 <p class="text-gray-600 leading-relaxed text-sm sm:text-base px-4 sm:px-0">
-                    Cuando haya match, podrás chatear y quedar en persona.
+                    {{ SiteContent::get('feature3_desc', 'Cuando haya match, podrás chatear y quedar en persona.') }}
                 </p>
             </div>
         </div>
@@ -291,12 +294,12 @@
         <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-5 sm:p-8 md:p-12">
             <!-- Título principal -->
             <h2 class="text-xl sm:text-3xl md:text-4xl font-extrabold text-brown mb-4 sm:mb-6">
-                Consejos de seguridad<br>para tus interacciones
+                {!! nl2br(e(SiteContent::get('safety_title', "Consejos de seguridad\npara tus interacciones"))) !!}
             </h2>
 
             <!-- Subtítulo -->
             <p class="text-sm sm:text-lg md:text-xl text-gray-700 mb-6 sm:mb-8">
-                En Citas Mallorca te recomendamos<br>cuidar tu privacidad y seguridad.
+                {!! nl2br(e(SiteContent::get('safety_subtitle', "En Citas Mallorca te recomendamos\ncuidar tu privacidad y seguridad."))) !!}
             </p>
 
             <!-- Lista de consejos -->
@@ -304,31 +307,31 @@
                 <li class="flex items-start gap-2 sm:gap-3">
                     <div class="flex-shrink-0 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-brown rounded-full mt-1.5 sm:mt-2"></div>
                     <p class="text-gray-700 text-xs sm:text-base md:text-lg">
-                        <strong>No compartas datos personales sensibles</strong> (dirección, documentos, números de tarjetas).
+                        {{ SiteContent::get('safety_tip1', 'No compartas datos personales sensibles (dirección, documentos, números de tarjetas).') }}
                     </p>
                 </li>
                 <li class="flex items-start gap-2 sm:gap-3">
                     <div class="flex-shrink-0 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-brown rounded-full mt-1.5 sm:mt-2"></div>
                     <p class="text-gray-700 text-xs sm:text-base md:text-lg">
-                        <strong>Mantén la conversación dentro de la plataforma</strong> hasta sentir confianza.
+                        {{ SiteContent::get('safety_tip2', 'Mantén la conversación dentro de la plataforma hasta sentir confianza.') }}
                     </p>
                 </li>
                 <li class="flex items-start gap-2 sm:gap-3">
                     <div class="flex-shrink-0 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-brown rounded-full mt-1.5 sm:mt-2"></div>
                     <p class="text-gray-700 text-xs sm:text-base md:text-lg">
-                        <strong>Si decides quedar, elige un lugar público</strong> y avisa a alguien.
+                        {{ SiteContent::get('safety_tip3', 'Si decides quedar, elige un lugar público y avisa a alguien.') }}
                     </p>
                 </li>
                 <li class="flex items-start gap-2 sm:gap-3">
                     <div class="flex-shrink-0 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-brown rounded-full mt-1.5 sm:mt-2"></div>
                     <p class="text-gray-700 text-xs sm:text-base md:text-lg">
-                        <strong>No aceptes presiones</strong> para enviar fotos privadas o dinero.
+                        {{ SiteContent::get('safety_tip4', 'No aceptes presiones para enviar fotos privadas o dinero.') }}
                     </p>
                 </li>
                 <li class="flex items-start gap-2 sm:gap-3">
                     <div class="flex-shrink-0 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-brown rounded-full mt-1.5 sm:mt-2"></div>
                     <p class="text-gray-700 text-xs sm:text-base md:text-lg">
-                        <strong>Si notas comportamientos sospechosos,</strong> repórtalo de inmediato.
+                        {{ SiteContent::get('safety_tip5', 'Si notas comportamientos sospechosos, repórtalo de inmediato.') }}
                     </p>
                 </li>
             </ul>
@@ -336,21 +339,21 @@
             <!-- Mensaje de cierre -->
             <div class="border-t-2 border-gray-200 pt-6 sm:pt-8">
                 <p class="text-base sm:text-xl md:text-2xl font-bold text-brown mb-3 sm:mb-4">
-                    Tu bienestar es lo más importante.<br>Conecta con seguridad.
+                    {!! nl2br(e(SiteContent::get('safety_footer', "Tu bienestar es lo más importante.\nConecta con seguridad."))) !!}
                 </p>
 
                 <div class="bg-cream rounded-xl sm:rounded-2xl p-4 sm:p-6 mt-4 sm:mt-6">
                     <p class="text-sm sm:text-lg font-bold text-brown mb-2">
-                        Reporta comportamientos sospechosos:
+                        {{ SiteContent::get('safety_report_title', 'Reporta comportamientos sospechosos:') }}
                     </p>
                     <p class="text-gray-700 text-xs sm:text-sm md:text-base">
-                        Si ves falta de respeto, presiones, chantajes o cualquier situación fraudulenta, escríbenos a <strong class="break-all">info@citasmallorca.es</strong>. Nuestro equipo actúa rápido para proteger a la comunidad.
+                        {{ SiteContent::get('safety_report_text', 'Si ves falta de respeto, presiones, chantajes o cualquier situación fraudulenta, escríbenos a info@citasmallorca.es. Nuestro equipo actúa rápido para proteger a la comunidad.') }}
                     </p>
                 </div>
 
                 <div class="text-center mt-6 sm:mt-8">
                     <p class="text-lg sm:text-2xl md:text-3xl font-bold">
-                        <span class="text-heart-red text-2xl sm:text-4xl">❤️</span> <span class="text-brown">Disfruta con responsabilidad</span>
+                        <span class="text-heart-red text-2xl sm:text-4xl">❤️</span> <span class="text-brown">{{ SiteContent::get('safety_enjoy', 'Disfruta con responsabilidad') }}</span>
                     </p>
                 </div>
             </div>
@@ -362,11 +365,11 @@
 <div class="bg-cream py-12 sm:py-20 md:py-28">
     <div class="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 text-center fade-in">
         <h2 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 sm:mb-8 leading-tight" style="font-family: 'Georgia', serif; font-style: italic;">
-            <span class="text-brown">Encuentra gente</span><br>
-            <span class="text-brown">con tus mismas</span><br>
-            <span class="gradient-text" style="font-style: italic;">ganas de compartir</span><br>
-            <span class="gradient-text" style="font-style: italic;">momentos en</span><br>
-            <span class="gradient-text" style="font-style: italic;">la isla.</span>
+            <span class="text-brown">{{ SiteContent::get('cta_line1', 'Encuentra gente') }}</span><br>
+            <span class="text-brown">{{ SiteContent::get('cta_line2', 'con tus mismas') }}</span><br>
+            <span class="gradient-text" style="font-style: italic;">{{ SiteContent::get('cta_line3', 'ganas de compartir') }}</span><br>
+            <span class="gradient-text" style="font-style: italic;">{{ SiteContent::get('cta_line4', 'momentos en') }}</span><br>
+            <span class="gradient-text" style="font-style: italic;">{{ SiteContent::get('cta_line5', 'la isla.') }}</span>
         </h2>
         <div class="text-5xl sm:text-8xl mt-6 sm:mt-8">
             ❤️

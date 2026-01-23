@@ -8,6 +8,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\BlockController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\LegalController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Profile;
@@ -324,6 +325,11 @@ Route::middleware(['auth', 'verified.identity'])->group(function () {
         Route::get('/plans/{id}/edit', [AdminController::class, 'plansEdit'])->name('plans.edit');
         Route::put('/plans/{id}', [AdminController::class, 'plansUpdate'])->name('plans.update');
         Route::delete('/plans/{id}', [AdminController::class, 'plansDestroy'])->name('plans.destroy');
+
+        // Gestión de Contenidos del Sitio
+        Route::get('/content', [ContentController::class, 'index'])->name('content.index');
+        Route::put('/content', [ContentController::class, 'update'])->name('content.update');
+        Route::get('/content/reset/{key}', [ContentController::class, 'reset'])->name('content.reset');
     });
 });
 
