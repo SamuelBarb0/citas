@@ -10,6 +10,7 @@ class Plan extends Model
         'nombre',
         'slug',
         'descripcion',
+        'caracteristicas_personalizadas',
         'precio_mensual',
         'precio_anual',
         'stripe_price_id_monthly',
@@ -37,6 +38,7 @@ class Plan extends Model
     protected $casts = [
         'precio_mensual' => 'decimal:2',
         'precio_anual' => 'decimal:2',
+        'caracteristicas_personalizadas' => 'array',
         'ver_quien_te_gusta' => 'boolean',
         'matches_ilimitados' => 'boolean',
         'puede_iniciar_conversacion' => 'boolean',

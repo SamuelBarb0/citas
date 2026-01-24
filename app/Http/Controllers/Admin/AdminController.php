@@ -558,6 +558,8 @@ class AdminController extends Controller
             'nombre' => 'required|string|max:100',
             'slug' => 'required|string|unique:plans,slug|max:100',
             'descripcion' => 'nullable|string|max:500',
+            'caracteristicas_personalizadas' => 'nullable|array',
+            'caracteristicas_personalizadas.*' => 'nullable|string|max:255',
             'precio_mensual' => 'required|numeric|min:0',
             'precio_anual' => 'nullable|numeric|min:0',
             'likes_diarios' => 'nullable|integer|min:0',
@@ -584,6 +586,10 @@ class AdminController extends Controller
         $validated['fotos_adicionales'] = $validated['fotos_adicionales'] ?? 0;
         $validated['boost_mensual'] = $validated['boost_mensual'] ?? 0;
         $validated['orden'] = $validated['orden'] ?? 0;
+
+        // Procesar características personalizadas (filtrar vacías)
+        $caracteristicas = $request->input('caracteristicas_personalizadas', []);
+        $validated['caracteristicas_personalizadas'] = array_values(array_filter($caracteristicas, fn($c) => !empty(trim($c))));
 
         $plan = Plan::create($validated);
 
@@ -658,6 +664,8 @@ class AdminController extends Controller
             'nombre' => 'required|string|max:100',
             'slug' => 'required|string|max:100|unique:plans,slug,' . $id,
             'descripcion' => 'nullable|string|max:500',
+            'caracteristicas_personalizadas' => 'nullable|array',
+            'caracteristicas_personalizadas.*' => 'nullable|string|max:255',
             'precio_mensual' => 'required|numeric|min:0',
             'precio_anual' => 'nullable|numeric|min:0',
             'likes_diarios' => 'nullable|integer|min:0',
@@ -684,6 +692,10 @@ class AdminController extends Controller
         $validated['fotos_adicionales'] = $validated['fotos_adicionales'] ?? 0;
         $validated['boost_mensual'] = $validated['boost_mensual'] ?? 0;
         $validated['orden'] = $validated['orden'] ?? 0;
+
+        // Procesar características personalizadas (filtrar vacías)
+        $caracteristicas = $request->input('caracteristicas_personalizadas', []);
+        $validated['caracteristicas_personalizadas'] = array_values(array_filter($caracteristicas, fn($c) => !empty(trim($c))));
 
         // Detectar cambios de precio ANTES de actualizar
         $precioMensualCambio = $plan->precio_mensual != $validated['precio_mensual'];

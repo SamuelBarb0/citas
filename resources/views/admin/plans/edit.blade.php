@@ -65,42 +65,120 @@
                         </div>
                     </div>
 
-                    <!-- Limites (0 = ilimitado) -->
+                    <!-- Características Personalizadas (texto libre) -->
                     <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                        <h2 class="text-xl font-bold text-gray-900 mb-4">Limites</h2>
-                        <p class="text-sm text-gray-500 mb-4">Dejar en 0 para ilimitado</p>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Likes Diarios</label>
-                                <input type="number" name="likes_diarios" value="{{ old('likes_diarios', $plan->likes_diarios) }}" min="0"
-                                       class="w-full px-4 py-3 border rounded-lg" placeholder="0 = Ilimitado">
+                        <h2 class="text-xl font-bold text-gray-900 mb-2">Características Personalizadas</h2>
+                        <p class="text-sm text-gray-500 mb-4">Escribe una característica por línea. Aparecerán como lista en la tarjeta del plan.</p>
+
+                        <div class="space-y-4">
+                            <div id="caracteristicas-container">
+                                @php
+                                    $caracteristicas = old('caracteristicas_personalizadas', $plan->caracteristicas_personalizadas ?? []);
+                                    if (!is_array($caracteristicas)) $caracteristicas = [];
+                                @endphp
+
+                                @forelse($caracteristicas as $index => $caracteristica)
+                                    <div class="flex items-center gap-2 caracteristica-item">
+                                        <span class="text-brown font-bold">•</span>
+                                        <input type="text" name="caracteristicas_personalizadas[]" value="{{ $caracteristica }}"
+                                               class="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brown"
+                                               placeholder="Ej: Soporte prioritario 24/7">
+                                        <button type="button" onclick="this.parentElement.remove()" class="p-2 text-red-500 hover:bg-red-50 rounded-lg">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                @empty
+                                    <div class="flex items-center gap-2 caracteristica-item">
+                                        <span class="text-brown font-bold">•</span>
+                                        <input type="text" name="caracteristicas_personalizadas[]" value=""
+                                               class="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brown"
+                                               placeholder="Ej: Soporte prioritario 24/7">
+                                        <button type="button" onclick="this.parentElement.remove()" class="p-2 text-red-500 hover:bg-red-50 rounded-lg">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                @endforelse
                             </div>
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Mensajes Gratis/Semana</label>
-                                <input type="number" name="mensajes_semanales_gratis" value="{{ old('mensajes_semanales_gratis', $plan->mensajes_semanales_gratis) }}" min="0"
-                                       class="w-full px-4 py-3 border rounded-lg" placeholder="Solo para mensajes a usuarios gratis">
-                            </div>
+
+                            <button type="button" onclick="agregarCaracteristica()"
+                                    class="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-semibold text-gray-700 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                </svg>
+                                Agregar característica
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Caracteristicas Premium (solo las implementadas) -->
+                    <!-- Características Premium (sistema) -->
                     <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                        <h2 class="text-xl font-bold text-gray-900 mb-4">Caracteristicas</h2>
-                        <div class="grid grid-cols-2 gap-4">
-                            <label class="flex items-center space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
-                                <input type="hidden" name="puede_iniciar_conversacion" value="0">
-                                <input type="checkbox" name="puede_iniciar_conversacion" value="1" {{ old('puede_iniciar_conversacion', $plan->puede_iniciar_conversacion) ? 'checked' : '' }}
-                                       class="w-5 h-5 text-brown rounded">
-                                <span class="text-sm font-semibold">Puede iniciar conversaciones</span>
-                            </label>
+                        <h2 class="text-xl font-bold text-gray-900 mb-2">Características Premium</h2>
+                        <p class="text-sm text-gray-500 mb-6">Configuración del sistema de mensajes y likes.</p>
 
-                            <label class="flex items-center space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
-                                <input type="hidden" name="mensajes_ilimitados" value="0">
-                                <input type="checkbox" name="mensajes_ilimitados" value="1" {{ old('mensajes_ilimitados', $plan->mensajes_ilimitados) ? 'checked' : '' }}
-                                       class="w-5 h-5 text-brown rounded">
-                                <span class="text-sm font-semibold">Mensajes ilimitados</span>
-                            </label>
-                        </div>
+                        <!-- Lista de características -->
+                        <ul class="space-y-5">
+                            <!-- Likes Diarios -->
+                            <li class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                                <span class="text-2xl">❤️</span>
+                                <div class="flex-1">
+                                    <label class="block text-sm font-bold text-gray-800 mb-1">Likes Diarios</label>
+                                    <p class="text-xs text-gray-500">0 = Ilimitados</p>
+                                </div>
+                                <input type="number" name="likes_diarios" value="{{ old('likes_diarios', $plan->likes_diarios) }}" min="0"
+                                       class="w-24 px-3 py-2 border rounded-lg text-center font-bold focus:ring-2 focus:ring-brown">
+                            </li>
+
+                            <!-- Mensajes Gratis/Semana -->
+                            <li class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                                <span class="text-2xl">💬</span>
+                                <div class="flex-1">
+                                    <label class="block text-sm font-bold text-gray-800 mb-1">Mensajes Gratis/Semana</label>
+                                    <p class="text-xs text-gray-500">Mensajes que puede enviar sin ser premium</p>
+                                </div>
+                                <input type="number" name="mensajes_semanales_gratis" value="{{ old('mensajes_semanales_gratis', $plan->mensajes_semanales_gratis) }}" min="0"
+                                       class="w-24 px-3 py-2 border rounded-lg text-center font-bold focus:ring-2 focus:ring-brown">
+                            </li>
+
+                            <!-- Puede Iniciar Conversaciones -->
+                            <li class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                                <span class="text-2xl">🚀</span>
+                                <div class="flex-1">
+                                    <label class="block text-sm font-bold text-gray-800 mb-1">Puede Iniciar Conversaciones</label>
+                                    <p class="text-xs text-gray-500">Permite enviar el primer mensaje a otros usuarios</p>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="hidden" name="puede_iniciar_conversacion" value="0">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="puede_iniciar_conversacion" value="1"
+                                               {{ old('puede_iniciar_conversacion', $plan->puede_iniciar_conversacion) ? 'checked' : '' }}
+                                               class="sr-only peer">
+                                        <div class="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brown rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500"></div>
+                                    </label>
+                                </div>
+                            </li>
+
+                            <!-- Mensajes Ilimitados -->
+                            <li class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                                <span class="text-2xl">✉️</span>
+                                <div class="flex-1">
+                                    <label class="block text-sm font-bold text-gray-800 mb-1">Mensajes Ilimitados</label>
+                                    <p class="text-xs text-gray-500">Sin límite de mensajes por semana</p>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="hidden" name="mensajes_ilimitados" value="0">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="mensajes_ilimitados" value="1"
+                                               {{ old('mensajes_ilimitados', $plan->mensajes_ilimitados) ? 'checked' : '' }}
+                                               class="sr-only peer">
+                                        <div class="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brown rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500"></div>
+                                    </label>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
 
                     <!-- Campos ocultos para mantener compatibilidad con la BD -->
@@ -136,4 +214,25 @@
             </div>
         </div>
     </div>
+
+    <script>
+    function agregarCaracteristica() {
+        const container = document.getElementById('caracteristicas-container');
+        const newItem = document.createElement('div');
+        newItem.className = 'flex items-center gap-2 caracteristica-item';
+        newItem.innerHTML = `
+            <span class="text-brown font-bold">•</span>
+            <input type="text" name="caracteristicas_personalizadas[]" value=""
+                   class="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brown"
+                   placeholder="Ej: Soporte prioritario 24/7">
+            <button type="button" onclick="this.parentElement.remove()" class="p-2 text-red-500 hover:bg-red-50 rounded-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        `;
+        container.appendChild(newItem);
+        newItem.querySelector('input').focus();
+    }
+    </script>
 </x-app-layout>

@@ -79,83 +79,50 @@
                                     <p class="text-gray-600 text-sm mb-4">{{ $plan->descripcion }}</p>
                                 @endif
 
-                                <div class="space-y-2 mb-4">
-                                    @if($plan->likes_diarios)
-                                        <div class="flex items-center text-sm text-gray-700">
-                                            <span class="text-brown mr-2">✓</span>
-                                            <span>{{ $plan->likes_diarios }} likes diarios</span>
-                                        </div>
-                                    @endif
+                                <!-- Características personalizadas -->
+                                @if($plan->caracteristicas_personalizadas && count($plan->caracteristicas_personalizadas) > 0)
+                                    <ul class="space-y-2 text-sm mb-4">
+                                        @foreach($plan->caracteristicas_personalizadas as $caracteristica)
+                                            <li class="flex items-start gap-2">
+                                                <span class="text-brown font-bold mt-0.5">✓</span>
+                                                <span class="text-gray-700">{{ $caracteristica }}</span>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif
 
-                                    @if($plan->ver_quien_te_gusta)
-                                        <div class="flex items-center text-sm text-gray-700">
-                                            <span class="text-brown mr-2">✓</span>
-                                            <span>Ver quién te dio like</span>
+                                <!-- Características del sistema en formato compacto -->
+                                <div class="border-t pt-3 mt-3">
+                                    <p class="text-xs font-bold text-gray-500 uppercase mb-2">Sistema</p>
+                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                        <div class="flex items-center gap-1">
+                                            <span class="font-bold text-gray-700">Likes:</span>
+                                            <span class="text-gray-600">
+                                                {{ $plan->likes_diarios == 0 ? '∞' : $plan->likes_diarios }}
+                                            </span>
                                         </div>
-                                    @endif
-
-                                    @if($plan->matches_ilimitados)
-                                        <div class="flex items-center text-sm text-gray-700">
-                                            <span class="text-brown mr-2">✓</span>
-                                            <span>Matches ilimitados</span>
+                                        <div class="flex items-center gap-1">
+                                            <span class="font-bold text-gray-700">Mensajes:</span>
+                                            <span class="text-gray-600">
+                                                @if($plan->mensajes_ilimitados)
+                                                    ∞
+                                                @elseif($plan->mensajes_semanales_gratis)
+                                                    {{ $plan->mensajes_semanales_gratis }}/sem
+                                                @else
+                                                    0
+                                                @endif
+                                            </span>
                                         </div>
-                                    @endif
-
-                                    @if($plan->mensajes_ilimitados)
-                                        <div class="flex items-center text-sm text-gray-700">
-                                            <span class="text-brown mr-2">✓</span>
-                                            <span>Mensajes ilimitados</span>
+                                        <div class="flex items-center gap-1">
+                                            <span class="font-bold text-gray-700">Iniciar chat:</span>
+                                            @if($plan->puede_iniciar_conversacion)
+                                                <span class="text-green-600">Sí</span>
+                                            @else
+                                                <span class="text-red-500">No</span>
+                                            @endif
                                         </div>
-                                    @elseif($plan->mensajes_semanales_gratis)
-                                        <div class="flex items-center text-sm text-gray-700">
-                                            <span class="text-brown mr-2">✓</span>
-                                            <span>{{ $plan->mensajes_semanales_gratis }} mensajes gratis/semana</span>
-                                        </div>
-                                    @endif
-
-                                    @if($plan->rewind)
-                                        <div class="flex items-center text-sm text-gray-700">
-                                            <span class="text-brown mr-2">✓</span>
-                                            <span>Deshacer likes (Rewind)</span>
-                                        </div>
-                                    @endif
-
-                                    @if($plan->boost_mensual)
-                                        <div class="flex items-center text-sm text-gray-700">
-                                            <span class="text-brown mr-2">✓</span>
-                                            <span>{{ $plan->boost_mensual }} Boost mensuales</span>
-                                        </div>
-                                    @endif
-
-                                    @if($plan->sin_anuncios)
-                                        <div class="flex items-center text-sm text-gray-700">
-                                            <span class="text-brown mr-2">✓</span>
-                                            <span>Sin anuncios</span>
-                                        </div>
-                                    @endif
-
-                                    @if($plan->modo_incognito)
-                                        <div class="flex items-center text-sm text-gray-700">
-                                            <span class="text-brown mr-2">✓</span>
-                                            <span>Modo incógnito</span>
-                                        </div>
-                                    @endif
-
-                                    @if($plan->verificacion_prioritaria)
-                                        <div class="flex items-center text-sm text-gray-700">
-                                            <span class="text-brown mr-2">✓</span>
-                                            <span>Verificación prioritaria</span>
-                                        </div>
-                                    @endif
-
-                                    @if($plan->fotos_adicionales)
-                                        <div class="flex items-center text-sm text-gray-700">
-                                            <span class="text-brown mr-2">✓</span>
-                                            <span>+{{ $plan->fotos_adicionales }} fotos adicionales</span>
-                                        </div>
-                                    @endif
+                                    </div>
                                 </div>
-
                             </div>
 
                             <!-- Acciones -->
