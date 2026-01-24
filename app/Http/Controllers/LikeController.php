@@ -168,7 +168,13 @@ class LikeController extends Controller
 
         // Si no tiene permiso, mostrar vista de upgrade
         if (!$canSeeWhoLikedMe) {
-            return view('likes.who-likes-me-upgrade', compact('likesCount'));
+            // Obtener planes que tienen la función de ver quién te ha dado like
+            $planesConLikes = \App\Models\Plan::where('ver_quien_te_gusta', true)
+                ->where('activo', true)
+                ->orderBy('orden')
+                ->get();
+
+            return view('likes.who-likes-me-upgrade', compact('likesCount', 'planesConLikes'));
         }
 
         $likes = Like::where('liked_user_id', $user->id)

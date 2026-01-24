@@ -13,12 +13,14 @@
         @endif
 
         @foreach($items as $option)
+            @if($option->valor !== '' && $option->valor !== null)
             <option
                 value="{{ $option->valor }}"
                 {{ old($name, $value) == $option->valor ? 'selected' : '' }}
             >
                 {{ $option->etiqueta }}
             </option>
+            @endif
         @endforeach
 
         @if(count($options) > 1 && $grupo !== 'Sin grupo')

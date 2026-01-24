@@ -12,19 +12,29 @@ class AddPhotosToProfilesSeeder extends Seeder
      */
     public function run(): void
     {
-        $profiles = Profile::all();
+        // Solo perfiles de usuarios con email @citasmallorca.es (bots de prueba)
+        $profiles = Profile::whereHas('user', function ($query) {
+            $query->where('email', 'like', '%@citasmallorca.es');
+        })->get();
+
+        $this->command->info("Encontrados {$profiles->count()} perfiles de prueba (@citasmallorca.es)");
 
         foreach ($profiles as $profile) {
             // Determinar si es hombre o mujer basado en el género
             $isMale = in_array(strtolower($profile->genero), ['hombre', 'male', 'masculino']);
             $gender = $isMale ? 'men' : 'women';
 
+            // Usar números únicos para evitar fotos repetidas
+            $usedNumbers = [];
+
+            // Generar foto principal con el género correcto
+            $mainPhotoNum = rand(0, 99);
+            $usedNumbers[] = $mainPhotoNum;
+            $fotoPrincipal = "https://randomuser.me/api/portraits/{$gender}/{$mainPhotoNum}.jpg";
+
             // Generar 3-5 fotos adicionales
             $photoCount = rand(3, 5);
             $additionalPhotos = [];
-
-            // Usar números únicos para evitar fotos repetidas
-            $usedNumbers = [];
 
             for ($i = 0; $i < $photoCount; $i++) {
                 // Generar número único (randomuser.me tiene fotos del 0 al 99)
@@ -37,14 +47,15 @@ class AddPhotosToProfilesSeeder extends Seeder
                 $additionalPhotos[] = "https://randomuser.me/api/portraits/{$gender}/{$imgNum}.jpg";
             }
 
-            // Actualizar el perfil con las fotos adicionales
+            // Actualizar el perfil con foto principal y adicionales
             $profile->update([
+                'foto_principal' => $fotoPrincipal,
                 'fotos_adicionales' => $additionalPhotos
             ]);
 
-            $this->command->info("✓ Agregadas {$photoCount} fotos de {$gender} a {$profile->nombre}");
+            $this->command->info("✓ Actualizadas fotos de {$gender} para {$profile->nombre}");
         }
 
-        $this->command->info("\n🎉 ¡Fotos agregadas exitosamente a todos los perfiles!");
+        $this->command->info("\n🎉 ¡Fotos actualizadas exitosamente en todos los perfiles!");
     }
 }

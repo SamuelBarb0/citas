@@ -82,51 +82,75 @@
                         </div>
                     @endif
 
-                    <!-- Beneficios de Premium -->
+                    <!-- Planes disponibles -->
                     <div class="bg-gradient-to-br from-cream to-yellow-50 rounded-2xl p-6 mb-8">
-                        <h3 class="font-black text-brown text-lg mb-4 text-center">Con Premium podras:</h3>
-                        <div class="space-y-3">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <span class="text-gray-700 font-semibold">Ver quien te ha dado like</span>
+                        <h3 class="font-black text-brown text-lg mb-4 text-center">
+                            Con alguno de estos planes:
+                        </h3>
+
+                        @if($planesConLikes->count() > 0)
+                            @php
+                                // Recopilar características únicas de todos los planes
+                                $caracteristicasUnicas = collect();
+
+                                // Siempre agregar "Ver quien te ha dado like"
+                                $caracteristicasUnicas->push('Ver quien te ha dado like');
+
+                                foreach ($planesConLikes as $plan) {
+                                    if ($plan->mensajes_ilimitados) {
+                                        $caracteristicasUnicas->push('Mensajes ilimitados');
+                                    }
+                                    if ($plan->likes_diarios == -1) {
+                                        $caracteristicasUnicas->push('Likes ilimitados');
+                                    }
+                                    if ($plan->puede_iniciar_conversacion) {
+                                        $caracteristicasUnicas->push('Iniciar conversaciones');
+                                    }
+                                    if ($plan->fotos_adicionales > 6) {
+                                        $caracteristicasUnicas->push('Hasta ' . $plan->fotos_adicionales . ' fotos en tu perfil');
+                                    }
+
+                                    // Agregar características personalizadas
+                                    if ($plan->caracteristicas_personalizadas) {
+                                        foreach ($plan->caracteristicas_personalizadas as $caracteristica) {
+                                            $caracteristicasUnicas->push($caracteristica);
+                                        }
+                                    }
+                                }
+
+                                $caracteristicasUnicas = $caracteristicasUnicas->unique()->values();
+                            @endphp
+
+                            <!-- Nombres de los planes -->
+                            <div class="flex flex-wrap justify-center gap-2 mb-6">
+                                @foreach($planesConLikes as $plan)
+                                    <span class="bg-gradient-to-r from-pink-500 to-heart-red text-white px-4 py-2 rounded-full font-bold text-sm shadow-md">
+                                        {{ $plan->nombre }}
+                                        @if($plan->precio_mensual > 0)
+                                            - {{ number_format($plan->precio_mensual, 2) }}€/mes
+                                        @elseif($plan->precio_anual > 0)
+                                            - {{ number_format($plan->precio_anual, 2) }}€/año
+                                        @endif
+                                    </span>
+                                @endforeach
                             </div>
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <span class="text-gray-700 font-semibold">Hacer match instantaneo</span>
+
+                            <!-- Características únicas -->
+                            <div class="space-y-3">
+                                @foreach($caracteristicasUnicas as $caracteristica)
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </div>
+                                        <span class="text-gray-700 font-semibold">{{ $caracteristica }}</span>
+                                    </div>
+                                @endforeach
                             </div>
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <span class="text-gray-700 font-semibold">Mensajes ilimitados</span>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <span class="text-gray-700 font-semibold">Likes ilimitados</span>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <span class="text-gray-700 font-semibold">Mas fotos en tu perfil</span>
-                            </div>
-                        </div>
+                        @else
+                            <p class="text-center text-gray-500">No hay planes disponibles con esta funcion.</p>
+                        @endif
                     </div>
 
                     <!-- CTA -->

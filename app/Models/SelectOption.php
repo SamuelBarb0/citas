@@ -46,12 +46,19 @@ class SelectOption extends Model
             return [];
         }
 
-        // Si no hay grupos, devolver sin agrupar
-        if ($options->where('grupo', '!=', null)->isEmpty()) {
+        // Si no hay grupos (null o vacío), devolver sin agrupar
+        $tieneGrupos = $options->filter(function ($opt) {
+            return !empty($opt->grupo);
+        })->isNotEmpty();
+
+        if (!$tieneGrupos) {
             return ['Sin grupo' => $options];
         }
 
-        return $options->groupBy('grupo');
+        // Agrupar, poniendo los sin grupo bajo 'Sin grupo'
+        return $options->groupBy(function ($opt) {
+            return empty($opt->grupo) ? 'Sin grupo' : $opt->grupo;
+        });
     }
 
     /**
