@@ -256,7 +256,7 @@
                                                 Puedes responder {{ $remainingResponses }} {{ $remainingResponses === 1 ? 'mensaje' : 'mensajes' }} más
                                             </p>
                                         @else
-                                            <p class="text-xs text-red-700">Puedes responder mensajes</p>
+                                            <p class="text-xs text-green-700">✓ Puedes responder mensajes</p>
                                         @endif
                                     </div>
                                 </div>
