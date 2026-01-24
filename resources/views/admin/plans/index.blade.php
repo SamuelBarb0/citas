@@ -79,49 +79,43 @@
                                     <p class="text-gray-600 text-sm mb-4">{{ $plan->descripcion }}</p>
                                 @endif
 
-                                <!-- Características personalizadas -->
-                                @if($plan->caracteristicas_personalizadas && count($plan->caracteristicas_personalizadas) > 0)
-                                    <ul class="space-y-2 text-sm mb-4">
+                                <div class="space-y-2 mb-4">
+                                    <!-- Características personalizadas -->
+                                    @if($plan->caracteristicas_personalizadas && count($plan->caracteristicas_personalizadas) > 0)
                                         @foreach($plan->caracteristicas_personalizadas as $caracteristica)
-                                            <li class="flex items-start gap-2">
-                                                <span class="text-brown font-bold mt-0.5">✓</span>
-                                                <span class="text-gray-700">{{ $caracteristica }}</span>
-                                            </li>
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-brown mr-2">✓</span>
+                                                <span>{{ $caracteristica }}</span>
+                                            </div>
                                         @endforeach
-                                    </ul>
-                                @endif
+                                    @endif
 
-                                <!-- Características del sistema en formato compacto -->
-                                <div class="border-t pt-3 mt-3">
-                                    <p class="text-xs font-bold text-gray-500 uppercase mb-2">Sistema</p>
-                                    <div class="grid grid-cols-2 gap-2 text-xs">
-                                        <div class="flex items-center gap-1">
-                                            <span class="font-bold text-gray-700">Likes:</span>
-                                            <span class="text-gray-600">
-                                                {{ $plan->likes_diarios == 0 ? '∞' : $plan->likes_diarios }}
-                                            </span>
+                                    <!-- Características del sistema -->
+                                    @if($plan->likes_diarios)
+                                        <div class="flex items-center text-sm text-gray-700">
+                                            <span class="text-brown mr-2">✓</span>
+                                            <span>{{ $plan->likes_diarios }} likes diarios</span>
                                         </div>
-                                        <div class="flex items-center gap-1">
-                                            <span class="font-bold text-gray-700">Mensajes:</span>
-                                            <span class="text-gray-600">
-                                                @if($plan->mensajes_ilimitados)
-                                                    ∞
-                                                @elseif($plan->mensajes_semanales_gratis)
-                                                    {{ $plan->mensajes_semanales_gratis }}/sem
-                                                @else
-                                                    0
-                                                @endif
-                                            </span>
+                                    @endif
+
+                                    @if($plan->mensajes_ilimitados)
+                                        <div class="flex items-center text-sm text-gray-700">
+                                            <span class="text-brown mr-2">✓</span>
+                                            <span>Mensajes ilimitados</span>
                                         </div>
-                                        <div class="flex items-center gap-1">
-                                            <span class="font-bold text-gray-700">Iniciar chat:</span>
-                                            @if($plan->puede_iniciar_conversacion)
-                                                <span class="text-green-600">Sí</span>
-                                            @else
-                                                <span class="text-red-500">No</span>
-                                            @endif
+                                    @elseif($plan->mensajes_semanales_gratis)
+                                        <div class="flex items-center text-sm text-gray-700">
+                                            <span class="text-brown mr-2">✓</span>
+                                            <span>{{ $plan->mensajes_semanales_gratis }} mensajes gratis/semana</span>
                                         </div>
-                                    </div>
+                                    @endif
+
+                                    @if($plan->puede_iniciar_conversacion)
+                                        <div class="flex items-center text-sm text-gray-700">
+                                            <span class="text-brown mr-2">✓</span>
+                                            <span>Puede iniciar conversaciones</span>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 
