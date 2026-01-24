@@ -57,20 +57,37 @@
                                 @if($plan->isFree())
                                     <div class="text-5xl font-black text-heart-red">0€</div>
                                     <p class="text-gray-500 text-sm mt-2">Para siempre</p>
-                                @else
+                                @elseif($plan->precio_mensual > 0 && $plan->precio_anual > 0)
+                                    {{-- Tiene ambos precios: mostrar mensual como principal --}}
                                     <div class="text-5xl font-black text-heart-red">
                                         {{ number_format($plan->precio_mensual, 2) }}€
                                     </div>
                                     <p class="text-gray-500 text-lg mt-2">/mes</p>
                                     <p class="text-xs text-gray-400 mt-1">(IVA incluido)</p>
-
-                                    @if($plan->precio_anual)
-                                        <div class="mt-3 bg-green-50 border border-green-200 rounded-xl p-2">
-                                            <p class="text-xs text-green-700 font-semibold">
-                                                O {{ number_format($plan->precio_anual, 2) }}€/año ({{ number_format($plan->precio_anual / 12, 2) }}€/mes)
-                                            </p>
-                                        </div>
-                                    @endif
+                                    <div class="mt-3 bg-green-50 border border-green-200 rounded-xl p-2">
+                                        <p class="text-xs text-green-700 font-semibold">
+                                            O {{ number_format($plan->precio_anual, 2) }}€/año ({{ number_format($plan->precio_anual / 12, 2) }}€/mes)
+                                        </p>
+                                    </div>
+                                @elseif($plan->precio_mensual > 0)
+                                    {{-- Solo precio mensual --}}
+                                    <div class="text-5xl font-black text-heart-red">
+                                        {{ number_format($plan->precio_mensual, 2) }}€
+                                    </div>
+                                    <p class="text-gray-500 text-lg mt-2">/mes</p>
+                                    <p class="text-xs text-gray-400 mt-1">(IVA incluido)</p>
+                                @elseif($plan->precio_anual > 0)
+                                    {{-- Solo precio anual --}}
+                                    <div class="text-5xl font-black text-heart-red">
+                                        {{ number_format($plan->precio_anual, 2) }}€
+                                    </div>
+                                    <p class="text-gray-500 text-lg mt-2">/año</p>
+                                    <p class="text-xs text-gray-400 mt-1">(IVA incluido)</p>
+                                    <div class="mt-3 bg-green-50 border border-green-200 rounded-xl p-2">
+                                        <p class="text-xs text-green-700 font-semibold">
+                                            Solo {{ number_format($plan->precio_anual / 12, 2) }}€/mes
+                                        </p>
+                                    </div>
                                 @endif
                             </div>
 
@@ -164,9 +181,19 @@
                                 @endif
                             @else
                                 @if(Auth::check())
+                                    @php
+                                        // Determinar texto del boton segun precios disponibles
+                                        if ($plan->precio_mensual > 0) {
+                                            $btnText = 'Suscribirse (' . number_format($plan->precio_mensual, 2) . '€/mes)';
+                                        } elseif ($plan->precio_anual > 0) {
+                                            $btnText = 'Suscribirse (' . number_format($plan->precio_anual, 2) . '€/año)';
+                                        } else {
+                                            $btnText = 'Suscribirse';
+                                        }
+                                    @endphp
                                     <a href="{{ route('subscriptions.checkout', $plan->slug) }}"
                                        class="block w-full bg-gradient-to-r from-heart-red to-heart-red-light text-white py-4 px-6 rounded-2xl font-bold text-center hover:shadow-glow transition">
-                                        Suscribirse ({{ number_format($plan->precio_mensual, 2) }}€/mes)
+                                        {{ $btnText }}
                                     </a>
                                 @else
                                     <a href="{{ route('login') }}"

@@ -11,62 +11,119 @@
                 </svg>
                 Volver a Planes
             </a>
-            <h1 class="text-4xl font-black text-brown mb-2">Finaliza tu Suscripción</h1>
+            <h1 class="text-4xl font-black text-brown mb-2">Finaliza tu Suscripcion</h1>
             <p class="text-gray-600">Completa tu pago de forma segura</p>
         </div>
 
-        <!-- Resumen de la Suscripción -->
+        @php
+            // Determinar que opciones de precio tiene el plan
+            $tieneMensual = $plan->precio_mensual > 0;
+            $tieneAnual = $plan->precio_anual > 0;
+
+            // Tipo inicial: si viene por parametro, usarlo; sino determinar automaticamente
+            if (isset($tipo)) {
+                $tipoSuscripcion = $tipo;
+            } elseif ($tieneMensual) {
+                $tipoSuscripcion = 'mensual';
+            } else {
+                $tipoSuscripcion = 'anual';
+            }
+
+            $precioMensual = $plan->precio_mensual;
+            $precioAnual = $plan->precio_anual;
+        @endphp
+
+        <!-- Selector de tipo de suscripcion (solo si tiene ambos precios) -->
+        @if($tieneMensual && $tieneAnual)
+        <div class="bg-white rounded-3xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-brown mb-4 text-center">Elige tu periodo de facturacion</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Opcion Mensual -->
+                <label class="cursor-pointer">
+                    <input type="radio" name="tipo_selector" value="mensual" class="hidden peer" {{ $tipoSuscripcion === 'mensual' ? 'checked' : '' }}>
+                    <div class="peer-checked:border-heart-red peer-checked:bg-red-50 border-2 border-gray-200 rounded-2xl p-4 transition-all hover:border-heart-red/50">
+                        <div class="text-center">
+                            <p class="text-sm text-gray-500 mb-1">Mensual</p>
+                            <p class="text-3xl font-black text-brown">{{ number_format($precioMensual, 2) }}€</p>
+                            <p class="text-xs text-gray-500">/mes</p>
+                        </div>
+                    </div>
+                </label>
+
+                <!-- Opcion Anual -->
+                <label class="cursor-pointer">
+                    <input type="radio" name="tipo_selector" value="anual" class="hidden peer" {{ $tipoSuscripcion === 'anual' ? 'checked' : '' }}>
+                    <div class="peer-checked:border-heart-red peer-checked:bg-red-50 border-2 border-gray-200 rounded-2xl p-4 transition-all hover:border-heart-red/50 relative">
+                        @if($plan->descuento_anual > 0)
+                        <div class="absolute -top-2 -right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                            -{{ $plan->descuento_anual }}%
+                        </div>
+                        @endif
+                        <div class="text-center">
+                            <p class="text-sm text-gray-500 mb-1">Anual</p>
+                            <p class="text-3xl font-black text-brown">{{ number_format($precioAnual, 2) }}€</p>
+                            <p class="text-xs text-gray-500">/año</p>
+                            <p class="text-xs text-green-600 font-semibold mt-1">{{ number_format($precioAnual / 12, 2) }}€/mes</p>
+                        </div>
+                    </div>
+                </label>
+            </div>
+        </div>
+        @endif
+
+        <!-- Resumen de la Suscripcion -->
         <div class="bg-white rounded-3xl shadow-lg p-8 mb-6">
-            <h2 class="text-2xl font-bold text-brown mb-6">RESUMEN DE TU SUSCRIPCIÓN</h2>
-
-            @php
-                // El tipo se pasa desde el controlador, si no existe lo determinamos por el slug del plan
-                $tipoSuscripcion = $tipo ?? ($plan->slug === 'anual' ? 'anual' : 'mensual');
-
-                // Determinar precio según el tipo
-                $precio = $tipoSuscripcion === 'anual' ? $plan->precio_anual : $plan->precio_mensual;
-                $periodo = ucfirst($tipoSuscripcion);
-            @endphp
+            <h2 class="text-2xl font-bold text-brown mb-6">RESUMEN DE TU SUSCRIPCION</h2>
 
             <div class="border-b pb-6 mb-6">
                 <div class="flex justify-between items-center mb-2">
                     <div>
                         <p class="text-lg font-semibold text-gray-800">Plan: {{ $plan->nombre }}</p>
+                        @if($plan->descripcion)
                         <p class="text-sm text-gray-600">{{ $plan->descripcion }}</p>
+                        @endif
                     </div>
                     <div class="text-right">
-                        <p class="text-2xl font-black text-heart-red">{{ number_format($precio, 2) }}€</p>
+                        <p id="precio-display" class="text-2xl font-black text-heart-red">
+                            {{ number_format($tipoSuscripcion === 'anual' ? $precioAnual : $precioMensual, 2) }}€
+                        </p>
+                        <p id="periodo-display" class="text-sm text-gray-500">
+                            {{ $tipoSuscripcion === 'anual' ? '/año' : '/mes' }}
+                        </p>
                         <p class="text-xs text-gray-500">(IVA incluido)</p>
                     </div>
                 </div>
 
-                @if($plan->slug === 'anual')
-                    <div class="mt-3 bg-green-50 border border-green-200 rounded-xl p-3">
-                        <p class="text-sm text-green-700">
-                            <span class="font-bold">💰 ¡Solo {{ number_format($precio / 12, 2) }}€ al mes!</span>
-                        </p>
-                    </div>
-                @endif
+                <div id="ahorro-anual" class="mt-3 bg-green-50 border border-green-200 rounded-xl p-3 {{ $tipoSuscripcion !== 'anual' ? 'hidden' : '' }}">
+                    <p class="text-sm text-green-700">
+                        <span class="font-bold">Solo {{ number_format($precioAnual / 12, 2) }}€ al mes!</span>
+                    </p>
+                </div>
             </div>
 
             <div class="bg-brown/5 rounded-2xl p-6 mb-6">
                 <div class="flex justify-between items-center">
                     <p class="text-xl font-bold text-brown">TOTAL A PAGAR:</p>
-                    <p class="text-3xl font-black text-heart-red">{{ number_format($precio, 2) }}€</p>
+                    <p id="total-display" class="text-3xl font-black text-heart-red">
+                        {{ number_format($tipoSuscripcion === 'anual' ? $precioAnual : $precioMensual, 2) }}€
+                    </p>
                 </div>
+                <p id="renovacion-texto" class="text-xs text-gray-500 mt-2 text-right">
+                    Se renovara automaticamente cada {{ $tipoSuscripcion === 'anual' ? 'año' : 'mes' }}
+                </p>
             </div>
         </div>
 
-        <!-- Validación Legal -->
+        <!-- Validacion Legal -->
         <div class="bg-white rounded-3xl shadow-lg p-8 mb-6">
-            <h3 class="text-xl font-bold text-brown mb-6">VALIDACIÓN LEGAL</h3>
+            <h3 class="text-xl font-bold text-brown mb-6">VALIDACION LEGAL</h3>
 
             <form id="payment-form" method="POST" action="{{ route('subscriptions.paypal') }}">
                 @csrf
                 <input type="hidden" name="plan_id" value="{{ $plan->id }}">
-                <input type="hidden" name="tipo" value="{{ $tipoSuscripcion }}">
+                <input type="hidden" name="tipo" id="tipo-hidden" value="{{ $tipoSuscripcion }}">
 
-                <!-- Checkbox 1: Términos de Contratación y Condiciones de Pago -->
+                <!-- Checkbox 1: Terminos de Contratacion y Condiciones de Pago -->
                 <div class="mb-6">
                     <label class="flex items-start gap-3 cursor-pointer group">
                         <input
@@ -77,16 +134,16 @@
                             class="w-5 h-5 text-heart-red border-gray-300 rounded focus:ring-heart-red focus:ring-2 mt-1 flex-shrink-0"
                         >
                         <span class="text-gray-700 text-sm leading-relaxed">
-                            He leído y acepto los
-                            <a href="{{ route('legal.contract-terms') }}" target="_blank" class="text-heart-red hover:underline font-semibold">Términos de Contratación</a>
+                            He leido y acepto los
+                            <a href="{{ route('legal.contract-terms') }}" target="_blank" class="text-heart-red hover:underline font-semibold">Terminos de Contratacion</a>
                             y las
                             <a href="{{ route('legal.payment-conditions') }}" target="_blank" class="text-heart-red hover:underline font-semibold">Condiciones de Pago</a>.
-                            Entiendo que se trata de una suscripción que se renovará automáticamente.
+                            Entiendo que se trata de una suscripcion que se renovara automaticamente.
                         </span>
                     </label>
                 </div>
 
-                <!-- Checkbox 2: No Devolución -->
+                <!-- Checkbox 2: No Devolucion -->
                 <div class="mb-6">
                     <label class="flex items-start gap-3 cursor-pointer group">
                         <input
@@ -97,8 +154,8 @@
                             class="w-5 h-5 text-heart-red border-gray-300 rounded focus:ring-heart-red focus:ring-2 mt-1 flex-shrink-0"
                         >
                         <span class="text-gray-700 text-sm leading-relaxed">
-                            Entiendo que tendré acceso inmediato al servicio y que, por tanto,
-                            <strong class="text-brown">no podré solicitar una devolución</strong>
+                            Entiendo que tendre acceso inmediato al servicio y que, por tanto,
+                            <strong class="text-brown">no podre solicitar una devolucion</strong>
                             una vez que haya entrado en mi cuenta.
                         </span>
                     </label>
@@ -114,9 +171,9 @@
                     </div>
                 </div>
 
-                <!-- Botón PayPal (deshabilitado inicialmente) -->
+                <!-- Boton PayPal (deshabilitado inicialmente) -->
                 <div class="mt-8">
-                    <h3 class="text-lg font-bold text-brown mb-4 text-center">SELECCIONA TU MÉTODO DE PAGO</h3>
+                    <h3 class="text-lg font-bold text-brown mb-4 text-center">SELECCIONA TU METODO DE PAGO</h3>
 
                     <!-- PayPal Button Container -->
                     <div id="paypal-button-container" class="opacity-50 pointer-events-none transition-all duration-300"></div>
@@ -133,18 +190,18 @@
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                             </svg>
-                            <p class="text-sm font-semibold">Pago 100% Seguro. Tus datos están protegidos.</p>
+                            <p class="text-sm font-semibold">Pago 100% Seguro. Tus datos estan protegidos.</p>
                         </div>
                     </div>
                 </div>
             </form>
         </div>
 
-        <!-- Información Adicional -->
+        <!-- Informacion Adicional -->
         <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6 text-center">
             <p class="text-sm text-blue-900">
-                <strong>ℹ️ Importante:</strong> Una vez completado el pago, recibirás un email de confirmación
-                y tendrás acceso inmediato a todas las funcionalidades premium de la plataforma.
+                <strong>Importante:</strong> Una vez completado el pago, recibiras un email de confirmacion
+                y tendras acceso inmediato a todas las funcionalidades premium de la plataforma.
             </p>
         </div>
     </div>
@@ -154,26 +211,68 @@
 <script src="{{ config('paypal.sdk_url') }}?client-id={{ config('paypal.client_id') }}&vault=true&intent=subscription&currency={{ config('paypal.currency') }}&locale={{ config('paypal.locale') }}"></script>
 
 <script>
+    // Precios
+    const precioMensual = {{ $precioMensual }};
+    const precioAnual = {{ $precioAnual }};
+    let tipoActual = '{{ $tipoSuscripcion }}';
+
     // Referencias a los checkboxes
     const termsCheckbox = document.getElementById('terms-checkbox');
     const noRefundCheckbox = document.getElementById('no-refund-checkbox');
     const paypalContainer = document.getElementById('paypal-button-container');
     const validationError = document.getElementById('validation-error');
+    const tipoHidden = document.getElementById('tipo-hidden');
 
-    // Estado de validación
+    // Referencias para actualizar precios
+    const precioDisplay = document.getElementById('precio-display');
+    const periodoDisplay = document.getElementById('periodo-display');
+    const totalDisplay = document.getElementById('total-display');
+    const renovacionTexto = document.getElementById('renovacion-texto');
+    const ahorroAnual = document.getElementById('ahorro-anual');
+
+    // Estado de validacion
     let paymentsEnabled = false;
 
-    // Función para verificar si ambos checkboxes están marcados
+    // Funcion para actualizar los precios mostrados
+    function actualizarPrecios(tipo) {
+        tipoActual = tipo;
+        tipoHidden.value = tipo;
+
+        const precio = tipo === 'anual' ? precioAnual : precioMensual;
+        const periodo = tipo === 'anual' ? '/año' : '/mes';
+        const renovacion = tipo === 'anual' ? 'año' : 'mes';
+
+        precioDisplay.textContent = precio.toFixed(2).replace('.', ',') + '€';
+        periodoDisplay.textContent = periodo;
+        totalDisplay.textContent = precio.toFixed(2).replace('.', ',') + '€';
+        renovacionTexto.textContent = 'Se renovara automaticamente cada ' + renovacion;
+
+        if (ahorroAnual) {
+            if (tipo === 'anual') {
+                ahorroAnual.classList.remove('hidden');
+            } else {
+                ahorroAnual.classList.add('hidden');
+            }
+        }
+    }
+
+    // Listeners para selector de tipo (si existe)
+    const tipoSelectors = document.querySelectorAll('input[name="tipo_selector"]');
+    tipoSelectors.forEach(radio => {
+        radio.addEventListener('change', function() {
+            actualizarPrecios(this.value);
+        });
+    });
+
+    // Funcion para verificar si ambos checkboxes estan marcados
     function checkValidation() {
         const bothChecked = termsCheckbox.checked && noRefundCheckbox.checked;
 
         if (bothChecked && !paymentsEnabled) {
-            // Habilitar pagos
             paymentsEnabled = true;
             paypalContainer.classList.remove('opacity-50', 'pointer-events-none');
             validationError.classList.add('hidden');
         } else if (!bothChecked && paymentsEnabled) {
-            // Deshabilitar pagos
             paymentsEnabled = false;
             paypalContainer.classList.add('opacity-50', 'pointer-events-none');
         }
@@ -183,11 +282,10 @@
     termsCheckbox.addEventListener('change', checkValidation);
     noRefundCheckbox.addEventListener('change', checkValidation);
 
-    // Función para mostrar error si se intenta pagar sin aceptar
+    // Funcion para mostrar error si se intenta pagar sin aceptar
     function showValidationError() {
         if (!paymentsEnabled) {
             validationError.classList.remove('hidden');
-            // Scroll al error
             validationError.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return true;
         }
@@ -205,12 +303,10 @@
         },
 
         createSubscription: function(data, actions) {
-            // Verificar validación antes de crear suscripción
             if (showValidationError()) {
                 return Promise.reject(new Error('Validation failed'));
             }
 
-            // Crear suscripción en PayPal
             return fetch('{{ route("subscriptions.paypal.create") }}', {
                 method: 'POST',
                 headers: {
@@ -219,7 +315,7 @@
                 },
                 body: JSON.stringify({
                     plan_id: '{{ $plan->id }}',
-                    tipo: '{{ $tipoSuscripcion }}'
+                    tipo: tipoActual
                 })
             })
             .then(response => response.json())
@@ -227,43 +323,40 @@
                 if (data.success && data.subscription_id) {
                     return data.subscription_id;
                 } else {
-                    throw new Error(data.message || 'Error al crear la suscripción');
+                    throw new Error(data.message || 'Error al crear la suscripcion');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al procesar la suscripción: ' + error.message);
+                alert('Error al procesar la suscripcion: ' + error.message);
                 throw error;
             });
         },
 
         onApprove: function(data, actions) {
-            // Suscripción aprobada - redirigir a página de éxito que activará la suscripción
             const successUrl = '{{ route("subscriptions.paypal.success") }}' +
                 '?subscription_id=' + data.subscriptionID +
                 '&plan_id={{ $plan->id }}' +
-                '&tipo={{ $tipoSuscripcion }}';
+                '&tipo=' + tipoActual;
 
             window.location.href = successUrl;
         },
 
         onCancel: function(data) {
-            // Usuario canceló el pago
             console.log('Pago cancelado por el usuario');
         },
 
         onError: function(err) {
-            // Error durante el proceso
             console.error('Error en PayPal:', err);
             if (!paymentsEnabled) {
                 showValidationError();
             } else {
-                alert('Ocurrió un error al procesar el pago. Por favor, inténtalo de nuevo.');
+                alert('Ocurrio un error al procesar el pago. Por favor, intentalo de nuevo.');
             }
         }
     }).render('#paypal-button-container');
 
-    // Verificación inicial al cargar la página
+    // Verificacion inicial al cargar la pagina
     checkValidation();
 </script>
 @endsection
