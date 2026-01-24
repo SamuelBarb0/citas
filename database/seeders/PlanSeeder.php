@@ -17,7 +17,7 @@ class PlanSeeder extends Seeder
             [
                 'nombre' => 'Gratis',
                 'slug' => 'free',
-                'descripcion' => 'Solo puedes responder mensajes',
+                'descripcion' => 'Puedes responder mensajes',
                 'precio_mensual' => 0.00,
                 'precio_anual' => 0.00,
                 'likes_diarios' => -1,
