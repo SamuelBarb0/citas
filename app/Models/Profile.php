@@ -39,7 +39,19 @@ class Profile extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Likes que este perfil ha RECIBIDO (otros usuarios le dieron like)
+     */
     public function likedBy()
+    {
+        return $this->hasMany(Like::class, 'liked_user_id', 'user_id');
+    }
+
+    /**
+     * Likes que han sido DADOS A este perfil por un usuario específico
+     * Usada para filtrar perfiles ya likeados en el dashboard
+     */
+    public function likesReceived()
     {
         return $this->hasMany(Like::class, 'liked_user_id', 'user_id');
     }

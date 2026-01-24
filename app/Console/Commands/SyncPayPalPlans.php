@@ -54,6 +54,11 @@ class SyncPayPalPlans extends Command
                 $productName = "Citas Mallorca - {$plan->nombre}";
                 $productDescription = strip_tags($plan->descripcion);
 
+                // PayPal requiere descripción no vacía
+                if (empty($productDescription)) {
+                    $productDescription = "Suscripción al plan {$plan->nombre} de Citas Mallorca";
+                }
+
                 $this->line("   → Creando producto en PayPal...");
 
                 try {

@@ -185,9 +185,6 @@
 
         <div class="py-3 sm:py-6 px-2 sm:px-4 md:px-6 lg:px-8">
             <div class="max-w-lg mx-auto">
-                {{-- Banner de verificación opcional --}}
-                @include('components.verification-banner')
-
                 @if(isset($searchExpanded) && $searchExpanded)
                     <div class="mb-3 sm:mb-4 bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4 text-center">
                         <p class="text-blue-700 text-xs sm:text-sm">
@@ -203,7 +200,7 @@
                         <div id="cards-stack" class="relative w-full h-full">
                             @foreach($perfiles as $index => $perfil)
                                 <div class="swipe-card absolute inset-0 bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden cursor-grab active:cursor-grabbing transition-all duration-300"
-                                     data-profile-id="{{ $perfil->id }}"
+                                     data-profile-id="{{ $perfil->user_id }}"
                                      data-index="{{ $index }}"
                                      style="transform: translateY({{ $index * 10 }}px) scale({{ 1 - ($index * 0.03) }}); z-index: {{ 100 - $index }}; opacity: {{ $index < 3 ? 1 : 0 }};">
 
@@ -480,10 +477,10 @@
                     // Inicializar eventos de drag para la siguiente tarjeta
                     initCardDragListeners();
 
-                    // Si no quedan más tarjetas, recargar
+                    // Si no quedan más tarjetas, mostrar pantalla de fin
                     if (currentCardIndex >= cards.length) {
                         setTimeout(() => {
-                            location.reload();
+                            showEndOfCardsScreen();
                         }, 500);
                     }
                 }, 500);
@@ -516,12 +513,46 @@
                   .then(data => {
                       console.log('Response data:', data);
                       if (data.match) {
+                          // Marcar este usuario como match ya mostrado para evitar duplicado con polling
+                          shownMatchUserIds.add(profileId);
                           showMatchNotification(data.matched_user.photo, data.matched_user.name, profileId);
                       }
                   })
                   .catch(error => {
                       console.error('Error sending like:', error);
                   });
+            }
+
+            function showEndOfCardsScreen() {
+                // Ocultar el contenedor de tarjetas
+                const cardsStack = document.getElementById('cards-stack');
+                if (cardsStack) {
+                    cardsStack.innerHTML = `
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="text-center px-6 py-12">
+                                <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-cream to-brown/10 rounded-full flex items-center justify-center">
+                                    <svg class="w-12 h-12 text-brown/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-2xl font-black text-brown mb-3">¡Has visto todos los perfiles!</h3>
+                                <p class="text-gray-600 mb-8 max-w-sm mx-auto">No hay mas perfiles que mostrar con tus filtros actuales.</p>
+
+                                <div class="space-y-3">
+                                    <a href="{{ route('dashboard') }}" class="block w-full bg-gradient-to-r from-heart-red to-heart-red-light text-white px-6 py-4 rounded-xl font-bold hover:shadow-glow transition shadow-lg">
+                                        🔄 Ver perfiles de nuevo
+                                    </a>
+                                    <button onclick="document.getElementById('filters-btn').click()" class="block w-full bg-brown/10 text-brown px-6 py-4 rounded-xl font-bold hover:bg-brown/20 transition">
+                                        ⚙️ Cambiar filtros
+                                    </button>
+                                    <a href="{{ route('matches') }}" class="block w-full bg-white border-2 border-brown text-brown px-6 py-4 rounded-xl font-bold hover:bg-brown hover:text-white transition">
+                                        💕 Ver mis matches
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
             }
 
             function showMatchNotification(matchedPhoto, matchedName, profileId) {
@@ -822,6 +853,8 @@
             // ==================== POLLING PARA NUEVOS MATCHES ====================
             let lastCheckTime = new Date().toISOString();
             let isCheckingMatches = false;
+            // Set para trackear matches ya mostrados (evita duplicados entre like y polling)
+            const shownMatchUserIds = new Set();
 
             // Función para verificar nuevos matches
             async function checkForNewMatches() {
@@ -842,9 +875,13 @@
                     const data = await response.json();
 
                     if (data.has_new_matches && data.matches.length > 0) {
-                        // Mostrar popup para cada nuevo match
+                        // Mostrar popup para cada nuevo match (solo si no se mostró ya)
                         data.matches.forEach(match => {
-                            showMatchNotification(match.photo, match.name, match.match_id);
+                            // Verificar si este match ya fue mostrado (por dar like)
+                            if (!shownMatchUserIds.has(match.user_id)) {
+                                shownMatchUserIds.add(match.user_id);
+                                showMatchNotification(match.photo, match.name, match.user_id);
+                            }
                         });
 
                         // Actualizar el tiempo del último check

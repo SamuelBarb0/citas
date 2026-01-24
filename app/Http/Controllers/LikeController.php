@@ -46,39 +46,43 @@ class LikeController extends Controller
             ->first();
 
         if ($mutualLike) {
-            // ¡Es un match! Crear el match automáticamente
-            $this->createMatch($currentUserId, $likedUserId);
+            // ¡Es un match! Crear el match automáticamente (solo si no existe)
+            $isNewMatch = $this->createMatch($currentUserId, $likedUserId);
 
-            // Obtener los datos del perfil del usuario con quien hicimos match
-            $matchedUser = \App\Models\User::with('profile')->find($likedUserId);
-            $currentUser = \App\Models\User::with('profile')->find($currentUserId);
+            // Solo mostrar animación y notificaciones si es un match NUEVO
+            if ($isNewMatch) {
+                // Obtener los datos del perfil del usuario con quien hicimos match
+                $matchedUser = \App\Models\User::with('profile')->find($likedUserId);
+                $currentUser = \App\Models\User::with('profile')->find($currentUserId);
 
-            // Enviar notificaciones a ambos usuarios
-            $matchedUser->notify(new \App\Notifications\NewMatchNotification($currentUser));
-            $currentUser->notify(new \App\Notifications\NewMatchNotification($matchedUser));
+                // Enviar notificaciones a ambos usuarios
+                $matchedUser->notify(new \App\Notifications\NewMatchNotification($currentUser));
+                $currentUser->notify(new \App\Notifications\NewMatchNotification($matchedUser));
 
-            $matchData = [
-                'name' => $matchedUser->profile->nombre ?? $matchedUser->name,
-                'photo' => $matchedUser->profile->foto_principal ?? 'https://ui-avatars.com/api/?name=' . urlencode($matchedUser->name) . '&size=400&background=A67C52&color=fff'
-            ];
+                $matchData = [
+                    'name' => $matchedUser->profile->nombre ?? $matchedUser->name,
+                    'photo' => $matchedUser->profile->foto_principal ?? 'https://ui-avatars.com/api/?name=' . urlencode($matchedUser->name) . '&size=400&background=A67C52&color=fff'
+                ];
 
-            // Si es una petición AJAX, devolver JSON
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'match' => true,
-                    'message' => '¡Es un match! 💕',
-                    'matched_user' => $matchData
+                // Si es una petición AJAX, devolver JSON
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'match' => true,
+                        'message' => '¡Es un match! 💕',
+                        'matched_user' => $matchData
+                    ]);
+                }
+
+                // Guardar el match en la sesión para mostrarlo cuando vuelva al dashboard
+                session()->flash('new_match', [
+                    'name' => $matchedUser->profile->nombre ?? $matchedUser->name,
+                    'photo' => $matchedUser->profile->foto_principal ?? 'https://ui-avatars.com/api/?name=' . urlencode($matchedUser->name) . '&size=400&background=A67C52&color=fff'
                 ]);
+
+                return redirect()->route('matches')->with('success', '¡Es un match! 💕 Ahora puedes enviar mensajes.');
             }
-
-            // Guardar el match en la sesión para mostrarlo cuando vuelva al dashboard
-            session()->flash('new_match', [
-                'name' => $matchedUser->profile->nombre ?? $matchedUser->name,
-                'photo' => $matchedUser->profile->foto_principal ?? 'https://ui-avatars.com/api/?name=' . urlencode($matchedUser->name) . '&size=400&background=A67C52&color=fff'
-            ]);
-
-            return redirect()->route('matches')->with('success', '¡Es un match! 💕 Ahora puedes enviar mensajes.');
+            // Si el match ya existía, no mostrar animación, continuar como like normal
         }
 
         // Si es una petición AJAX, devolver JSON
@@ -115,6 +119,7 @@ class LikeController extends Controller
 
     /**
      * Crear un match entre dos usuarios
+     * @return bool true si se creó un nuevo match, false si ya existía
      */
     private function createMatch($userId1, $userId2)
     {
@@ -137,7 +142,10 @@ class LikeController extends Controller
                 'user_id_2' => $userIdMax,
                 'matched_at' => now(),
             ]);
+            return true; // Nuevo match creado
         }
+
+        return false; // Ya existía el match
     }
 
     /**

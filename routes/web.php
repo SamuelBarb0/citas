@@ -71,6 +71,17 @@ Route::middleware(['auth', 'has.profile'])->group(function () {
                 $query->select('user_id')
                     ->from('blocked_users')
                     ->where('blocked_user_id', $currentUserId);
+            })
+            // Filtrar usuarios con los que ya tengo match
+            ->whereNotIn('user_id', function($query) use ($currentUserId) {
+                $query->select('user_id_2')
+                    ->from('matches')
+                    ->where('user_id_1', $currentUserId);
+            })
+            ->whereNotIn('user_id', function($query) use ($currentUserId) {
+                $query->select('user_id_1')
+                    ->from('matches')
+                    ->where('user_id_2', $currentUserId);
             });
 
         // Obtener el perfil del usuario actual para filtros inteligentes

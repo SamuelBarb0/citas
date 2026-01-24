@@ -123,6 +123,7 @@ class MatchController extends Controller
 
             return [
                 'match_id' => $match->id,
+                'user_id' => $otherUser->id,
                 'name' => $otherUser->profile->nombre ?? $otherUser->name,
                 'photo' => $otherUser->profile->foto_principal
                     ? (str_starts_with($otherUser->profile->foto_principal, 'http')
