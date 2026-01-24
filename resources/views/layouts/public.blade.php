@@ -85,8 +85,10 @@
         @yield('content')
     </main>
 
-    <!-- Banner de Cookies -->
-    @include('components.cookie-banner')
+    <!-- Banner de Cookies (no mostrar en páginas legales) -->
+    @if(!request()->is('politica-cookies') && !request()->is('politica-privacidad') && !request()->is('aviso-legal') && !request()->is('terminos-condiciones') && !request()->is('terminos-contratacion') && !request()->is('condiciones-pago'))
+        @include('components.cookie-banner')
+    @endif
 
     <!-- Footer -->
     <footer class="bg-white mt-12 sm:mt-20 border-t border-gray-200">
