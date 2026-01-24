@@ -64,58 +64,31 @@
                         </div>
                     </div>
 
-                    <!-- Límites y Cantidades -->
+                    <!-- Límites y Características -->
                     <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                        <h2 class="text-xl font-bold text-gray-900 mb-4">Límites y Cantidades</h2>
-                        <div class="grid grid-cols-3 gap-4">
+                        <h2 class="text-xl font-bold text-gray-900 mb-4">Límites y Características</h2>
+
+                        <div class="grid grid-cols-2 gap-4 mb-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Likes Diarios</label>
-                                <input type="number" name="likes_diarios" value="{{ old('likes_diarios') }}" min="0"
-                                       class="w-full px-4 py-3 border rounded-lg" placeholder="0 = Ilimitado">
+                                <input type="number" name="likes_diarios" value="{{ old('likes_diarios', 0) }}" min="0"
+                                       class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brown">
+                                <p class="text-xs text-gray-500 mt-1">0 = Ilimitados</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Mensajes Gratis/Semana</label>
-                                <input type="number" name="mensajes_semanales_gratis" value="{{ old('mensajes_semanales_gratis') }}" min="0"
-                                       class="w-full px-4 py-3 border rounded-lg">
+                                <input type="number" name="mensajes_semanales_gratis" value="{{ old('mensajes_semanales_gratis', 0) }}" min="0"
+                                       class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brown">
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-4 mt-4">
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Boost Mensuales</label>
-                                <input type="number" name="boost_mensual" value="{{ old('boost_mensual') }}" min="0"
-                                       class="w-full px-4 py-3 border rounded-lg">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Fotos Adicionales</label>
-                                <input type="number" name="fotos_adicionales" value="{{ old('fotos_adicionales') }}" min="0"
-                                       class="w-full px-4 py-3 border rounded-lg">
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Características Premium -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                        <h2 class="text-xl font-bold text-gray-900 mb-4">Características Premium</h2>
+                        <h3 class="text-lg font-bold text-gray-800 mb-3">Permisos</h3>
                         <div class="grid grid-cols-2 gap-4">
-                            <label class="flex items-center space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
-                                <input type="hidden" name="ver_quien_te_gusta" value="0">
-                                <input type="checkbox" name="ver_quien_te_gusta" value="1" {{ old('ver_quien_te_gusta') ? 'checked' : '' }}
-                                       class="w-5 h-5 text-brown rounded">
-                                <span class="text-sm font-semibold">Ver quién te dio like</span>
-                            </label>
-
-                            <label class="flex items-center space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
-                                <input type="hidden" name="matches_ilimitados" value="0">
-                                <input type="checkbox" name="matches_ilimitados" value="1" {{ old('matches_ilimitados') ? 'checked' : '' }}
-                                       class="w-5 h-5 text-brown rounded">
-                                <span class="text-sm font-semibold">Matches ilimitados</span>
-                            </label>
-
                             <label class="flex items-center space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
                                 <input type="hidden" name="puede_iniciar_conversacion" value="0">
                                 <input type="checkbox" name="puede_iniciar_conversacion" value="1" {{ old('puede_iniciar_conversacion') ? 'checked' : '' }}
                                        class="w-5 h-5 text-brown rounded">
-                                <span class="text-sm font-semibold">Iniciar conversaciones</span>
+                                <span class="text-sm font-semibold">Puede iniciar conversaciones</span>
                             </label>
 
                             <label class="flex items-center space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
@@ -124,36 +97,18 @@
                                        class="w-5 h-5 text-brown rounded">
                                 <span class="text-sm font-semibold">Mensajes ilimitados</span>
                             </label>
-
-                            <label class="flex items-center space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
-                                <input type="hidden" name="rewind" value="0">
-                                <input type="checkbox" name="rewind" value="1" {{ old('rewind') ? 'checked' : '' }}
-                                       class="w-5 h-5 text-brown rounded">
-                                <span class="text-sm font-semibold">Rewind (Deshacer)</span>
-                            </label>
-
-                            <label class="flex items-center space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
-                                <input type="hidden" name="sin_anuncios" value="0">
-                                <input type="checkbox" name="sin_anuncios" value="1" {{ old('sin_anuncios') ? 'checked' : '' }}
-                                       class="w-5 h-5 text-brown rounded">
-                                <span class="text-sm font-semibold">Sin anuncios</span>
-                            </label>
-
-                            <label class="flex items-center space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
-                                <input type="hidden" name="modo_incognito" value="0">
-                                <input type="checkbox" name="modo_incognito" value="1" {{ old('modo_incognito') ? 'checked' : '' }}
-                                       class="w-5 h-5 text-brown rounded">
-                                <span class="text-sm font-semibold">Modo incógnito</span>
-                            </label>
-
-                            <label class="flex items-center space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
-                                <input type="hidden" name="verificacion_prioritaria" value="0">
-                                <input type="checkbox" name="verificacion_prioritaria" value="1" {{ old('verificacion_prioritaria') ? 'checked' : '' }}
-                                       class="w-5 h-5 text-brown rounded">
-                                <span class="text-sm font-semibold">Verificación prioritaria</span>
-                            </label>
                         </div>
                     </div>
+
+                    <!-- Campos ocultos para características no implementadas (mantener compatibilidad DB) -->
+                    <input type="hidden" name="ver_quien_te_gusta" value="0">
+                    <input type="hidden" name="matches_ilimitados" value="0">
+                    <input type="hidden" name="rewind" value="0">
+                    <input type="hidden" name="sin_anuncios" value="0">
+                    <input type="hidden" name="modo_incognito" value="0">
+                    <input type="hidden" name="verificacion_prioritaria" value="0">
+                    <input type="hidden" name="boost_mensual" value="0">
+                    <input type="hidden" name="fotos_adicionales" value="0">
 
                     <!-- Estado -->
                     <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
