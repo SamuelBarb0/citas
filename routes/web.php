@@ -30,6 +30,12 @@ Route::get('/planes', [\App\Http\Controllers\SubscriptionController::class, 'ind
 // Webhook de PayPal (público - no requiere autenticación)
 Route::post('/webhooks/paypal', [\App\Http\Controllers\PayPalWebhookController::class, 'handle'])->name('webhooks.paypal');
 
+// Rutas AJAX/API - Usan auth.api para no guardar intended URL
+Route::middleware(['auth.api'])->group(function () {
+    Route::get('/notifications/unread/count', [\App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('notifications.count');
+    Route::get('/messages/unread/count', [MessageController::class, 'unreadCount'])->name('messages.unread');
+});
+
 // Rutas protegidas (requieren autenticación)
 Route::middleware(['auth'])->group(function () {
     // Rutas de perfil y verificación (NO requieren estar verificado)
@@ -186,7 +192,6 @@ Route::middleware(['auth', 'has.profile'])->group(function () {
     Route::post('/messages/{matchId}', [MessageController::class, 'store'])->name('messages.store');
     Route::delete('/messages/{messageId}', [MessageController::class, 'destroy'])->name('messages.destroy');
     Route::post('/messages/{messageId}/read', [MessageController::class, 'markAsRead'])->name('messages.read');
-    Route::get('/messages/unread/count', [MessageController::class, 'unreadCount'])->name('messages.unread');
     Route::get('/messages/{matchId}/new', [MessageController::class, 'getNewMessages'])->name('messages.new');
 
     // Bloquear usuarios
@@ -201,7 +206,6 @@ Route::middleware(['auth', 'has.profile'])->group(function () {
     Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all');
-    Route::get('/notifications/unread/count', [\App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('notifications.count');
     Route::delete('/notifications/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
 
     // Suscripciones (requieren autenticación)

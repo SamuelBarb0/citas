@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'verified.identity' => \App\Http\Middleware\EnsureUserIsVerified::class,
             'has.profile' => \App\Http\Middleware\EnsureUserHasProfile::class,
+            'auth.api' => \App\Http\Middleware\AuthenticateApi::class,
         ]);
 
         // Agregar middleware global para actualizar última actividad
