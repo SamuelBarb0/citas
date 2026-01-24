@@ -576,6 +576,15 @@ class AdminController extends Controller
             'orden' => 'nullable|integer|min:0',
         ]);
 
+        // Asignar valores por defecto para campos nullable
+        $validated['descripcion'] = $validated['descripcion'] ?? '';
+        $validated['precio_anual'] = $validated['precio_anual'] ?? 0;
+        $validated['likes_diarios'] = $validated['likes_diarios'] ?? 0;
+        $validated['mensajes_semanales_gratis'] = $validated['mensajes_semanales_gratis'] ?? 0;
+        $validated['fotos_adicionales'] = $validated['fotos_adicionales'] ?? 0;
+        $validated['boost_mensual'] = $validated['boost_mensual'] ?? 0;
+        $validated['orden'] = $validated['orden'] ?? 0;
+
         $plan = Plan::create($validated);
 
         // Sincronizar automáticamente con PayPal si tiene precios
@@ -666,6 +675,15 @@ class AdminController extends Controller
             'activo' => 'boolean',
             'orden' => 'nullable|integer|min:0',
         ]);
+
+        // Asignar valores por defecto para campos nullable
+        $validated['descripcion'] = $validated['descripcion'] ?? '';
+        $validated['precio_anual'] = $validated['precio_anual'] ?? 0;
+        $validated['likes_diarios'] = $validated['likes_diarios'] ?? 0;
+        $validated['mensajes_semanales_gratis'] = $validated['mensajes_semanales_gratis'] ?? 0;
+        $validated['fotos_adicionales'] = $validated['fotos_adicionales'] ?? 0;
+        $validated['boost_mensual'] = $validated['boost_mensual'] ?? 0;
+        $validated['orden'] = $validated['orden'] ?? 0;
 
         // Detectar cambios de precio ANTES de actualizar
         $precioMensualCambio = $plan->precio_mensual != $validated['precio_mensual'];
