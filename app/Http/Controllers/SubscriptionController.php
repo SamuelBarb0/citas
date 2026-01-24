@@ -38,12 +38,33 @@ class SubscriptionController extends Controller
     public function checkout(Request $request, $planSlug)
     {
         $plan = Plan::where('slug', $planSlug)->active()->firstOrFail();
-        $tipo = $request->input('tipo', 'mensual'); // mensual o anual
 
         // Verificar si ya tiene una suscripción activa
         $currentSubscription = Auth::user()->activeSubscription;
         if ($currentSubscription) {
             return back()->with('error', 'Ya tienes una suscripción activa.');
+        }
+
+        // Determinar el tipo basado en lo que el plan ofrece
+        $tieneMensual = $plan->precio_mensual > 0;
+        $tieneAnual = $plan->precio_anual > 0;
+
+        // Si el plan es gratis, redirigir
+        if (!$tieneMensual && !$tieneAnual) {
+            return redirect()->route('subscriptions.index')
+                ->with('error', 'Este plan no tiene precio configurado.');
+        }
+
+        // Determinar el tipo: usar el solicitado si está disponible, sino usar el que tenga
+        $tipoSolicitado = $request->input('tipo');
+        if ($tipoSolicitado === 'anual' && $tieneAnual) {
+            $tipo = 'anual';
+        } elseif ($tipoSolicitado === 'mensual' && $tieneMensual) {
+            $tipo = 'mensual';
+        } elseif ($tieneMensual) {
+            $tipo = 'mensual';
+        } else {
+            $tipo = 'anual';
         }
 
         return view('subscriptions.checkout', compact('plan', 'tipo'));
@@ -137,6 +158,24 @@ class SubscriptionController extends Controller
             $plan = Plan::findOrFail($request->plan_id);
             $tipo = $request->tipo;
 
+            // Verificar que el plan tenga el precio del tipo solicitado
+            $tieneMensual = $plan->precio_mensual > 0;
+            $tieneAnual = $plan->precio_anual > 0;
+
+            if ($tipo === 'mensual' && !$tieneMensual) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Este plan no tiene opción de pago mensual.'
+                ], 400);
+            }
+
+            if ($tipo === 'anual' && !$tieneAnual) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Este plan no tiene opción de pago anual.'
+                ], 400);
+            }
+
             // Obtener el ID del plan de PayPal según el tipo
             $paypalPlanId = $tipo === 'mensual'
                 ? $plan->paypal_plan_id_mensual
@@ -220,15 +259,26 @@ class SubscriptionController extends Controller
                 ], 400);
             }
 
+            // Determinar el monto correcto basado en el tipo y lo que el plan ofrece
+            $tipo = $request->tipo;
+            if ($tipo === 'mensual' && $plan->precio_mensual > 0) {
+                $montoPagado = $plan->precio_mensual;
+            } elseif ($tipo === 'anual' && $plan->precio_anual > 0) {
+                $montoPagado = $plan->precio_anual;
+            } else {
+                // Fallback: usar el precio que tenga disponible
+                $montoPagado = $plan->precio_mensual > 0 ? $plan->precio_mensual : $plan->precio_anual;
+            }
+
             // Crear la suscripción en nuestra base de datos
             $subscription = UserSubscription::create([
                 'user_id' => $user->id,
                 'plan_id' => $plan->id,
-                'tipo' => $request->tipo,
+                'tipo' => $tipo,
                 'estado' => 'activa',
                 'metodo_pago' => 'paypal',
                 'paypal_subscription_id' => $request->subscription_id,
-                'monto_pagado' => $request->tipo === 'mensual' ? $plan->precio_mensual : $plan->precio_anual,
+                'monto_pagado' => $montoPagado,
             ]);
 
             $subscription->activate();
