@@ -74,8 +74,14 @@
                     <!-- Filtro de Ciudad -->
                     <div class="mb-6">
                         <label class="block text-sm font-bold text-brown mb-3">Ciudad</label>
-                        <input type="text" name="ciudad" value="{{ request('ciudad') }}" placeholder="Ej: Palma de Mallorca"
-                               class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-heart-red focus:outline-none">
+                        <x-dynamic-select
+                            tipo="ciudad"
+                            name="ciudad"
+                            id="filter-ciudad"
+                            :value="request('ciudad')"
+                            placeholder="Todas las ciudades"
+                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-heart-red focus:outline-none"
+                        />
                     </div>
 
                     <!-- Filtro de Género -->

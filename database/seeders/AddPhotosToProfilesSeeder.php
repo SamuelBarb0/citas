@@ -17,27 +17,24 @@ class AddPhotosToProfilesSeeder extends Seeder
         foreach ($profiles as $profile) {
             // Determinar si es hombre o mujer basado en el género
             $isMale = in_array(strtolower($profile->genero), ['hombre', 'male', 'masculino']);
+            $gender = $isMale ? 'men' : 'women';
 
-            // Generar 3-5 fotos adicionales usando diferentes servicios
+            // Generar 3-5 fotos adicionales
             $photoCount = rand(3, 5);
             $additionalPhotos = [];
 
-            for ($i = 0; $i < $photoCount; $i++) {
-                // Usar diferentes servicios de imágenes aleatorias
-                $service = rand(1, 3);
+            // Usar números únicos para evitar fotos repetidas
+            $usedNumbers = [];
 
-                if ($service === 1) {
-                    // Pravatar.cc
-                    $imgNum = $isMale ? rand(10, 70) : rand(1, 70);
-                    $additionalPhotos[] = "https://i.pravatar.cc/600?img={$imgNum}";
-                } elseif ($service === 2) {
-                    // UIFaces (más realistas)
-                    $gender = $isMale ? 'male' : 'female';
-                    $additionalPhotos[] = "https://randomuser.me/api/portraits/" . ($isMale ? 'men' : 'women') . "/" . rand(1, 99) . ".jpg";
-                } else {
-                    // This Person Does Not Exist (fotos muy realistas)
-                    $additionalPhotos[] = "https://picsum.photos/seed/" . uniqid() . "/600/800";
-                }
+            for ($i = 0; $i < $photoCount; $i++) {
+                // Generar número único (randomuser.me tiene fotos del 0 al 99)
+                do {
+                    $imgNum = rand(0, 99);
+                } while (in_array($imgNum, $usedNumbers));
+                $usedNumbers[] = $imgNum;
+
+                // Usar randomuser.me que tiene fotos separadas por género
+                $additionalPhotos[] = "https://randomuser.me/api/portraits/{$gender}/{$imgNum}.jpg";
             }
 
             // Actualizar el perfil con las fotos adicionales
@@ -45,7 +42,7 @@ class AddPhotosToProfilesSeeder extends Seeder
                 'fotos_adicionales' => $additionalPhotos
             ]);
 
-            $this->command->info("✓ Agregadas {$photoCount} fotos a {$profile->nombre}");
+            $this->command->info("✓ Agregadas {$photoCount} fotos de {$gender} a {$profile->nombre}");
         }
 
         $this->command->info("\n🎉 ¡Fotos agregadas exitosamente a todos los perfiles!");
