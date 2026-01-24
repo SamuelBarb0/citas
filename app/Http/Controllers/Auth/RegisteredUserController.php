@@ -64,6 +64,6 @@ class RegisteredUserController extends Controller
 
         // Redirigir a crear perfil primero
         return redirect(route('user.profile.create'))
-            ->with('success', '¡Cuenta creada! Ahora completa tu perfil y verifica tu identidad.');
+            ->with('success', '¡Cuenta creada! Ahora completa tu perfil para empezar a conocer gente.');
     }
 }

@@ -9,70 +9,64 @@ class SelectOptionsSeeder extends Seeder
 {
     public function run(): void
     {
-        // Ciudades de Mallorca
+        // Eliminar opciones de ciudad existentes para evitar duplicados
+        SelectOption::where('tipo', 'ciudad')->delete();
+
+        // Todos los municipios de Mallorca (alfabeticamente)
         $ciudades = [
-            // Principales ciudades (orden 1-5)
-            ['valor' => 'Palma de Mallorca', 'etiqueta' => 'Palma de Mallorca', 'grupo' => 'Principales Ciudades', 'orden' => 1],
-            ['valor' => 'Manacor', 'etiqueta' => 'Manacor', 'grupo' => 'Principales Ciudades', 'orden' => 2],
-            ['valor' => 'Inca', 'etiqueta' => 'Inca', 'grupo' => 'Principales Ciudades', 'orden' => 3],
-            ['valor' => 'Calvià', 'etiqueta' => 'Calvià', 'grupo' => 'Principales Ciudades', 'orden' => 4],
-            ['valor' => 'Llucmajor', 'etiqueta' => 'Llucmajor', 'grupo' => 'Principales Ciudades', 'orden' => 5],
-
-            // Todos los municipios de Mallorca (orden 10+)
-            ['valor' => 'Alaró', 'etiqueta' => 'Alaró', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 10],
-            ['valor' => 'Alcúdia', 'etiqueta' => 'Alcúdia', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 11],
-            ['valor' => 'Algaida', 'etiqueta' => 'Algaida', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 12],
-            ['valor' => 'Andratx', 'etiqueta' => 'Andratx', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 13],
-            ['valor' => 'Ariany', 'etiqueta' => 'Ariany', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 14],
-            ['valor' => 'Artà', 'etiqueta' => 'Artà', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 15],
-            ['valor' => 'Banyalbufar', 'etiqueta' => 'Banyalbufar', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 16],
-            ['valor' => 'Binissalem', 'etiqueta' => 'Binissalem', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 17],
-            ['valor' => 'Búger', 'etiqueta' => 'Búger', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 18],
-            ['valor' => 'Bunyola', 'etiqueta' => 'Bunyola', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 19],
-            ['valor' => 'Campanet', 'etiqueta' => 'Campanet', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 20],
-            ['valor' => 'Campos', 'etiqueta' => 'Campos', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 21],
-            ['valor' => 'Capdepera', 'etiqueta' => 'Capdepera', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 22],
-            ['valor' => 'Consell', 'etiqueta' => 'Consell', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 23],
-            ['valor' => 'Costitx', 'etiqueta' => 'Costitx', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 24],
-            ['valor' => 'Deià', 'etiqueta' => 'Deià', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 25],
-            ['valor' => 'Escorca', 'etiqueta' => 'Escorca', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 26],
-            ['valor' => 'Esporles', 'etiqueta' => 'Esporles', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 27],
-            ['valor' => 'Estellencs', 'etiqueta' => 'Estellencs', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 28],
-            ['valor' => 'Felanitx', 'etiqueta' => 'Felanitx', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 29],
-            ['valor' => 'Fornalutx', 'etiqueta' => 'Fornalutx', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 30],
-            ['valor' => 'Lloret de Vistalegre', 'etiqueta' => 'Lloret de Vistalegre', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 31],
-            ['valor' => 'Lloseta', 'etiqueta' => 'Lloseta', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 32],
-            ['valor' => 'Magaluf', 'etiqueta' => 'Magaluf', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 33],
-            ['valor' => 'Mancor de la Vall', 'etiqueta' => 'Mancor de la Vall', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 34],
-            ['valor' => 'Maria de la Salut', 'etiqueta' => 'Maria de la Salut', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 35],
-            ['valor' => 'Marratxí', 'etiqueta' => 'Marratxí', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 36],
-            ['valor' => 'Montuïri', 'etiqueta' => 'Montuïri', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 37],
-            ['valor' => 'Muro', 'etiqueta' => 'Muro', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 38],
-            ['valor' => 'Petra', 'etiqueta' => 'Petra', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 39],
-            ['valor' => 'Pollença', 'etiqueta' => 'Pollença', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 40],
-            ['valor' => 'Porreres', 'etiqueta' => 'Porreres', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 41],
-            ['valor' => 'Puigpunyent', 'etiqueta' => 'Puigpunyent', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 42],
-            ['valor' => 'Sa Pobla', 'etiqueta' => 'Sa Pobla', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 43],
-            ['valor' => 'Sant Joan', 'etiqueta' => 'Sant Joan', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 44],
-            ['valor' => 'Sant Llorenç des Cardassar', 'etiqueta' => 'Sant Llorenç des Cardassar', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 45],
-            ['valor' => 'Santa Eugènia', 'etiqueta' => 'Santa Eugènia', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 46],
-            ['valor' => 'Santa Margalida', 'etiqueta' => 'Santa Margalida', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 47],
-            ['valor' => 'Santa Maria del Camí', 'etiqueta' => 'Santa Maria del Camí', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 48],
-            ['valor' => 'Santanyí', 'etiqueta' => 'Santanyí', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 49],
-            ['valor' => 'Selva', 'etiqueta' => 'Selva', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 50],
-            ['valor' => 'Sencelles', 'etiqueta' => 'Sencelles', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 51],
-            ['valor' => 'Ses Salines', 'etiqueta' => 'Ses Salines', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 52],
-            ['valor' => 'Sineu', 'etiqueta' => 'Sineu', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 53],
-            ['valor' => 'Sóller', 'etiqueta' => 'Sóller', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 54],
-            ['valor' => 'Son Servera', 'etiqueta' => 'Son Servera', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 55],
-            ['valor' => 'Valldemossa', 'etiqueta' => 'Valldemossa', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 56],
-            ['valor' => 'Vilafranca de Bonany', 'etiqueta' => 'Vilafranca de Bonany', 'grupo' => 'Todos los Municipios de Mallorca', 'orden' => 57],
-
-            // Otras opciones (orden 100+)
-            ['valor' => 'Otro pueblo de Mallorca', 'etiqueta' => 'Otro pueblo de Mallorca', 'grupo' => 'Otras Opciones', 'orden' => 100],
-            ['valor' => 'Otra isla (Menorca, Ibiza, Formentera)', 'etiqueta' => 'Otra isla (Menorca, Ibiza, Formentera)', 'grupo' => 'Otras Opciones', 'orden' => 101],
-            ['valor' => 'Península (España)', 'etiqueta' => 'Península (España)', 'grupo' => 'Otras Opciones', 'orden' => 102],
-            ['valor' => 'Fuera de España', 'etiqueta' => 'Fuera de España', 'grupo' => 'Otras Opciones', 'orden' => 103],
+            ['valor' => 'Alaró', 'etiqueta' => 'Alaró', 'orden' => 1],
+            ['valor' => 'Alcúdia', 'etiqueta' => 'Alcúdia', 'orden' => 2],
+            ['valor' => 'Algaida', 'etiqueta' => 'Algaida', 'orden' => 3],
+            ['valor' => 'Andratx', 'etiqueta' => 'Andratx', 'orden' => 4],
+            ['valor' => 'Ariany', 'etiqueta' => 'Ariany', 'orden' => 5],
+            ['valor' => 'Artà', 'etiqueta' => 'Artà', 'orden' => 6],
+            ['valor' => 'Banyalbufar', 'etiqueta' => 'Banyalbufar', 'orden' => 7],
+            ['valor' => 'Binissalem', 'etiqueta' => 'Binissalem', 'orden' => 8],
+            ['valor' => 'Búger', 'etiqueta' => 'Búger', 'orden' => 9],
+            ['valor' => 'Bunyola', 'etiqueta' => 'Bunyola', 'orden' => 10],
+            ['valor' => 'Calvià', 'etiqueta' => 'Calvià', 'orden' => 11],
+            ['valor' => 'Campanet', 'etiqueta' => 'Campanet', 'orden' => 12],
+            ['valor' => 'Campos', 'etiqueta' => 'Campos', 'orden' => 13],
+            ['valor' => 'Capdepera', 'etiqueta' => 'Capdepera', 'orden' => 14],
+            ['valor' => 'Consell', 'etiqueta' => 'Consell', 'orden' => 15],
+            ['valor' => 'Costitx', 'etiqueta' => 'Costitx', 'orden' => 16],
+            ['valor' => 'Deià', 'etiqueta' => 'Deià', 'orden' => 17],
+            ['valor' => 'Escorca', 'etiqueta' => 'Escorca', 'orden' => 18],
+            ['valor' => 'Esporles', 'etiqueta' => 'Esporles', 'orden' => 19],
+            ['valor' => 'Estellencs', 'etiqueta' => 'Estellencs', 'orden' => 20],
+            ['valor' => 'Felanitx', 'etiqueta' => 'Felanitx', 'orden' => 21],
+            ['valor' => 'Fornalutx', 'etiqueta' => 'Fornalutx', 'orden' => 22],
+            ['valor' => 'Inca', 'etiqueta' => 'Inca', 'orden' => 23],
+            ['valor' => 'Lloret de Vistalegre', 'etiqueta' => 'Lloret de Vistalegre', 'orden' => 24],
+            ['valor' => 'Lloseta', 'etiqueta' => 'Lloseta', 'orden' => 25],
+            ['valor' => 'Llubí', 'etiqueta' => 'Llubí', 'orden' => 26],
+            ['valor' => 'Llucmajor', 'etiqueta' => 'Llucmajor', 'orden' => 27],
+            ['valor' => 'Manacor', 'etiqueta' => 'Manacor', 'orden' => 28],
+            ['valor' => 'Mancor de la Vall', 'etiqueta' => 'Mancor de la Vall', 'orden' => 29],
+            ['valor' => 'Maria de la Salut', 'etiqueta' => 'Maria de la Salut', 'orden' => 30],
+            ['valor' => 'Marratxí', 'etiqueta' => 'Marratxí', 'orden' => 31],
+            ['valor' => 'Montuïri', 'etiqueta' => 'Montuïri', 'orden' => 32],
+            ['valor' => 'Muro', 'etiqueta' => 'Muro', 'orden' => 33],
+            ['valor' => 'Palma', 'etiqueta' => 'Palma', 'orden' => 34],
+            ['valor' => 'Petra', 'etiqueta' => 'Petra', 'orden' => 35],
+            ['valor' => 'Pollença', 'etiqueta' => 'Pollença', 'orden' => 36],
+            ['valor' => 'Porreres', 'etiqueta' => 'Porreres', 'orden' => 37],
+            ['valor' => 'Puigpunyent', 'etiqueta' => 'Puigpunyent', 'orden' => 38],
+            ['valor' => 'Sa Pobla', 'etiqueta' => 'Sa Pobla', 'orden' => 39],
+            ['valor' => 'Sant Joan', 'etiqueta' => 'Sant Joan', 'orden' => 40],
+            ['valor' => 'Sant Llorenç des Cardassar', 'etiqueta' => 'Sant Llorenç des Cardassar', 'orden' => 41],
+            ['valor' => 'Santa Eugènia', 'etiqueta' => 'Santa Eugènia', 'orden' => 42],
+            ['valor' => 'Santa Margalida', 'etiqueta' => 'Santa Margalida', 'orden' => 43],
+            ['valor' => 'Santa Maria del Camí', 'etiqueta' => 'Santa Maria del Camí', 'orden' => 44],
+            ['valor' => 'Santanyí', 'etiqueta' => 'Santanyí', 'orden' => 45],
+            ['valor' => 'Selva', 'etiqueta' => 'Selva', 'orden' => 46],
+            ['valor' => 'Sencelles', 'etiqueta' => 'Sencelles', 'orden' => 47],
+            ['valor' => 'Ses Salines', 'etiqueta' => 'Ses Salines', 'orden' => 48],
+            ['valor' => 'Sineu', 'etiqueta' => 'Sineu', 'orden' => 49],
+            ['valor' => 'Sóller', 'etiqueta' => 'Sóller', 'orden' => 50],
+            ['valor' => 'Son Servera', 'etiqueta' => 'Son Servera', 'orden' => 51],
+            ['valor' => 'Valldemossa', 'etiqueta' => 'Valldemossa', 'orden' => 52],
+            ['valor' => 'Vilafranca de Bonany', 'etiqueta' => 'Vilafranca de Bonany', 'orden' => 53],
         ];
 
         foreach ($ciudades as $ciudad) {
@@ -80,11 +74,33 @@ class SelectOptionsSeeder extends Seeder
                 'tipo' => 'ciudad',
                 'valor' => $ciudad['valor'],
                 'etiqueta' => $ciudad['etiqueta'],
-                'grupo' => $ciudad['grupo'],
+                'grupo' => null,
                 'orden' => $ciudad['orden'],
                 'activo' => true,
             ]);
         }
+
+        // Otras opciones
+        $otrasOpciones = [
+            ['valor' => 'Otro pueblo de Mallorca', 'etiqueta' => 'Otro pueblo de Mallorca', 'orden' => 100],
+            ['valor' => 'Otra isla', 'etiqueta' => 'Otra isla', 'orden' => 101],
+            ['valor' => 'Península (España)', 'etiqueta' => 'Península (España)', 'orden' => 102],
+            ['valor' => 'Fuera de España', 'etiqueta' => 'Fuera de España', 'orden' => 103],
+        ];
+
+        foreach ($otrasOpciones as $opcion) {
+            SelectOption::create([
+                'tipo' => 'ciudad',
+                'valor' => $opcion['valor'],
+                'etiqueta' => $opcion['etiqueta'],
+                'grupo' => 'Otras opciones',
+                'orden' => $opcion['orden'],
+                'activo' => true,
+            ]);
+        }
+
+        // Eliminar opciones de genero existentes para evitar duplicados
+        SelectOption::where('tipo', 'genero')->delete();
 
         // Géneros
         $generos = [
@@ -106,6 +122,9 @@ class SelectOptionsSeeder extends Seeder
             ]);
         }
 
+        // Eliminar opciones de busco existentes para evitar duplicados
+        SelectOption::where('tipo', 'busco')->delete();
+
         // Qué busco
         $busco = [
             ['valor' => 'hombre', 'etiqueta' => 'Hombres', 'orden' => 1],
@@ -126,6 +145,6 @@ class SelectOptionsSeeder extends Seeder
             ]);
         }
 
-        $this->command->info('✓ Opciones de select creadas exitosamente');
+        $this->command->info('Opciones de select creadas exitosamente');
     }
 }

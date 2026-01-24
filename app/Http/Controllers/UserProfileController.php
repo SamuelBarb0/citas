@@ -33,9 +33,9 @@ class UserProfileController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'edad' => 'required|integer|min:18|max:100',
-            'genero' => 'required|in:hombre,mujer,no-binario,genero-fluido,otro,prefiero-no-decir',
-            'orientacion_sexual' => 'nullable|in:heterosexual,gay,lesbiana,bisexual,pansexual,asexual,queer,otra,prefiero-no-decir',
-            'busco' => 'required|in:hombre,mujer,no-binario,cualquiera',
+            'genero' => 'required|string|max:50',
+            'orientacion_sexual' => 'nullable|string|max:50',
+            'busco' => 'required|string|max:50',
             'ciudad' => 'required|string|max:255',
             'biografia' => 'nullable|string|max:500',
             'intereses' => 'nullable|array',
@@ -44,11 +44,11 @@ class UserProfileController extends Controller
         ]);
 
         // Procesar foto si existe
-        if ($request->hasFile('foto_principal')) {
+        if ($request->hasFile('foto_principal') && $request->file('foto_principal')->isValid()) {
             $path = $request->file('foto_principal')->store('profiles', 'public');
             $validated['foto_principal'] = $path;
-        } else {
-            // Usar avatar por defecto
+        } elseif (!isset($validated['foto_principal']) || empty($validated['foto_principal'])) {
+            // Usar avatar por defecto solo si no hay foto
             $validated['foto_principal'] = 'https://i.pravatar.cc/400?u=' . Auth::id();
         }
 
@@ -57,9 +57,9 @@ class UserProfileController extends Controller
 
         Profile::create($validated);
 
-        // Redirigir a verificación de identidad obligatoria
-        return redirect()->route('verification.create')
-            ->with('success', '¡Perfil creado! Ahora debes verificar tu identidad para poder usar la app.');
+        // Redirigir directamente al dashboard para empezar a usar la app
+        return redirect()->route('dashboard')
+            ->with('success', '¡Perfil creado! Ya puedes empezar a conocer gente en Mallorca.');
     }
 
     /**

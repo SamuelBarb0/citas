@@ -179,6 +179,9 @@
 
         <div class="py-3 sm:py-6 px-2 sm:px-4 md:px-6 lg:px-8">
             <div class="max-w-lg mx-auto">
+                {{-- Banner de verificación opcional --}}
+                @include('components.verification-banner')
+
                 @if(isset($searchExpanded) && $searchExpanded)
                     <div class="mb-3 sm:mb-4 bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4 text-center">
                         <p class="text-blue-700 text-xs sm:text-sm">

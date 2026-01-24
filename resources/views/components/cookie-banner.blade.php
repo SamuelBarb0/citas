@@ -17,8 +17,8 @@
                 Puedes aceptar todas, rechazarlas o personalizar tus preferencias.
             </p>
 
-            <a href="{{ route('legal.cookies') }}" class="block text-center text-brown font-semibold hover:underline mb-4 sm:mb-6 text-sm sm:text-base">
-                Leer política de cookies
+            <a href="{{ route('legal.cookies') }}" target="_blank" rel="noopener" class="block text-center text-brown font-semibold hover:underline mb-4 sm:mb-6 text-sm sm:text-base">
+                Leer politica de cookies
             </a>
 
             <!-- Botones de acción grandes y claros -->
@@ -149,23 +149,56 @@
         try {
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
+            if (parts.length === 2) {
+                const cookieValue = parts.pop().split(';').shift();
+                return cookieValue;
+            }
         } catch (e) {
             console.error('Error leyendo cookie:', e);
         }
         return null;
     }
 
-    // Función para establecer cookie
+    // Función para establecer cookie - usando localStorage como backup
     function setCookie(name, value, days) {
         try {
             const date = new Date();
             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
             const expires = `expires=${date.toUTCString()}`;
-            document.cookie = `${name}=${value};${expires};path=/`;
+            // Codificar el valor para evitar problemas con caracteres especiales
+            const encodedValue = encodeURIComponent(value);
+            document.cookie = `${name}=${encodedValue};${expires};path=/;SameSite=Lax`;
+
+            // Guardar también en localStorage como backup
+            try {
+                localStorage.setItem(name, value);
+            } catch (e) {
+                // localStorage no disponible
+            }
         } catch (e) {
             console.error('Error guardando cookie:', e);
         }
+    }
+
+    // Verificar si el consentimiento existe (cookie o localStorage)
+    function hasConsent() {
+        // Primero revisar cookie
+        const cookieConsent = getCookie('cookie_consent');
+        if (cookieConsent) {
+            return true;
+        }
+
+        // Backup: revisar localStorage
+        try {
+            const localConsent = localStorage.getItem('cookie_consent');
+            if (localConsent) {
+                return true;
+            }
+        } catch (e) {
+            // localStorage no disponible
+        }
+
+        return false;
     }
 
     // Ocultar el banner de cookies
@@ -200,7 +233,8 @@
             necessary: true,
             analytics: true,
             marketing: true,
-            preferences: true
+            preferences: true,
+            timestamp: Date.now()
         };
 
         setCookie('cookie_consent', JSON.stringify(preferences), 365);
@@ -213,7 +247,8 @@
             necessary: true,
             analytics: false,
             marketing: false,
-            preferences: false
+            preferences: false,
+            timestamp: Date.now()
         };
 
         setCookie('cookie_consent', JSON.stringify(preferences), 365);
@@ -242,7 +277,8 @@
             necessary: true,
             analytics: document.getElementById('cookie-analytics')?.checked || false,
             marketing: document.getElementById('cookie-marketing')?.checked || false,
-            preferences: document.getElementById('cookie-preferences')?.checked || false
+            preferences: document.getElementById('cookie-preferences')?.checked || false,
+            timestamp: Date.now()
         };
 
         setCookie('cookie_consent', JSON.stringify(preferences), 365);
@@ -261,15 +297,12 @@
 
     // Verificar si ya existe una preferencia de cookies guardada
     document.addEventListener('DOMContentLoaded', function() {
-        const cookieConsent = getCookie('cookie_consent');
-
-        // Solo mostrar el banner si NO hay cookie guardada
-        if (!cookieConsent) {
+        // Solo mostrar el banner si NO hay consentimiento guardado
+        if (!hasConsent()) {
             setTimeout(function() {
                 showCookieBanner();
             }, 500);
         }
-        // Si ya tiene cookie, no hacemos nada - el banner ya está oculto por defecto
     });
 })();
 </script>

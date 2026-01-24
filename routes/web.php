@@ -42,15 +42,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/verification/status', [\App\Http\Controllers\VerificationRequestController::class, 'status'])->name('verification.status');
 });
 
-// Rutas que REQUIEREN verificación de identidad
-Route::middleware(['auth', 'verified.identity'])->group(function () {
+// Rutas que REQUIEREN tener perfil (no requieren verificación)
+Route::middleware(['auth', 'has.profile'])->group(function () {
     // Dashboard - Descubrir perfiles
     Route::get('/dashboard', function () {
         $currentUserId = auth()->id();
 
         $query = Profile::with('user')
             ->where('activo', true)
-            ->where('verified', true) // Solo mostrar perfiles verificados
             ->where('user_id', '!=', $currentUserId)
             ->whereDoesntHave('likedBy', function ($query) use ($currentUserId) {
                 $query->where('user_id', $currentUserId);
@@ -156,7 +155,7 @@ Route::middleware(['auth', 'verified.identity'])->group(function () {
         return view('dashboard', compact('perfiles', 'newMatch', 'searchExpanded'));
     })->name('dashboard');
 
-    // Gestión de Perfil de Usuario (Dating Profile) - requiere verificación
+    // Gestión de Perfil de Usuario (Dating Profile)
     Route::get('/mi-perfil', [UserProfileController::class, 'show'])->name('user.profile.show');
     Route::get('/mi-perfil/editar', [UserProfileController::class, 'edit'])->name('user.profile.edit');
     Route::put('/mi-perfil', [UserProfileController::class, 'update'])->name('user.profile.update');
