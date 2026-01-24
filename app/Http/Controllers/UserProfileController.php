@@ -67,13 +67,16 @@ class UserProfileController extends Controller
      */
     public function edit()
     {
-        $profile = Auth::user()->profile;
+        $user = Auth::user();
+        $profile = $user->profile;
 
         if (!$profile) {
             return redirect()->route('user.profile.create');
         }
 
-        return view('profiles.edit', compact('profile'));
+        $maxFotos = $user->getMaxFotosAdicionales();
+
+        return view('profiles.edit', compact('profile', 'maxFotos'));
     }
 
     /**
@@ -143,9 +146,10 @@ class UserProfileController extends Controller
             }
         }
 
-        // Combinar fotos adicionales existentes con nuevas (maximo 6)
+        // Combinar fotos adicionales existentes con nuevas (máximo según plan)
+        $maxFotos = Auth::user()->getMaxFotosAdicionales();
         $todasFotosAdicionales = array_merge($fotosAdicionalesExistentes, $nuevasFotosAdicionales);
-        $todasFotosAdicionales = array_slice($todasFotosAdicionales, 0, 6);
+        $todasFotosAdicionales = array_slice($todasFotosAdicionales, 0, $maxFotos);
 
         $validated['fotos_adicionales'] = $todasFotosAdicionales;
 

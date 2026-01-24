@@ -113,15 +113,15 @@
                 <!-- Fotos Adicionales (Galeria) -->
                 <div>
                     <label class="block text-sm font-semibold text-brown mb-2">Fotos Adicionales</label>
-                    <p class="text-xs text-gray-500 mb-4">Anade hasta 6 fotos mas para tu galeria. Apareceran junto a tu foto principal.</p>
+                    <p class="text-xs text-gray-500 mb-4">Anade hasta {{ $maxFotos }} fotos mas para tu galeria. Apareceran junto a tu foto principal.</p>
 
                     @php
                         $fotosAdicionales = $profile->fotos_adicionales ?? [];
                         if (!is_array($fotosAdicionales)) $fotosAdicionales = [];
-                        $fotosAdicionales = array_slice($fotosAdicionales, 0, 6);
+                        $fotosAdicionales = array_slice($fotosAdicionales, 0, $maxFotos);
                     @endphp
 
-                    <div class="grid grid-cols-3 sm:grid-cols-3 gap-3" id="additional-photos-grid">
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="additional-photos-grid">
                         <!-- Fotos adicionales existentes -->
                         @foreach($fotosAdicionales as $index => $foto)
                             <div class="additional-photo-item relative aspect-square rounded-xl overflow-hidden bg-gray-100 group" data-index="{{ $index }}" data-photo="{{ $foto }}">
@@ -152,7 +152,7 @@
                         @endforeach
 
                         <!-- Slots para nuevas fotos -->
-                        @for($i = count($fotosAdicionales); $i < 6; $i++)
+                        @for($i = count($fotosAdicionales); $i < $maxFotos; $i++)
                             <label for="fotos_adicionales" class="add-photo-slot aspect-square rounded-xl border-2 border-dashed border-gray-300 hover:border-brown hover:bg-cream/50 transition cursor-pointer flex flex-col items-center justify-center">
                                 <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -168,7 +168,7 @@
                     <!-- Input oculto para fotos a eliminar -->
                     <input type="hidden" name="fotos_eliminar" id="fotos_eliminar" value="">
 
-                    <p class="text-xs text-gray-500 mt-3">JPG, PNG (max. 2MB por foto). <span id="espacios-disponibles">{{ 6 - count($fotosAdicionales) }}</span> espacios disponibles.</p>
+                    <p class="text-xs text-gray-500 mt-3">JPG, PNG (max. 2MB por foto). <span id="espacios-disponibles">{{ $maxFotos - count($fotosAdicionales) }}</span> espacios disponibles.</p>
 
                     @error('fotos_adicionales.*')
                         <p class="text-heart-red text-sm mt-1">{{ $message }}</p>
@@ -317,7 +317,7 @@
 <script>
 let fotosAEliminar = [];
 let additionalPhotoCount = {{ count($fotosAdicionales ?? []) }};
-const MAX_ADDITIONAL_PHOTOS = 6;
+const MAX_ADDITIONAL_PHOTOS = {{ $maxFotos }};
 
 // Preview de foto principal
 function previewMainPhoto(event) {

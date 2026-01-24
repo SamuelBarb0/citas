@@ -116,6 +116,20 @@
                                             <span>Puede iniciar conversaciones</span>
                                         </div>
                                     @endif
+
+                                    @if($plan->ver_quien_te_gusta)
+                                        <div class="flex items-center text-sm text-gray-700">
+                                            <span class="text-brown mr-2">✓</span>
+                                            <span>Ver quién te ha dado like</span>
+                                        </div>
+                                    @endif
+
+                                    @if($plan->fotos_adicionales)
+                                        <div class="flex items-center text-sm text-gray-700">
+                                            <span class="text-brown mr-2">✓</span>
+                                            <span>Hasta {{ $plan->fotos_adicionales }} fotos en tu perfil</span>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 

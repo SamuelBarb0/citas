@@ -160,14 +160,23 @@ class LikeController extends Controller
      */
     public function whoLikesMe()
     {
-        $currentUserId = auth()->id();
+        $user = auth()->user();
+        $canSeeWhoLikedMe = $user->canSeeWhoLikedMe();
 
-        $likes = Like::where('liked_user_id', $currentUserId)
+        // Contar cuántos likes tiene (siempre mostrar el número)
+        $likesCount = Like::where('liked_user_id', $user->id)->count();
+
+        // Si no tiene permiso, mostrar vista de upgrade
+        if (!$canSeeWhoLikedMe) {
+            return view('likes.who-likes-me-upgrade', compact('likesCount'));
+        }
+
+        $likes = Like::where('liked_user_id', $user->id)
             ->with(['user.profile'])
             ->latest()
             ->paginate(12);
 
-        return view('likes.who-likes-me', compact('likes'));
+        return view('likes.who-likes-me', compact('likes', 'likesCount'));
     }
 
 }

@@ -138,4 +138,29 @@ class User extends Authenticatable
 
         return $this->last_activity->diffInMinutes(now()) < 5;
     }
+
+    /**
+     * Obtener el límite de fotos adicionales según el plan
+     * Plan gratuito = 6 fotos, planes premium pueden tener más
+     */
+    public function getMaxFotosAdicionales()
+    {
+        $plan = $this->currentPlan();
+
+        if ($plan && $plan->fotos_adicionales > 0) {
+            return $plan->fotos_adicionales;
+        }
+
+        return 6; // Límite por defecto para plan gratuito
+    }
+
+    /**
+     * Verificar si puede ver quién le dio like
+     */
+    public function canSeeWhoLikedMe()
+    {
+        $plan = $this->currentPlan();
+
+        return $plan && $plan->ver_quien_te_gusta;
+    }
 }

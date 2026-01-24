@@ -72,8 +72,18 @@
                             <div class="border-t border-gray-200 my-1"></div>
                         @endif
 
+                        <x-dropdown-link :href="route('likes.who')">
+                            💖 Quien te ha dado like
+                        </x-dropdown-link>
+
+                        <x-dropdown-link :href="route('likes.my')">
+                            ❤️ Mis Likes
+                        </x-dropdown-link>
+
+                        <div class="border-t border-gray-200 my-1"></div>
+
                         <x-dropdown-link :href="route('subscriptions.dashboard')">
-                            💳 Mi Suscripción
+                            💳 Mi Suscripcion
                         </x-dropdown-link>
 
                         <x-dropdown-link :href="route('subscriptions.index')">
@@ -151,8 +161,16 @@
                     </x-responsive-nav-link>
                 @endif
 
+                <x-responsive-nav-link :href="route('likes.who')">
+                    💖 Quien te ha dado like
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('likes.my')">
+                    ❤️ Mis Likes
+                </x-responsive-nav-link>
+
                 <x-responsive-nav-link :href="route('subscriptions.dashboard')">
-                    💳 Mi Suscripción
+                    💳 Mi Suscripcion
                 </x-responsive-nav-link>
 
                 <x-responsive-nav-link :href="route('subscriptions.index')">
