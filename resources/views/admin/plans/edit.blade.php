@@ -166,7 +166,7 @@
                                 <span class="text-2xl">✉️</span>
                                 <div class="flex-1">
                                     <label class="block text-sm font-bold text-gray-800 mb-1">Mensajes Ilimitados</label>
-                                    <p class="text-xs text-gray-500">Sin límite de mensajes por semana</p>
+                                    <p class="text-xs text-gray-500">Sin limite de mensajes por semana</p>
                                 </div>
                                 <div class="flex items-center">
                                     <input type="hidden" name="mensajes_ilimitados" value="0">
@@ -178,18 +178,45 @@
                                     </label>
                                 </div>
                             </li>
+
+                            <!-- Ver quien te gusta -->
+                            <li class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                                <span class="text-2xl">👀</span>
+                                <div class="flex-1">
+                                    <label class="block text-sm font-bold text-gray-800 mb-1">Ver quien te ha dado like</label>
+                                    <p class="text-xs text-gray-500">Permite ver los perfiles de quienes te dieron like</p>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="hidden" name="ver_quien_te_gusta" value="0">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="ver_quien_te_gusta" value="1"
+                                               {{ old('ver_quien_te_gusta', $plan->ver_quien_te_gusta) ? 'checked' : '' }}
+                                               class="sr-only peer">
+                                        <div class="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brown rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500"></div>
+                                    </label>
+                                </div>
+                            </li>
+
+                            <!-- Fotos Adicionales -->
+                            <li class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                                <span class="text-2xl">📸</span>
+                                <div class="flex-1">
+                                    <label class="block text-sm font-bold text-gray-800 mb-1">Fotos en el Perfil</label>
+                                    <p class="text-xs text-gray-500">Numero maximo de fotos adicionales (6 = gratis, 10+ = premium)</p>
+                                </div>
+                                <input type="number" name="fotos_adicionales" value="{{ old('fotos_adicionales', $plan->fotos_adicionales ?? 6) }}" min="6" max="20"
+                                       class="w-24 px-3 py-2 border rounded-lg text-center font-bold focus:ring-2 focus:ring-brown">
+                            </li>
                         </ul>
                     </div>
 
                     <!-- Campos ocultos para mantener compatibilidad con la BD -->
-                    <input type="hidden" name="ver_quien_te_gusta" value="{{ $plan->ver_quien_te_gusta ? '1' : '0' }}">
                     <input type="hidden" name="matches_ilimitados" value="{{ $plan->matches_ilimitados ? '1' : '0' }}">
                     <input type="hidden" name="rewind" value="{{ $plan->rewind ? '1' : '0' }}">
                     <input type="hidden" name="sin_anuncios" value="{{ $plan->sin_anuncios ? '1' : '0' }}">
                     <input type="hidden" name="modo_incognito" value="{{ $plan->modo_incognito ? '1' : '0' }}">
                     <input type="hidden" name="verificacion_prioritaria" value="{{ $plan->verificacion_prioritaria ? '1' : '0' }}">
                     <input type="hidden" name="boost_mensual" value="{{ $plan->boost_mensual ?? 0 }}">
-                    <input type="hidden" name="fotos_adicionales" value="{{ $plan->fotos_adicionales ?? 0 }}">
 
                     <!-- Estado -->
                     <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
