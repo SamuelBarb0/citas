@@ -266,12 +266,7 @@
                             </div>
                             <div class="border-t border-red-200 pt-2 mt-2">
                                 <p class="text-xs text-red-700 leading-relaxed">
-                                    <span class="font-semibold">Plan Gratis:</span> Puedes responder 1 mensaje por cada mensaje que recibes.
-                                    @if($remainingResponses !== null && $remainingResponses > 0)
-                                        {{ $otherUser->profile->nombre }} te ha enviado {{ $messagesReceived }} {{ $messagesReceived === 1 ? 'mensaje' : 'mensajes' }}
-                                        y has respondido {{ $messagesSent }}.
-                                    @endif
-                                    Actualiza tu plan para iniciar conversaciones y enviar mensajes ilimitados.
+                                    <span class="font-semibold">Plan Gratis:</span> Puedes responder a los mensajes que recibas, actualiza tu plan para iniciar conversaciones y enviar mensajes ilimitados.
                                 </p>
                             </div>
                         </div>
