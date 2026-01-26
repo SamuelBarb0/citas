@@ -112,7 +112,8 @@ class SyncPayPalPlans extends Command
                     }
                 }
 
-                // Guardar los IDs de PayPal en la base de datos
+                // Guardar los IDs de PayPal y la descripción en la base de datos
+                $plan->descripcion = $productDescription;
                 $plan->save();
                 $this->newLine();
             }
