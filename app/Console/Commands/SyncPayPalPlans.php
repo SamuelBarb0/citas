@@ -52,12 +52,14 @@ class SyncPayPalPlans extends Command
 
                 // Crear producto en PayPal (uno por plan)
                 $productName = "Citas Mallorca - {$plan->nombre}";
-                $productDescription = strip_tags($plan->descripcion);
 
-                // PayPal requiere descripción no vacía
-                if (empty($productDescription)) {
-                    $productDescription = "Suscripción al plan {$plan->nombre} de Citas Mallorca";
-                }
+                // Generar descripción según el nombre del plan
+                $productDescription = match(strtolower($plan->slug)) {
+                    'free', 'gratis' => 'Plan gratuito con funciones básicas para conocer gente',
+                    'mensual' => 'Suscripción mensual premium con mensajes ilimitados y ver quien te ha dado like',
+                    'anual' => 'Suscripción anual premium con todas las funciones y el mejor precio',
+                    default => "Suscripción al plan {$plan->nombre} de Citas Mallorca"
+                };
 
                 $this->line("   → Creando producto en PayPal...");
 
