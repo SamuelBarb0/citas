@@ -193,7 +193,10 @@
                     <h3 class="text-lg font-bold text-brown mb-4 text-center">SELECCIONA TU METODO DE PAGO</h3>
 
                     <!-- PayPal Button Container -->
-                    <div id="paypal-button-container" class="opacity-50 pointer-events-none transition-all duration-300"></div>
+                    <div id="paypal-button-container" class="opacity-50 pointer-events-none transition-all duration-300 mb-3"></div>
+
+                    <!-- Card Button Container -->
+                    <div id="card-button-container" class="opacity-50 pointer-events-none transition-all duration-300"></div>
 
                     <!-- Iconos de Tarjetas -->
                     <div class="flex justify-center gap-4 mt-6 items-center">
@@ -238,6 +241,7 @@
     const termsCheckbox = document.getElementById('terms-checkbox');
     const noRefundCheckbox = document.getElementById('no-refund-checkbox');
     const paypalContainer = document.getElementById('paypal-button-container');
+    const cardContainer = document.getElementById('card-button-container');
     const validationError = document.getElementById('validation-error');
     const tipoHidden = document.getElementById('tipo-hidden');
 
@@ -293,10 +297,12 @@
         if (bothChecked && !paymentsEnabled) {
             paymentsEnabled = true;
             paypalContainer.classList.remove('opacity-50', 'pointer-events-none');
+            cardContainer.classList.remove('opacity-50', 'pointer-events-none');
             validationError.classList.add('hidden');
         } else if (!bothChecked && paymentsEnabled) {
             paymentsEnabled = false;
             paypalContainer.classList.add('opacity-50', 'pointer-events-none');
+            cardContainer.classList.add('opacity-50', 'pointer-events-none');
         }
     }
 
@@ -314,8 +320,59 @@
         return false;
     }
 
-    // PayPal Button Setup
+    // Configuracion comun para crear suscripcion
+    function createSubscriptionHandler(data, actions) {
+        if (showValidationError()) {
+            return Promise.reject(new Error('Validation failed'));
+        }
+
+        return fetch('{{ route("subscriptions.paypal.create") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                plan_id: '{{ $plan->id }}',
+                tipo: tipoActual
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.subscription_id) {
+                return data.subscription_id;
+            } else {
+                throw new Error(data.message || 'Error al crear la suscripcion');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al procesar la suscripcion: ' + error.message);
+            throw error;
+        });
+    }
+
+    function onApproveHandler(data, actions) {
+        const successUrl = '{{ route("subscriptions.paypal.success") }}' +
+            '?subscription_id=' + data.subscriptionID +
+            '&plan_id={{ $plan->id }}' +
+            '&tipo=' + tipoActual;
+
+        window.location.href = successUrl;
+    }
+
+    function onErrorHandler(err) {
+        console.error('Error en PayPal:', err);
+        if (!paymentsEnabled) {
+            showValidationError();
+        } else {
+            alert('Ocurrio un error al procesar el pago. Por favor, intentalo de nuevo.');
+        }
+    }
+
+    // PayPal Button
     paypal.Buttons({
+        fundingSource: paypal.FUNDING.PAYPAL,
         style: {
             layout: 'vertical',
             color: 'blue',
@@ -323,60 +380,31 @@
             label: 'subscribe',
             height: 50
         },
-
-        createSubscription: function(data, actions) {
-            if (showValidationError()) {
-                return Promise.reject(new Error('Validation failed'));
-            }
-
-            return fetch('{{ route("subscriptions.paypal.create") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    plan_id: '{{ $plan->id }}',
-                    tipo: tipoActual
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.subscription_id) {
-                    return data.subscription_id;
-                } else {
-                    throw new Error(data.message || 'Error al crear la suscripcion');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al procesar la suscripcion: ' + error.message);
-                throw error;
-            });
-        },
-
-        onApprove: function(data, actions) {
-            const successUrl = '{{ route("subscriptions.paypal.success") }}' +
-                '?subscription_id=' + data.subscriptionID +
-                '&plan_id={{ $plan->id }}' +
-                '&tipo=' + tipoActual;
-
-            window.location.href = successUrl;
-        },
-
+        createSubscription: createSubscriptionHandler,
+        onApprove: onApproveHandler,
         onCancel: function(data) {
             console.log('Pago cancelado por el usuario');
         },
-
-        onError: function(err) {
-            console.error('Error en PayPal:', err);
-            if (!paymentsEnabled) {
-                showValidationError();
-            } else {
-                alert('Ocurrio un error al procesar el pago. Por favor, intentalo de nuevo.');
-            }
-        }
+        onError: onErrorHandler
     }).render('#paypal-button-container');
+
+    // Card Button (Debit/Credit)
+    paypal.Buttons({
+        fundingSource: paypal.FUNDING.CARD,
+        style: {
+            layout: 'vertical',
+            color: 'black',
+            shape: 'rect',
+            label: 'pay',
+            height: 50
+        },
+        createSubscription: createSubscriptionHandler,
+        onApprove: onApproveHandler,
+        onCancel: function(data) {
+            console.log('Pago cancelado por el usuario');
+        },
+        onError: onErrorHandler
+    }).render('#card-button-container');
 
     // Verificacion inicial al cargar la pagina
     checkValidation();
