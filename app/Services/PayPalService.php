@@ -342,4 +342,71 @@ class PayPalService
             return false;
         }
     }
+
+    /**
+     * Desactivar un plan de facturación en PayPal
+     */
+    public function deactivatePlan($planId)
+    {
+        try {
+            $token = $this->getAccessToken();
+
+            $http = Http::withToken($token)->withHeaders([
+                'Content-Type' => 'application/json',
+            ]);
+            $http = $this->prepareHttp($http);
+
+            $response = $http->post("{$this->apiUrl}/v1/billing/plans/{$planId}/deactivate");
+
+            if ($response->status() === 204 || $response->successful()) {
+                Log::info('PayPal: Plan deactivated', ['plan_id' => $planId]);
+                return true;
+            }
+
+            Log::error('PayPal: Failed to deactivate plan', [
+                'plan_id' => $planId,
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+
+            return false;
+
+        } catch (\Exception $e) {
+            Log::error('PayPal: Exception deactivating plan', [
+                'plan_id' => $planId,
+                'message' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Listar todos los planes de PayPal
+     */
+    public function listPlans($pageSize = 20)
+    {
+        try {
+            $token = $this->getAccessToken();
+
+            $http = Http::withToken($token);
+            $http = $this->prepareHttp($http);
+
+            $response = $http->get("{$this->apiUrl}/v1/billing/plans", [
+                'page_size' => $pageSize,
+                'total_required' => 'true'
+            ]);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            return null;
+
+        } catch (\Exception $e) {
+            Log::error('PayPal: Exception listing plans', [
+                'message' => $e->getMessage()
+            ]);
+            return null;
+        }
+    }
 }
