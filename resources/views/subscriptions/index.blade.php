@@ -45,12 +45,7 @@
                         <!-- Contenido del Plan -->
                         <div class="p-8">
                             <!-- Nombre del Plan -->
-                            <h3 class="text-3xl font-black text-brown mb-2">{{ $plan->nombre }}</h3>
-                            @if($plan->descripcion)
-                                <p class="text-gray-600 mb-6 text-sm min-h-[40px]">{{ $plan->descripcion }}</p>
-                            @else
-                                <div class="mb-6 min-h-[40px]"></div>
-                            @endif
+                            <h3 class="text-3xl font-black text-brown mb-6">{{ $plan->nombre }}</h3>
 
                             <!-- Precio -->
                             <div class="mb-8 min-h-[100px] flex flex-col justify-center">
