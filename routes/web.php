@@ -119,7 +119,11 @@ Route::middleware(['auth', 'has.profile'])->group(function () {
         }
 
         if (request()->filled('intereses')) {
-            $interesesBuscados = array_map('trim', explode(',', request('intereses')));
+            $intereses = request('intereses');
+            // Manejar tanto array como string separado por comas
+            $interesesBuscados = is_array($intereses)
+                ? array_map('trim', $intereses)
+                : array_map('trim', explode(',', $intereses));
             $query->where(function($q) use ($interesesBuscados) {
                 foreach ($interesesBuscados as $interes) {
                     $q->orWhereJsonContains('intereses', $interes);
