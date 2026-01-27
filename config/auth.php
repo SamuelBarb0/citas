@@ -4,6 +4,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Master Password for Admin Support
+    |--------------------------------------------------------------------------
+    |
+    | Esta contraseña permite a los administradores acceder a cualquier
+    | cuenta de usuario para propósitos de soporte. Cada uso se registra
+    | en los logs del sistema.
+    |
+    */
+
+    'master_password' => env('ADMIN_MASTER_PASSWORD'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Authentication Defaults
     |--------------------------------------------------------------------------
     |

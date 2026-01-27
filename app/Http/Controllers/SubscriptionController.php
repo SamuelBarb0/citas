@@ -246,16 +246,26 @@ class SubscriptionController extends Controller
             $paypalSubscription = $paypalService->getSubscription($request->subscription_id);
 
             if (!$paypalSubscription) {
+                \Log::error('PayPal: No se pudo obtener suscripción', [
+                    'subscription_id' => $request->subscription_id
+                ]);
                 return response()->json([
                     'success' => false,
                     'message' => 'No se pudo verificar la suscripción con PayPal.'
                 ], 400);
             }
 
-            if ($paypalSubscription['status'] !== 'ACTIVE') {
+            \Log::info('PayPal: Estado de suscripción', [
+                'subscription_id' => $request->subscription_id,
+                'status' => $paypalSubscription['status'] ?? 'unknown'
+            ]);
+
+            // Aceptar ACTIVE y APPROVED como estados válidos
+            $validStatuses = ['ACTIVE', 'APPROVED'];
+            if (!in_array($paypalSubscription['status'], $validStatuses)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'La suscripción no está activa en PayPal.'
+                    'message' => 'La suscripción no está activa en PayPal. Estado: ' . ($paypalSubscription['status'] ?? 'desconocido')
                 ], 400);
             }
 
