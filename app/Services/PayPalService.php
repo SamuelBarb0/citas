@@ -389,6 +389,94 @@ class PayPalService
     }
 
     /**
+     * Obtener transacciones de una suscripción
+     */
+    public function getSubscriptionTransactions($subscriptionId, $startTime = null, $endTime = null)
+    {
+        try {
+            $token = $this->getAccessToken();
+
+            $http = Http::withToken($token);
+            $http = $this->prepareHttp($http);
+
+            $params = [];
+            if ($startTime) {
+                $params['start_time'] = $startTime;
+            } else {
+                // Por defecto, últimos 30 días
+                $params['start_time'] = now()->subDays(30)->toIso8601String();
+            }
+            if ($endTime) {
+                $params['end_time'] = $endTime;
+            } else {
+                $params['end_time'] = now()->toIso8601String();
+            }
+
+            $response = $http->get("{$this->apiUrl}/v1/billing/subscriptions/{$subscriptionId}/transactions", $params);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            Log::error('PayPal: Failed to get subscription transactions', [
+                'subscription_id' => $subscriptionId,
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+
+            return null;
+
+        } catch (\Exception $e) {
+            Log::error('PayPal: Exception getting subscription transactions', [
+                'subscription_id' => $subscriptionId,
+                'message' => $e->getMessage()
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Listar todas las suscripciones
+     */
+    public function listSubscriptions($planId = null, $status = null, $pageSize = 20)
+    {
+        try {
+            $token = $this->getAccessToken();
+
+            $http = Http::withToken($token);
+            $http = $this->prepareHttp($http);
+
+            $params = [
+                'page_size' => $pageSize,
+                'total_required' => 'true'
+            ];
+
+            if ($planId) {
+                $params['plan_id'] = $planId;
+            }
+
+            $response = $http->get("{$this->apiUrl}/v1/billing/subscriptions", $params);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            Log::error('PayPal: Failed to list subscriptions', [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+
+            return null;
+
+        } catch (\Exception $e) {
+            Log::error('PayPal: Exception listing subscriptions', [
+                'message' => $e->getMessage()
+            ]);
+            return null;
+        }
+    }
+
+    /**
      * Listar todos los planes de PayPal
      */
     public function listPlans($pageSize = 20)
