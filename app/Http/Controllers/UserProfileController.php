@@ -178,10 +178,23 @@ class UserProfileController extends Controller
 
     /**
      * Ver el perfil público de otro usuario
+     * Acepta tanto user_id como profile_id para mayor flexibilidad
      */
     public function viewPublic($id)
     {
-        $profile = Profile::with('user')->findOrFail($id);
+        // Primero intentar buscar por user_id (más común en la app)
+        $profile = Profile::with('user')->where('user_id', $id)->first();
+
+        // Si no se encuentra, intentar buscar por profile_id (fallback)
+        if (!$profile) {
+            $profile = Profile::with('user')->find($id);
+        }
+
+        // Si aún no se encuentra, mostrar 404
+        if (!$profile) {
+            abort(404, 'Perfil no encontrado');
+        }
+
         $user = $profile->user;
 
         return view('profiles.public', compact('profile', 'user'));
