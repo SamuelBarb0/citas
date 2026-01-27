@@ -125,7 +125,7 @@
                         @if($subscription->plan->likes_diarios === -1)
                             <p class="text-3xl font-black text-heart-red mb-2">Ilimitados</p>
                             <p class="text-gray-600 text-sm">Da todos los likes que quieras</p>
-                        @else
+                        @elseif($subscription->plan->likes_diarios > 0)
                             <div class="mb-3">
                                 <div class="flex justify-between text-sm mb-2">
                                     <span class="text-gray-600">Usados hoy</span>
@@ -141,6 +141,9 @@
                             <p class="text-gray-600 text-xs">
                                 Se restablecen en {{ $subscription->ultimo_reset_likes ? $subscription->ultimo_reset_likes->addDay()->diffForHumans() : '24 horas' }}
                             </p>
+                        @else
+                            <p class="text-3xl font-black text-heart-red mb-2">Ilimitados</p>
+                            <p class="text-gray-600 text-sm">Da todos los likes que quieras</p>
                         @endif
                     </div>
 
