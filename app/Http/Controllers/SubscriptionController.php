@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Plan;
+use App\Models\PaymentLog;
 use App\Models\UserSubscription;
 use Illuminate\Support\Facades\Auth;
 
@@ -292,6 +293,28 @@ class SubscriptionController extends Controller
             ]);
 
             $subscription->activate();
+
+            // Registrar el pago en payment_logs
+            $payerEmail = $paypalSubscription['subscriber']['email_address'] ?? null;
+            $payerName = isset($paypalSubscription['subscriber']['name'])
+                ? trim(($paypalSubscription['subscriber']['name']['given_name'] ?? '') . ' ' . ($paypalSubscription['subscriber']['name']['surname'] ?? ''))
+                : null;
+
+            PaymentLog::logSuccess([
+                'user_id' => $user->id,
+                'user_subscription_id' => $subscription->id,
+                'plan_id' => $plan->id,
+                'paypal_subscription_id' => $request->subscription_id,
+                'paypal_plan_id' => $paypalSubscription['plan_id'] ?? null,
+                'amount' => $montoPagado,
+                'currency' => 'EUR',
+                'payment_method' => 'paypal',
+                'type' => 'subscription',
+                'payer_email' => $payerEmail,
+                'payer_name' => $payerName,
+                'description' => "Suscripción {$tipo} al plan {$plan->nombre}",
+                'paypal_response' => $paypalSubscription,
+            ]);
 
             // Enviar email de confirmación (solo si el email está configurado correctamente)
             try {
