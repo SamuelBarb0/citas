@@ -129,38 +129,46 @@ class PayPalService
             ]);
             $http = $this->prepareHttp($http);
 
-            $response = $http->post("{$this->apiUrl}/v1/billing/plans", [
-                    'product_id' => $productId,
-                    'name' => $planName,
-                    'description' => $description,
-                    'status' => 'ACTIVE',
-                    'billing_cycles' => [
-                        [
-                            'frequency' => [
-                                'interval_unit' => $interval,
-                                'interval_count' => $intervalCount
-                            ],
-                            'tenure_type' => 'REGULAR',
-                            'sequence' => 1,
-                            'total_cycles' => 0, // 0 = infinito (suscripción continua)
-                            'pricing_scheme' => [
-                                'fixed_price' => [
-                                    'value' => number_format($price, 2, '.', ''),
-                                    'currency_code' => config('paypal.currency', 'EUR')
-                                ]
+            $planData = [
+                'product_id' => $productId,
+                'name' => $planName,
+                'description' => $description,
+                'status' => 'ACTIVE',
+                'billing_cycles' => [
+                    [
+                        'frequency' => [
+                            'interval_unit' => $interval,
+                            'interval_count' => $intervalCount
+                        ],
+                        'tenure_type' => 'REGULAR',
+                        'sequence' => 1,
+                        'total_cycles' => 0,
+                        'pricing_scheme' => [
+                            'fixed_price' => [
+                                'value' => number_format((float)$price, 2, '.', ''),
+                                'currency_code' => config('paypal.currency', 'EUR')
                             ]
                         ]
-                    ],
-                    'payment_preferences' => [
-                        'auto_bill_outstanding' => true,
-                        'setup_fee' => [
-                            'value' => '0',
-                            'currency_code' => config('paypal.currency', 'EUR')
-                        ],
-                        'setup_fee_failure_action' => 'CONTINUE',
-                        'payment_failure_threshold' => 3
                     ]
-                ]);
+                ],
+                'payment_preferences' => [
+                    'auto_bill_outstanding' => true,
+                    'setup_fee' => [
+                        'value' => '0',
+                        'currency_code' => config('paypal.currency', 'EUR')
+                    ],
+                    'setup_fee_failure_action' => 'CONTINUE',
+                    'payment_failure_threshold' => 3
+                ]
+            ];
+
+            Log::info('PayPal: Creating billing plan with data', [
+                'price_raw' => $price,
+                'price_formatted' => number_format((float)$price, 2, '.', ''),
+                'plan_data' => $planData
+            ]);
+
+            $response = $http->post("{$this->apiUrl}/v1/billing/plans", $planData);
 
             if ($response->successful()) {
                 $data = $response->json();
