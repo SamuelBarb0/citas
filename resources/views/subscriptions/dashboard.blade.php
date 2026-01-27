@@ -169,7 +169,30 @@
                     <div class="bg-white rounded-2xl shadow-lg p-6">
                         <h3 class="font-bold text-brown mb-4">Características</h3>
                         <div class="space-y-2 text-sm">
+                            @php
+                                $tieneCaracteristicas = false;
+                            @endphp
+
+                            @if($subscription->plan->mensajes_ilimitados)
+                                @php $tieneCaracteristicas = true; @endphp
+                                <div class="flex items-center gap-2 text-green-600">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Mensajes ilimitados
+                                </div>
+                            @endif
+                            @if($subscription->plan->puede_iniciar_conversacion)
+                                @php $tieneCaracteristicas = true; @endphp
+                                <div class="flex items-center gap-2 text-green-600">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Iniciar conversaciones
+                                </div>
+                            @endif
                             @if($subscription->plan->ver_quien_te_gusta)
+                                @php $tieneCaracteristicas = true; @endphp
                                 <div class="flex items-center gap-2 text-green-600">
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
@@ -177,7 +200,17 @@
                                     Ver quién te gusta
                                 </div>
                             @endif
+                            @if($subscription->plan->matches_ilimitados)
+                                @php $tieneCaracteristicas = true; @endphp
+                                <div class="flex items-center gap-2 text-green-600">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Matches ilimitados
+                                </div>
+                            @endif
                             @if($subscription->plan->rewind)
+                                @php $tieneCaracteristicas = true; @endphp
                                 <div class="flex items-center gap-2 text-green-600">
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
@@ -186,6 +219,7 @@
                                 </div>
                             @endif
                             @if($subscription->plan->sin_anuncios)
+                                @php $tieneCaracteristicas = true; @endphp
                                 <div class="flex items-center gap-2 text-green-600">
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
@@ -194,12 +228,17 @@
                                 </div>
                             @endif
                             @if($subscription->plan->modo_incognito)
+                                @php $tieneCaracteristicas = true; @endphp
                                 <div class="flex items-center gap-2 text-green-600">
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                     </svg>
                                     Modo incógnito
                                 </div>
+                            @endif
+
+                            @if(!$tieneCaracteristicas)
+                                <p class="text-gray-500 text-center py-2">Plan básico activo</p>
                             @endif
                         </div>
                     </div>
