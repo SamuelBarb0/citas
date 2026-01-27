@@ -154,10 +154,10 @@ class PayPalService
                 'payment_preferences' => [
                     'auto_bill_outstanding' => true,
                     'setup_fee' => [
-                        'value' => number_format((float)$price, 2, '.', ''),
+                        'value' => '0',
                         'currency_code' => config('paypal.currency', 'EUR')
                     ],
-                    'setup_fee_failure_action' => 'CANCEL',
+                    'setup_fee_failure_action' => 'CONTINUE',
                     'payment_failure_threshold' => 3
                 ]
             ];
