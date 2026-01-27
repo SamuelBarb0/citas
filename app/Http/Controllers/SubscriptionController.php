@@ -242,6 +242,27 @@ class SubscriptionController extends Controller
             $plan = Plan::findOrFail($request->plan_id);
             $user = Auth::user();
 
+            \Log::info('PayPal: Iniciando activación de suscripción', [
+                'subscription_id' => $request->subscription_id,
+                'user_id' => $user->id,
+                'plan_id' => $plan->id,
+                'tipo' => $request->tipo
+            ]);
+
+            // Verificar si ya existe esta suscripción (evitar duplicados)
+            $existingSubscription = UserSubscription::where('paypal_subscription_id', $request->subscription_id)->first();
+            if ($existingSubscription) {
+                \Log::info('PayPal: Suscripción ya existe en BD', [
+                    'subscription_id' => $request->subscription_id,
+                    'existing_id' => $existingSubscription->id
+                ]);
+                return response()->json([
+                    'success' => true,
+                    'message' => '¡Tu suscripción ya está activa!',
+                    'redirect_url' => route('subscriptions.dashboard')
+                ]);
+            }
+
             // Verificar con PayPal que la suscripción está activa
             $paypalService = new \App\Services\PayPalService();
             $paypalSubscription = $paypalService->getSubscription($request->subscription_id);
@@ -293,6 +314,15 @@ class SubscriptionController extends Controller
             ]);
 
             $subscription->activate();
+
+            \Log::info('PayPal: Suscripción activada exitosamente', [
+                'subscription_id' => $subscription->id,
+                'paypal_subscription_id' => $request->subscription_id,
+                'user_id' => $user->id,
+                'plan' => $plan->nombre,
+                'tipo' => $tipo,
+                'monto' => $montoPagado
+            ]);
 
             // Registrar el pago en payment_logs
             $payerEmail = $paypalSubscription['subscriber']['email_address'] ?? null;

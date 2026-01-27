@@ -39,10 +39,6 @@
                                 <p class="font-bold">{{ $subscription->fecha_expiracion->format('d/m/Y') }}</p>
                             </div>
                             <div>
-                                <p class="text-white/70 text-sm mb-1">Días Restantes</p>
-                                <p class="font-bold">{{ $subscription->dias_restantes }} días</p>
-                            </div>
-                            <div>
                                 <p class="text-white/70 text-sm mb-1">Estado</p>
                                 <p class="font-bold">
                                     @if($subscription->estado === 'activa')
