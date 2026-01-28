@@ -505,4 +505,42 @@ class PayPalService
             return null;
         }
     }
+
+    /**
+     * Listar todas las transacciones de la cuenta PayPal
+     */
+    public function listTransactions($startDate, $endDate, $pageSize = 100)
+    {
+        try {
+            $token = $this->getAccessToken();
+
+            $http = Http::withToken($token);
+            $http = $this->prepareHttp($http);
+
+            $response = $http->get("{$this->apiUrl}/v1/reporting/transactions", [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'page_size' => $pageSize,
+                'fields' => 'all'
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                return $data['transaction_details'] ?? [];
+            }
+
+            Log::error('PayPal: Failed to list transactions', [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+
+            return [];
+
+        } catch (\Exception $e) {
+            Log::error('PayPal: Exception listing transactions', [
+                'message' => $e->getMessage()
+            ]);
+            return [];
+        }
+    }
 }

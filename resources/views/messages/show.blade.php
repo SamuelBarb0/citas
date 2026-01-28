@@ -288,7 +288,7 @@
                         </div>
                     @else
                         <!-- Formulario normal -->
-                        <form action="{{ route('messages.store', $match->id) }}" method="POST" class="flex gap-3 items-end">
+                        <form id="message-form" action="{{ route('messages.store', $match->id) }}" method="POST" class="flex gap-3 items-end">
                             @csrf
                             <div class="flex-1">
                                 <textarea
@@ -300,13 +300,13 @@
                                     rows="1"
                                     class="w-full px-6 py-4 border-2 border-gray-300 rounded-3xl focus:border-heart-red focus:ring-0 transition resize-none text-sm"
                                     style="max-height: 120px;"
-                                    onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); this.form.submit(); }"
                                 ></textarea>
                                 @error('mensaje')
                                     <p class="text-red-500 text-xs mt-1 px-2">{{ $message }}</p>
                                 @enderror
                             </div>
                             <button
+                                id="send-button"
                                 type="submit"
                                 class="bg-gradient-to-r from-heart-red to-heart-red-light text-white p-4 rounded-full font-bold hover:shadow-glow transition shadow-lg flex items-center justify-center group"
                             >
@@ -366,11 +366,14 @@
     document.addEventListener('DOMContentLoaded', function() {
         const container = document.getElementById('messages-container');
         const textarea = document.getElementById('mensaje-input');
+        const form = document.getElementById('message-form');
+        const sendButton = document.getElementById('send-button');
         const matchId = {{ $match->id }};
         const currentUserId = {{ auth()->id() }};
         let lastMessageId = {{ $messages->last()->id ?? 0 }};
         let isPolling = true;
         let pollingInterval;
+        let isSubmitting = false; // Prevenir doble envío
 
         // Auto scroll al final del chat al cargar
         function scrollToBottom(smooth = false) {
@@ -391,9 +394,32 @@
             this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
 
-        // Auto scroll después de enviar mensaje
-        const form = textarea.closest('form');
-        form.addEventListener('submit', function() {
+        // Manejar Enter para enviar (Shift+Enter para nueva línea)
+        textarea.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                if (!isSubmitting && textarea.value.trim()) {
+                    form.requestSubmit();
+                }
+            }
+        });
+
+        // Prevenir doble envío del formulario
+        form.addEventListener('submit', function(event) {
+            if (isSubmitting) {
+                event.preventDefault();
+                return false;
+            }
+
+            if (!textarea.value.trim()) {
+                event.preventDefault();
+                return false;
+            }
+
+            isSubmitting = true;
+            sendButton.disabled = true;
+            sendButton.classList.add('opacity-50', 'cursor-not-allowed');
+
             setTimeout(() => scrollToBottom(false), 100);
         });
 
