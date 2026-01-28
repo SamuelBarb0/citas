@@ -7,6 +7,7 @@ use App\Models\Plan;
 use App\Models\PaymentLog;
 use App\Models\UserSubscription;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class SubscriptionController extends Controller
 {
@@ -150,6 +151,15 @@ class SubscriptionController extends Controller
      */
     public function createPayPalSubscription(Request $request)
     {
+        Log::info('=== PAYPAL: INICIO CREAR SUSCRIPCIÓN ===', [
+            'timestamp' => now()->toDateTimeString(),
+            'user_id' => Auth::id(),
+            'user_email' => Auth::user()->email ?? 'no-auth',
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'request_data' => $request->all()
+        ]);
+
         $request->validate([
             'plan_id' => 'required|exists:plans,id',
             'tipo' => 'required|in:mensual,anual',
@@ -159,11 +169,23 @@ class SubscriptionController extends Controller
             $plan = Plan::findOrFail($request->plan_id);
             $tipo = $request->tipo;
 
+            Log::info('PAYPAL: Plan encontrado', [
+                'plan_id' => $plan->id,
+                'plan_nombre' => $plan->nombre,
+                'plan_slug' => $plan->slug,
+                'tipo_solicitado' => $tipo,
+                'precio_mensual' => $plan->precio_mensual,
+                'precio_anual' => $plan->precio_anual,
+                'paypal_plan_id_mensual' => $plan->paypal_plan_id_mensual,
+                'paypal_plan_id_anual' => $plan->paypal_plan_id_anual
+            ]);
+
             // Verificar que el plan tenga el precio del tipo solicitado
             $tieneMensual = $plan->precio_mensual > 0;
             $tieneAnual = $plan->precio_anual > 0;
 
             if ($tipo === 'mensual' && !$tieneMensual) {
+                Log::warning('PAYPAL: Plan sin opción mensual', ['plan_id' => $plan->id]);
                 return response()->json([
                     'success' => false,
                     'message' => 'Este plan no tiene opción de pago mensual.'
@@ -171,6 +193,7 @@ class SubscriptionController extends Controller
             }
 
             if ($tipo === 'anual' && !$tieneAnual) {
+                Log::warning('PAYPAL: Plan sin opción anual', ['plan_id' => $plan->id]);
                 return response()->json([
                     'success' => false,
                     'message' => 'Este plan no tiene opción de pago anual.'
@@ -183,11 +206,21 @@ class SubscriptionController extends Controller
                 : $plan->paypal_plan_id_anual;
 
             if (!$paypalPlanId) {
+                Log::error('PAYPAL: Plan no configurado en PayPal', [
+                    'plan_id' => $plan->id,
+                    'tipo' => $tipo
+                ]);
                 return response()->json([
                     'success' => false,
                     'message' => 'El plan no está configurado en PayPal. Por favor contacta con soporte.'
                 ], 400);
             }
+
+            Log::info('PAYPAL: Creando suscripción en PayPal API', [
+                'paypal_plan_id' => $paypalPlanId,
+                'return_url' => route('subscriptions.paypal.success', ['plan_id' => $plan->id, 'tipo' => $tipo]),
+                'cancel_url' => route('subscriptions.checkout', ['planSlug' => $plan->slug])
+            ]);
 
             $paypalService = new \App\Services\PayPalService();
 
@@ -198,6 +231,12 @@ class SubscriptionController extends Controller
                 route('subscriptions.checkout', ['planSlug' => $plan->slug])
             );
 
+            Log::info('PAYPAL: Suscripción creada en PayPal', [
+                'paypal_subscription_id' => $subscription['id'] ?? 'N/A',
+                'status' => $subscription['status'] ?? 'N/A',
+                'links' => $subscription['links'] ?? []
+            ]);
+
             // Obtener la URL de aprobación
             $approvalUrl = null;
             foreach ($subscription['links'] as $link) {
@@ -207,6 +246,11 @@ class SubscriptionController extends Controller
                 }
             }
 
+            Log::info('PAYPAL: URL de aprobación obtenida', [
+                'approval_url' => $approvalUrl,
+                'subscription_id' => $subscription['id']
+            ]);
+
             return response()->json([
                 'success' => true,
                 'subscription_id' => $subscription['id'],
@@ -215,9 +259,13 @@ class SubscriptionController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('PayPal subscription creation error', [
+            Log::error('=== PAYPAL ERROR: CREAR SUSCRIPCIÓN ===', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => Auth::id(),
+                'request_data' => $request->all()
             ]);
 
             return response()->json([
@@ -232,6 +280,15 @@ class SubscriptionController extends Controller
      */
     public function activatePayPalSubscription(Request $request)
     {
+        Log::info('=== PAYPAL: INICIO ACTIVAR SUSCRIPCIÓN ===', [
+            'timestamp' => now()->toDateTimeString(),
+            'user_id' => Auth::id(),
+            'user_email' => Auth::user()->email ?? 'no-auth',
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'request_data' => $request->all()
+        ]);
+
         $request->validate([
             'subscription_id' => 'required',
             'plan_id' => 'required|exists:plans,id',
@@ -242,19 +299,26 @@ class SubscriptionController extends Controller
             $plan = Plan::findOrFail($request->plan_id);
             $user = Auth::user();
 
-            \Log::info('PayPal: Iniciando activación de suscripción', [
-                'subscription_id' => $request->subscription_id,
+            Log::info('PAYPAL ACTIVAR: Usuario y plan identificados', [
                 'user_id' => $user->id,
+                'user_email' => $user->email,
+                'user_name' => $user->name,
                 'plan_id' => $plan->id,
-                'tipo' => $request->tipo
+                'plan_nombre' => $plan->nombre,
+                'plan_slug' => $plan->slug,
+                'tipo' => $request->tipo,
+                'paypal_subscription_id' => $request->subscription_id
             ]);
 
             // Verificar si ya existe esta suscripción (evitar duplicados)
             $existingSubscription = UserSubscription::where('paypal_subscription_id', $request->subscription_id)->first();
             if ($existingSubscription) {
-                \Log::info('PayPal: Suscripción ya existe en BD', [
-                    'subscription_id' => $request->subscription_id,
-                    'existing_id' => $existingSubscription->id
+                Log::info('PAYPAL ACTIVAR: Suscripción ya existe (duplicado evitado)', [
+                    'paypal_subscription_id' => $request->subscription_id,
+                    'existing_subscription_id' => $existingSubscription->id,
+                    'existing_user_id' => $existingSubscription->user_id,
+                    'existing_estado' => $existingSubscription->estado,
+                    'existing_created_at' => $existingSubscription->created_at
                 ]);
                 return response()->json([
                     'success' => true,
@@ -264,12 +328,17 @@ class SubscriptionController extends Controller
             }
 
             // Verificar con PayPal que la suscripción está activa
+            Log::info('PAYPAL ACTIVAR: Consultando estado en PayPal API...', [
+                'subscription_id' => $request->subscription_id
+            ]);
+
             $paypalService = new \App\Services\PayPalService();
             $paypalSubscription = $paypalService->getSubscription($request->subscription_id);
 
             if (!$paypalSubscription) {
-                \Log::error('PayPal: No se pudo obtener suscripción', [
-                    'subscription_id' => $request->subscription_id
+                Log::error('PAYPAL ACTIVAR ERROR: No se pudo obtener suscripción de PayPal', [
+                    'subscription_id' => $request->subscription_id,
+                    'user_id' => $user->id
                 ]);
                 return response()->json([
                     'success' => false,
@@ -277,17 +346,29 @@ class SubscriptionController extends Controller
                 ], 400);
             }
 
-            \Log::info('PayPal: Estado de suscripción', [
+            Log::info('PAYPAL ACTIVAR: Respuesta de PayPal API', [
                 'subscription_id' => $request->subscription_id,
-                'status' => $paypalSubscription['status'] ?? 'unknown'
+                'status' => $paypalSubscription['status'] ?? 'unknown',
+                'plan_id' => $paypalSubscription['plan_id'] ?? 'N/A',
+                'subscriber' => $paypalSubscription['subscriber'] ?? [],
+                'billing_info' => $paypalSubscription['billing_info'] ?? [],
+                'create_time' => $paypalSubscription['create_time'] ?? 'N/A',
+                'start_time' => $paypalSubscription['start_time'] ?? 'N/A'
             ]);
 
             // Aceptar ACTIVE y APPROVED como estados válidos
             $validStatuses = ['ACTIVE', 'APPROVED'];
-            if (!in_array($paypalSubscription['status'], $validStatuses)) {
+            $currentStatus = $paypalSubscription['status'] ?? 'unknown';
+
+            if (!in_array($currentStatus, $validStatuses)) {
+                Log::warning('PAYPAL ACTIVAR: Estado no válido', [
+                    'subscription_id' => $request->subscription_id,
+                    'status' => $currentStatus,
+                    'valid_statuses' => $validStatuses
+                ]);
                 return response()->json([
                     'success' => false,
-                    'message' => 'La suscripción no está activa en PayPal. Estado: ' . ($paypalSubscription['status'] ?? 'desconocido')
+                    'message' => 'La suscripción no está activa en PayPal. Estado: ' . $currentStatus
                 ], 400);
             }
 
@@ -298,9 +379,16 @@ class SubscriptionController extends Controller
             } elseif ($tipo === 'anual' && $plan->precio_anual > 0) {
                 $montoPagado = $plan->precio_anual;
             } else {
-                // Fallback: usar el precio que tenga disponible
                 $montoPagado = $plan->precio_mensual > 0 ? $plan->precio_mensual : $plan->precio_anual;
             }
+
+            Log::info('PAYPAL ACTIVAR: Creando suscripción en base de datos', [
+                'user_id' => $user->id,
+                'plan_id' => $plan->id,
+                'tipo' => $tipo,
+                'monto_pagado' => $montoPagado,
+                'paypal_subscription_id' => $request->subscription_id
+            ]);
 
             // Crear la suscripción en nuestra base de datos
             $subscription = UserSubscription::create([
@@ -313,15 +401,22 @@ class SubscriptionController extends Controller
                 'monto_pagado' => $montoPagado,
             ]);
 
+            Log::info('PAYPAL ACTIVAR: Suscripción creada en BD, activando...', [
+                'subscription_id' => $subscription->id
+            ]);
+
             $subscription->activate();
 
-            \Log::info('PayPal: Suscripción activada exitosamente', [
+            Log::info('=== PAYPAL ACTIVAR: ÉXITO COMPLETO ===', [
                 'subscription_id' => $subscription->id,
                 'paypal_subscription_id' => $request->subscription_id,
                 'user_id' => $user->id,
+                'user_email' => $user->email,
                 'plan' => $plan->nombre,
                 'tipo' => $tipo,
-                'monto' => $montoPagado
+                'monto' => $montoPagado,
+                'fecha_inicio' => $subscription->fecha_inicio,
+                'fecha_expiracion' => $subscription->fecha_expiracion
             ]);
 
             // Registrar el pago en payment_logs
@@ -329,6 +424,11 @@ class SubscriptionController extends Controller
             $payerName = isset($paypalSubscription['subscriber']['name'])
                 ? trim(($paypalSubscription['subscriber']['name']['given_name'] ?? '') . ' ' . ($paypalSubscription['subscriber']['name']['surname'] ?? ''))
                 : null;
+
+            Log::info('PAYPAL ACTIVAR: Registrando en payment_logs', [
+                'payer_email' => $payerEmail,
+                'payer_name' => $payerName
+            ]);
 
             PaymentLog::logSuccess([
                 'user_id' => $user->id,
@@ -346,16 +446,20 @@ class SubscriptionController extends Controller
                 'paypal_response' => $paypalSubscription,
             ]);
 
+            Log::info('PAYPAL ACTIVAR: Payment log registrado');
+
             // Enviar email de confirmación (solo si el email está configurado correctamente)
             try {
                 if (config('mail.username') !== 'tu-email@gmail.com') {
                     $user->notify(new \App\Notifications\SubscriptionActivatedNotification($subscription));
+                    Log::info('PAYPAL ACTIVAR: Email de confirmación enviado', [
+                        'user_email' => $user->email
+                    ]);
                 }
             } catch (\Exception $e) {
-                \Log::warning('Failed to send subscription notification email', [
+                Log::warning('PAYPAL ACTIVAR: Error enviando email (no crítico)', [
                     'error' => $e->getMessage(),
-                    'user_id' => $user->id,
-                    'subscription_id' => $subscription->id
+                    'user_id' => $user->id
                 ]);
             }
 
@@ -366,9 +470,13 @@ class SubscriptionController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('PayPal subscription activation error', [
+            Log::error('=== PAYPAL ACTIVAR ERROR: EXCEPCIÓN ===', [
                 'message' => $e->getMessage(),
-                'subscription_id' => $request->subscription_id
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'subscription_id' => $request->subscription_id ?? 'N/A',
+                'user_id' => Auth::id(),
+                'trace' => $e->getTraceAsString()
             ]);
 
             return response()->json([
@@ -383,16 +491,50 @@ class SubscriptionController extends Controller
      */
     public function paypalSuccess(Request $request)
     {
+        Log::info('=== PAYPAL SUCCESS: Usuario retornó de PayPal ===', [
+            'timestamp' => now()->toDateTimeString(),
+            'user_id' => Auth::id(),
+            'user_email' => Auth::user()->email ?? 'no-auth',
+            'ip' => $request->ip(),
+            'all_query_params' => $request->query(),
+            'full_url' => $request->fullUrl()
+        ]);
+
         $subscriptionId = $request->query('subscription_id');
         $planId = $request->query('plan_id');
         $tipo = $request->query('tipo');
 
+        Log::info('PAYPAL SUCCESS: Parámetros extraídos', [
+            'subscription_id' => $subscriptionId,
+            'plan_id' => $planId,
+            'tipo' => $tipo
+        ]);
+
         if (!$subscriptionId || !$planId || !$tipo) {
+            Log::error('PAYPAL SUCCESS ERROR: Parámetros incompletos', [
+                'subscription_id' => $subscriptionId,
+                'plan_id' => $planId,
+                'tipo' => $tipo
+            ]);
             return redirect()->route('subscriptions.index')
                 ->with('error', 'Información de suscripción incompleta.');
         }
 
         $plan = Plan::find($planId);
+
+        if (!$plan) {
+            Log::error('PAYPAL SUCCESS ERROR: Plan no encontrado', [
+                'plan_id' => $planId
+            ]);
+            return redirect()->route('subscriptions.index')
+                ->with('error', 'Plan no encontrado.');
+        }
+
+        Log::info('PAYPAL SUCCESS: Mostrando página de confirmación', [
+            'subscription_id' => $subscriptionId,
+            'plan_nombre' => $plan->nombre,
+            'tipo' => $tipo
+        ]);
 
         return view('subscriptions.paypal-success', compact('subscriptionId', 'plan', 'tipo'));
     }

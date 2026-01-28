@@ -37,8 +37,15 @@ class PayPalService
     private function getAccessToken()
     {
         if ($this->accessToken) {
+            Log::debug('PAYPAL SERVICE: Usando token en caché');
             return $this->accessToken;
         }
+
+        Log::info('PAYPAL SERVICE: Solicitando nuevo access token', [
+            'api_url' => $this->apiUrl,
+            'client_id' => substr($this->clientId, 0, 20) . '...',
+            'mode' => config('paypal.mode')
+        ]);
 
         try {
             $http = Http::withBasicAuth($this->clientId, $this->clientSecret)->asForm();
@@ -50,10 +57,11 @@ class PayPalService
 
             if ($response->successful()) {
                 $this->accessToken = $response->json()['access_token'];
+                Log::info('PAYPAL SERVICE: Access token obtenido correctamente');
                 return $this->accessToken;
             }
 
-            Log::error('PayPal: Failed to get access token', [
+            Log::error('PAYPAL SERVICE ERROR: No se pudo obtener access token', [
                 'status' => $response->status(),
                 'body' => $response->body()
             ]);
@@ -61,8 +69,10 @@ class PayPalService
             throw new \Exception('Failed to get PayPal access token');
 
         } catch (\Exception $e) {
-            Log::error('PayPal: Exception getting access token', [
-                'message' => $e->getMessage()
+            Log::error('PAYPAL SERVICE EXCEPCIÓN: Error obteniendo access token', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
             ]);
             throw $e;
         }
@@ -227,8 +237,35 @@ class PayPalService
      */
     public function createSubscription($planId, $returnUrl, $cancelUrl)
     {
+        Log::info('=== PAYPAL SERVICE: CREAR SUSCRIPCIÓN ===', [
+            'plan_id' => $planId,
+            'return_url' => $returnUrl,
+            'cancel_url' => $cancelUrl
+        ]);
+
         try {
             $token = $this->getAccessToken();
+
+            $requestData = [
+                'plan_id' => $planId,
+                'application_context' => [
+                    'brand_name' => config('app.name'),
+                    'locale' => 'es-ES',
+                    'shipping_preference' => 'NO_SHIPPING',
+                    'user_action' => 'SUBSCRIBE_NOW',
+                    'payment_method' => [
+                        'payer_selected' => 'PAYPAL',
+                        'payee_preferred' => 'IMMEDIATE_PAYMENT_REQUIRED'
+                    ],
+                    'return_url' => $returnUrl,
+                    'cancel_url' => $cancelUrl
+                ]
+            ];
+
+            Log::info('PAYPAL SERVICE: Enviando request a PayPal API', [
+                'endpoint' => "{$this->apiUrl}/v1/billing/subscriptions",
+                'request_data' => $requestData
+            ]);
 
             $http = Http::withToken($token)->withHeaders([
                 'Content-Type' => 'application/json',
@@ -237,40 +274,38 @@ class PayPalService
             ]);
             $http = $this->prepareHttp($http);
 
-            $response = $http->post("{$this->apiUrl}/v1/billing/subscriptions", [
-                    'plan_id' => $planId,
-                    'application_context' => [
-                        'brand_name' => config('app.name'),
-                        'locale' => 'es-ES',
-                        'shipping_preference' => 'NO_SHIPPING',
-                        'user_action' => 'SUBSCRIBE_NOW',
-                        'payment_method' => [
-                            'payer_selected' => 'PAYPAL',
-                            'payee_preferred' => 'IMMEDIATE_PAYMENT_REQUIRED'
-                        ],
-                        'return_url' => $returnUrl,
-                        'cancel_url' => $cancelUrl
-                    ]
-                ]);
+            $response = $http->post("{$this->apiUrl}/v1/billing/subscriptions", $requestData);
+
+            Log::info('PAYPAL SERVICE: Respuesta recibida', [
+                'status_code' => $response->status(),
+                'successful' => $response->successful()
+            ]);
 
             if ($response->successful()) {
                 $data = $response->json();
-                Log::info('PayPal: Subscription created', [
-                    'subscription_id' => $data['id']
+                Log::info('PAYPAL SERVICE: Suscripción creada exitosamente', [
+                    'subscription_id' => $data['id'] ?? 'N/A',
+                    'status' => $data['status'] ?? 'N/A',
+                    'links' => $data['links'] ?? [],
+                    'full_response' => $data
                 ]);
                 return $data;
             }
 
-            Log::error('PayPal: Failed to create subscription', [
+            Log::error('PAYPAL SERVICE ERROR: Fallo al crear suscripción', [
                 'status' => $response->status(),
-                'body' => $response->body()
+                'body' => $response->body(),
+                'json' => $response->json()
             ]);
 
             throw new \Exception('Failed to create PayPal subscription: ' . $response->body());
 
         } catch (\Exception $e) {
-            Log::error('PayPal: Exception creating subscription', [
-                'message' => $e->getMessage()
+            Log::error('PAYPAL SERVICE EXCEPCIÓN: Error creando suscripción', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'plan_id' => $planId
             ]);
             throw $e;
         }
@@ -281,19 +316,42 @@ class PayPalService
      */
     public function getSubscription($subscriptionId)
     {
+        Log::info('=== PAYPAL SERVICE: OBTENER SUSCRIPCIÓN ===', [
+            'subscription_id' => $subscriptionId
+        ]);
+
         try {
             $token = $this->getAccessToken();
 
             $http = Http::withToken($token);
             $http = $this->prepareHttp($http);
 
+            Log::info('PAYPAL SERVICE: Consultando suscripción en PayPal', [
+                'endpoint' => "{$this->apiUrl}/v1/billing/subscriptions/{$subscriptionId}"
+            ]);
+
             $response = $http->get("{$this->apiUrl}/v1/billing/subscriptions/{$subscriptionId}");
 
+            Log::info('PAYPAL SERVICE: Respuesta de getSubscription', [
+                'status_code' => $response->status(),
+                'successful' => $response->successful()
+            ]);
+
             if ($response->successful()) {
-                return $response->json();
+                $data = $response->json();
+                Log::info('PAYPAL SERVICE: Suscripción obtenida', [
+                    'subscription_id' => $subscriptionId,
+                    'status' => $data['status'] ?? 'N/A',
+                    'plan_id' => $data['plan_id'] ?? 'N/A',
+                    'subscriber_email' => $data['subscriber']['email_address'] ?? 'N/A',
+                    'create_time' => $data['create_time'] ?? 'N/A',
+                    'billing_info' => $data['billing_info'] ?? [],
+                    'full_response' => $data
+                ]);
+                return $data;
             }
 
-            Log::error('PayPal: Failed to get subscription', [
+            Log::error('PAYPAL SERVICE ERROR: Fallo al obtener suscripción', [
                 'subscription_id' => $subscriptionId,
                 'status' => $response->status(),
                 'body' => $response->body()
@@ -302,9 +360,11 @@ class PayPalService
             return null;
 
         } catch (\Exception $e) {
-            Log::error('PayPal: Exception getting subscription', [
+            Log::error('PAYPAL SERVICE EXCEPCIÓN: Error obteniendo suscripción', [
                 'subscription_id' => $subscriptionId,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
             ]);
             return null;
         }

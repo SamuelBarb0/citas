@@ -65,27 +65,58 @@
             let retryCount = 0;
             const maxRetries = 3;
 
+            // Log inicial
+            console.log('=== PAYPAL SUCCESS PAGE LOADED ===');
+            console.log('Timestamp:', new Date().toISOString());
+            console.log('Subscription ID:', subscriptionId);
+            console.log('Plan ID:', planId);
+            console.log('Tipo:', tipo);
+            console.log('User Agent:', navigator.userAgent);
+            console.log('URL:', window.location.href);
+
             function activateSubscription() {
+                console.log('=== INTENTO DE ACTIVACIÓN #' + (retryCount + 1) + ' ===');
+                console.log('Timestamp:', new Date().toISOString());
+
+                const requestData = {
+                    subscription_id: subscriptionId,
+                    plan_id: planId,
+                    tipo: tipo
+                };
+                console.log('Request Data:', JSON.stringify(requestData));
+
                 fetch('{{ route("subscriptions.paypal.activate") }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    body: JSON.stringify({
-                        subscription_id: subscriptionId,
-                        plan_id: planId,
-                        tipo: tipo
-                    })
+                    body: JSON.stringify(requestData)
                 })
                 .then(response => {
+                    console.log('Response Status:', response.status);
+                    console.log('Response OK:', response.ok);
+                    console.log('Response Headers:', [...response.headers.entries()]);
+
                     if (!response.ok) {
-                        throw new Error('HTTP error ' + response.status);
+                        console.error('HTTP Error:', response.status, response.statusText);
+                        return response.text().then(text => {
+                            console.error('Error Response Body:', text);
+                            throw new Error('HTTP error ' + response.status + ': ' + text);
+                        });
                     }
                     return response.json();
                 })
                 .then(data => {
+                    console.log('=== RESPUESTA DEL SERVIDOR ===');
+                    console.log('Success:', data.success);
+                    console.log('Message:', data.message);
+                    console.log('Full Response:', JSON.stringify(data));
+
                     if (data.success) {
+                        console.log('=== ACTIVACIÓN EXITOSA ===');
+                        console.log('Redirect URL:', data.redirect_url);
+
                         statusDiv.innerHTML = `
                             <div class="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
                                 <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,11 +131,16 @@
 
                         // Redirigir automáticamente después de 2 segundos
                         setTimeout(() => {
+                            console.log('Redirigiendo a:', data.redirect_url);
                             window.location.href = data.redirect_url;
                         }, 2000);
                     } else {
+                        console.warn('=== ACTIVACIÓN FALLIDA (success=false) ===');
+                        console.warn('Message:', data.message);
+
                         // Si el error indica que ya existe, redirigir
-                        if (data.message && data.message.includes('ya existe')) {
+                        if (data.message && data.message.includes('ya está activa')) {
+                            console.log('Suscripción ya activa, redirigiendo...');
                             window.location.href = '{{ route("subscriptions.dashboard") }}';
                             return;
                         }
@@ -124,10 +160,17 @@
                     }
                 })
                 .catch(error => {
+                    console.error('=== ERROR EN FETCH ===');
                     console.error('Error:', error);
+                    console.error('Error Name:', error.name);
+                    console.error('Error Message:', error.message);
+                    console.error('Stack:', error.stack);
+
                     retryCount++;
+                    console.log('Retry Count:', retryCount, '/', maxRetries);
 
                     if (retryCount < maxRetries) {
+                        console.log('Reintentando en 2 segundos...');
                         statusDiv.innerHTML = `
                             <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500"></div>
                             <p class="mt-2 text-gray-600">Reintentando activación... (${retryCount}/${maxRetries})</p>
@@ -135,6 +178,7 @@
                         // Reintentar después de 2 segundos
                         setTimeout(activateSubscription, 2000);
                     } else {
+                        console.error('=== TODOS LOS REINTENTOS FALLIDOS ===');
                         statusDiv.innerHTML = `
                             <div class="inline-flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mb-3">
                                 <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,6 +201,7 @@
             }
 
             // Iniciar activación
+            console.log('Iniciando proceso de activación...');
             activateSubscription();
         });
     </script>
