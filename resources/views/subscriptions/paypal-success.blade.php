@@ -40,7 +40,7 @@
                             </div>
                             <div class="ml-3">
                                 <p class="text-sm text-blue-700">
-                                    Estamos activando tu suscripción. Esto solo tomará un momento...
+                                    Estamos activando tu suscripcion. En unos segundos podras empezar a usar todas las funcionalidades de tu plan.
                                 </p>
                             </div>
                         </div>
@@ -123,9 +123,10 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
                             </div>
-                            <p class="text-green-600 font-semibold mb-4">${data.message}</p>
-                            <a href="${data.redirect_url}" class="inline-flex items-center px-4 py-2 bg-pink-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-pink-700 focus:bg-pink-700 active:bg-pink-900 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                Ir a Mi Suscripción
+                            <p class="text-green-600 font-semibold mb-2">${data.message}</p>
+                            <p class="text-gray-600 text-sm mb-4">Ya puedes empezar a disfrutar de todas las funcionalidades de tu plan. Te hemos enviado un email de confirmacion.</p>
+                            <a href="${data.redirect_url}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-pink-600 to-red-500 border border-transparent rounded-full font-semibold text-sm text-white uppercase tracking-widest hover:from-pink-700 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-lg">
+                                Empezar a conocer gente
                             </a>
                         `;
 

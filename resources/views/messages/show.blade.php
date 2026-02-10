@@ -160,9 +160,9 @@
                 @endif
             </div>
 
-            <!-- Formulario de envío fijo -->
-            <div class="sticky bottom-0 bg-white/90 backdrop-blur-lg border-t border-gray-200 shadow-2xl">
-                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <!-- Formulario de envío fijo - compacto y pegado a los mensajes -->
+            <div class="sticky bottom-0 bg-white border-t border-gray-200">
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
                     @php
                         $currentUser = auth()->user();
                         $currentSubscription = $currentUser->activeSubscription;
@@ -218,72 +218,35 @@
                         }
                     @endphp
 
-                    <!-- Indicador de plan y límites -->
-                    @if($currentPlan && $currentPlan->slug !== 'premium')
-                        <div class="mb-3 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-3">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12zm0-9a1 1 0 011 1v3a1 1 0 11-2 0V8a1 1 0 011-1zm0 7a1 1 0 100-2 1 1 0 000 2z"/>
-                                    </svg>
-                                    <div>
-                                        <p class="text-xs font-bold text-yellow-800">
-                                            Plan {{ $currentPlan->nombre }}
-                                        </p>
-                                        @if($remainingMessages !== null && $remainingMessages >= 0)
-                                            <p class="text-xs text-yellow-700">
-                                                {{ $remainingMessages }} mensajes restantes esta semana para usuarios gratuitos
-                                            </p>
-                                        @endif
-                                    </div>
-                                </div>
-                                <a href="{{ route('subscriptions.index') }}" class="bg-gradient-to-r from-heart-red to-heart-red-light text-white px-4 py-1.5 rounded-full text-xs font-bold hover:shadow-glow transition whitespace-nowrap">
-                                    Mejorar Plan
-                                </a>
-                            </div>
+                    {{-- Indicador minimalista de mensajes restantes (solo si aplica) --}}
+                    @if($remainingResponses !== null && $remainingResponses > 0 && (!$currentPlan || $currentPlan->slug === 'free'))
+                        <div class="mb-2 text-center">
+                            <span class="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"/>
+                                </svg>
+                                {{ $remainingResponses }} {{ $remainingResponses === 1 ? 'respuesta disponible' : 'respuestas disponibles' }}
+                            </span>
                         </div>
-                    @elseif(!$currentPlan || ($currentPlan && $currentPlan->slug === 'free'))
-                        <div class="mb-3 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-xl p-3">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center gap-2">
-                                    <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                    <div>
-                                        <p class="text-xs font-bold text-red-800">Plan Gratis</p>
-                                        @if($remainingResponses !== null && $remainingResponses > 0)
-                                            <p class="text-xs text-green-700 font-semibold">
-                                                Puedes responder {{ $remainingResponses }} {{ $remainingResponses === 1 ? 'mensaje' : 'mensajes' }} más
-                                            </p>
-                                        @else
-                                            <p class="text-xs text-green-700">✓ Puedes responder mensajes</p>
-                                        @endif
-                                    </div>
-                                </div>
-                                <a href="{{ route('subscriptions.index') }}" class="bg-gradient-to-r from-heart-red to-heart-red-light text-white px-4 py-1.5 rounded-full text-xs font-bold hover:shadow-glow transition whitespace-nowrap">
-                                    Ver Planes
-                                </a>
-                            </div>
-                            <div class="border-t border-red-200 pt-2 mt-2">
-                                <p class="text-xs text-red-700 leading-relaxed">
-                                    <span class="font-semibold">Plan Gratis:</span> Puedes responder a los mensajes que recibas, actualiza tu plan para iniciar conversaciones y enviar mensajes ilimitados.
-                                </p>
-                            </div>
+                    @elseif($remainingMessages !== null && $remainingMessages >= 0 && $remainingMessages <= 3 && $currentPlan && $currentPlan->slug === 'basico')
+                        <div class="mb-2 text-center">
+                            <span class="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"/>
+                                </svg>
+                                {{ $remainingMessages }} mensajes semanales restantes
+                            </span>
                         </div>
                     @endif
 
                     @if(!$canSendMessage)
-                        <!-- Mensaje de restricción -->
-                        <div class="bg-white rounded-2xl p-6 border-2 border-red-200 shadow-lg text-center">
-                            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <svg class="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                                </svg>
+                        <!-- Mensaje de restricción compacto -->
+                        <div class="flex items-center gap-3 bg-gray-50 rounded-2xl p-3 border border-gray-200">
+                            <div class="flex-1">
+                                <p class="text-gray-600 text-sm">{{ $restrictionMessage }}</p>
                             </div>
-                            <h3 class="text-lg font-black text-brown mb-2">Límite Alcanzado</h3>
-                            <p class="text-gray-600 mb-4 text-sm">{{ $restrictionMessage }}</p>
-                            <a href="{{ route('subscriptions.index') }}" class="inline-block bg-gradient-to-r from-heart-red to-heart-red-light text-white px-6 py-3 rounded-full font-bold hover:shadow-glow transition">
-                                Ver Planes de Pago
+                            <a href="{{ route('subscriptions.index') }}" class="flex-shrink-0 bg-gradient-to-r from-heart-red to-heart-red-light text-white px-4 py-2 rounded-full font-bold text-sm hover:shadow-glow transition">
+                                Ver Planes
                             </a>
                         </div>
                     @else
@@ -316,10 +279,6 @@
                             </button>
                         </form>
 
-                        <!-- Info de caracteres restantes -->
-                        <p class="text-xs text-gray-400 mt-2 text-center">
-                            Presiona Enter para enviar, Shift + Enter para nueva línea
-                        </p>
                     @endif
                 </div>
             </div>
@@ -327,10 +286,27 @@
     </div>
 </div>
 
+{{-- Notificación de éxito temporal (desaparece automáticamente) --}}
 @if(session('success'))
-    <div class="fixed top-20 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-2xl shadow-2xl animate-bounce">
-        {{ session('success') }}
+    <div id="success-notification" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-4 py-2 rounded-full shadow-lg text-sm font-semibold opacity-0 transition-opacity duration-300">
+        <span class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            Enviado
+        </span>
     </div>
+    <script>
+        // Mostrar y ocultar la notificación automáticamente
+        document.addEventListener('DOMContentLoaded', function() {
+            const notification = document.getElementById('success-notification');
+            if (notification) {
+                setTimeout(() => notification.style.opacity = '1', 100);
+                setTimeout(() => notification.style.opacity = '0', 2000);
+                setTimeout(() => notification.remove(), 2500);
+            }
+        });
+    </script>
 @endif
 
 <style>

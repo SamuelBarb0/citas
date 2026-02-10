@@ -311,6 +311,125 @@
             </div>
         @endif
 
+        <!-- Sección de Gestión de Cuenta -->
+        <div class="bg-white rounded-3xl shadow-lg p-8 mt-8 border-2 border-gray-100">
+            <h3 class="text-2xl font-bold text-brown mb-2">Gestion de Cuenta</h3>
+            <p class="text-gray-600 mb-6">Opciones para gestionar tu suscripcion y tu cuenta en la plataforma.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Cancelar Suscripción -->
+                @if($subscription && $subscription->auto_renovacion && $subscription->estado === 'activa')
+                <div class="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-yellow-800 text-lg mb-2">Cancelar Suscripcion</h4>
+                            <p class="text-yellow-700 text-sm mb-4">
+                                Cancela la renovacion automatica. Mantendras acceso a tu plan hasta el
+                                <strong>{{ $subscription->fecha_expiracion->format('d/m/Y') }}</strong>.
+                                No se realizaran mas cobros.
+                            </p>
+                            <form action="{{ route('subscriptions.cancel') }}" method="POST"
+                                  onsubmit="return confirm('¿Estas seguro de que quieres cancelar tu suscripcion?\n\nMantendras acceso hasta el {{ $subscription->fecha_expiracion->format('d/m/Y') }} pero no se renovara automaticamente.');">
+                                @csrf
+                                <button type="submit"
+                                        class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-xl transition shadow-md">
+                                    Cancelar Suscripcion
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                @elseif($subscription && $subscription->estado === 'cancelada_fin_periodo')
+                <div class="bg-gray-50 border-2 border-gray-200 rounded-2xl p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-700 text-lg mb-2">Suscripcion Cancelada</h4>
+                            <p class="text-gray-600 text-sm mb-4">
+                                Tu suscripcion ya esta cancelada. Tienes acceso hasta el
+                                <strong>{{ $subscription->fecha_expiracion->format('d/m/Y') }}</strong>.
+                            </p>
+                            <form action="{{ route('subscriptions.reactivate') }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                        class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl transition shadow-md">
+                                    Reactivar Suscripcion
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                @else
+                <div class="bg-gray-50 border-2 border-gray-200 rounded-2xl p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-600 text-lg mb-2">Sin Suscripcion Activa</h4>
+                            <p class="text-gray-500 text-sm mb-4">
+                                No tienes ninguna suscripcion activa para cancelar.
+                            </p>
+                            <a href="{{ route('subscriptions.index') }}"
+                               class="block w-full text-center bg-heart-red hover:bg-red-600 text-white font-bold py-3 px-6 rounded-xl transition shadow-md">
+                                Ver Planes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Darse de Baja (Eliminar Cuenta) -->
+                <div class="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-red-800 text-lg mb-2">Darse de Baja de la Web</h4>
+                            <p class="text-red-700 text-sm mb-4">
+                                Elimina tu cuenta permanentemente. Se borraran todos tus datos, fotos, matches y conversaciones.
+                                <strong>Esta accion no se puede deshacer.</strong>
+                            </p>
+                            <a href="{{ route('profile.edit') }}#delete-account"
+                               class="block w-full text-center bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-xl transition shadow-md">
+                                Eliminar mi Cuenta
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="text-sm text-blue-800">
+                        <p class="font-semibold mb-1">Diferencia entre cancelar y darse de baja:</p>
+                        <ul class="list-disc list-inside space-y-1 text-blue-700">
+                            <li><strong>Cancelar suscripcion:</strong> Dejas de pagar pero mantienes tu cuenta y acceso hasta fin de periodo.</li>
+                            <li><strong>Darse de baja:</strong> Eliminas tu cuenta completamente, incluyendo todos tus datos y conversaciones.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Botón Volver -->
         <div class="text-center mt-8">
             <a href="{{ route('dashboard') }}" class="text-brown hover:text-heart-red font-semibold transition">

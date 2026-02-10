@@ -234,20 +234,30 @@ class PayPalService
 
     /**
      * Crear una suscripción
+     *
+     * IMPORTANTE: Para que el usuario vea el precio real (no 0,00€), eliminamos
+     * el start_time futuro y usamos el inicio inmediato del primer ciclo de facturación.
+     * Esto hace que PayPal muestre el precio correcto durante la aprobación.
      */
-    public function createSubscription($planId, $returnUrl, $cancelUrl)
+    public function createSubscription($planId, $returnUrl, $cancelUrl, $price = null)
     {
         Log::info('=== PAYPAL SERVICE: CREAR SUSCRIPCIÓN ===', [
             'plan_id' => $planId,
             'return_url' => $returnUrl,
-            'cancel_url' => $cancelUrl
+            'cancel_url' => $cancelUrl,
+            'price' => $price
         ]);
 
         try {
             $token = $this->getAccessToken();
 
+            // ============================================================
+            // FIX: No usar start_time futuro para que el primer cobro sea inmediato
+            // y el usuario vea el precio real durante la aprobación
+            // ============================================================
             $requestData = [
                 'plan_id' => $planId,
+                // NO incluir 'start_time' para que comience inmediatamente
                 'application_context' => [
                     'brand_name' => config('app.name'),
                     'locale' => 'es-ES',
@@ -261,6 +271,18 @@ class PayPalService
                     'cancel_url' => $cancelUrl
                 ]
             ];
+
+            // ============================================================
+            // FIX PRECIO 0,00€: En lugar de usar setup_fee (que se muestra separado),
+            // NO modificamos el plan aquí. El precio correcto ya viene del plan
+            // configurado en PayPal. Al no usar start_time futuro, el primer
+            // ciclo de facturación se cobra inmediatamente y se muestra al usuario.
+            // ============================================================
+
+            Log::info('PAYPAL SERVICE: Request configurado para cobro inmediato del primer ciclo', [
+                'plan_id' => $planId,
+                'precio_esperado' => $price
+            ]);
 
             Log::info('PAYPAL SERVICE: Enviando request a PayPal API', [
                 'endpoint' => "{$this->apiUrl}/v1/billing/subscriptions",

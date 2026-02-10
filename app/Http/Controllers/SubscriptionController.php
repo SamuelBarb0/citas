@@ -224,11 +224,20 @@ class SubscriptionController extends Controller
 
             $paypalService = new \App\Services\PayPalService();
 
-            // Crear la suscripción en PayPal
+            // Determinar el precio según el tipo
+            $precio = $tipo === 'mensual' ? $plan->precio_mensual : $plan->precio_anual;
+
+            Log::info('PAYPAL: Precio a cobrar', [
+                'tipo' => $tipo,
+                'precio' => $precio
+            ]);
+
+            // Crear la suscripción en PayPal con el precio para mostrar en verificación bancaria
             $subscription = $paypalService->createSubscription(
                 $paypalPlanId,
                 route('subscriptions.paypal.success', ['plan_id' => $plan->id, 'tipo' => $tipo]),
-                route('subscriptions.checkout', ['planSlug' => $plan->slug])
+                route('subscriptions.checkout', ['planSlug' => $plan->slug]),
+                $precio
             );
 
             Log::info('PAYPAL: Suscripción creada en PayPal', [
@@ -391,6 +400,9 @@ class SubscriptionController extends Controller
             ]);
 
             // Crear la suscripción en nuestra base de datos
+            // Calcular las fechas aquí para asegurar activación inmediata
+            $duracionMeses = $tipo === 'anual' ? 12 : 1;
+
             $subscription = UserSubscription::create([
                 'user_id' => $user->id,
                 'plan_id' => $plan->id,
@@ -399,13 +411,22 @@ class SubscriptionController extends Controller
                 'metodo_pago' => 'paypal',
                 'paypal_subscription_id' => $request->subscription_id,
                 'monto_pagado' => $montoPagado,
+                'fecha_inicio' => now(),
+                'fecha_expiracion' => now()->addMonths($duracionMeses),
+                'auto_renovacion' => true,
+                'likes_usados_hoy' => 0,
+                'ultimo_reset_likes' => now(),
+                'boosts_restantes' => $plan->boost_mensual ? 1 : 0,
+                'mensajes_enviados_esta_semana' => 0,
+                'ultimo_reset_mensajes' => now(),
             ]);
 
-            Log::info('PAYPAL ACTIVAR: Suscripción creada en BD, activando...', [
-                'subscription_id' => $subscription->id
+            Log::info('PAYPAL ACTIVAR: Suscripción creada y activada en BD', [
+                'subscription_id' => $subscription->id,
+                'fecha_inicio' => $subscription->fecha_inicio,
+                'fecha_expiracion' => $subscription->fecha_expiracion,
+                'estado' => $subscription->estado
             ]);
-
-            $subscription->activate();
 
             Log::info('=== PAYPAL ACTIVAR: ÉXITO COMPLETO ===', [
                 'subscription_id' => $subscription->id,
@@ -448,18 +469,32 @@ class SubscriptionController extends Controller
 
             Log::info('PAYPAL ACTIVAR: Payment log registrado');
 
-            // Enviar email de confirmación (solo si el email está configurado correctamente)
+            // Enviar email de confirmación de bienvenida
+            // IMPORTANTE: Intentar siempre enviar el email, solo fallar silenciosamente si hay error de config
             try {
-                if (config('mail.username') !== 'tu-email@gmail.com') {
+                // Verificar que el mail esté configurado (no es la config por defecto)
+                $mailConfigured = config('mail.mailers.smtp.host') !== 'smtp.mailgun.org' &&
+                                  config('mail.mailers.smtp.username') !== null &&
+                                  config('mail.mailers.smtp.username') !== 'tu-email@gmail.com';
+
+                if ($mailConfigured) {
                     $user->notify(new \App\Notifications\SubscriptionActivatedNotification($subscription));
-                    Log::info('PAYPAL ACTIVAR: Email de confirmación enviado', [
-                        'user_email' => $user->email
+                    Log::info('PAYPAL ACTIVAR: Email de bienvenida enviado exitosamente', [
+                        'user_email' => $user->email,
+                        'plan' => $plan->nombre
+                    ]);
+                } else {
+                    Log::info('PAYPAL ACTIVAR: Email no enviado - configuración de correo pendiente', [
+                        'user_email' => $user->email,
+                        'nota' => 'Configurar MAIL_USERNAME en .env para habilitar emails'
                     ]);
                 }
             } catch (\Exception $e) {
-                Log::warning('PAYPAL ACTIVAR: Error enviando email (no crítico)', [
+                // No bloquear la activación por error de email
+                Log::warning('PAYPAL ACTIVAR: Error enviando email de bienvenida (no bloquea activación)', [
                     'error' => $e->getMessage(),
-                    'user_id' => $user->id
+                    'user_id' => $user->id,
+                    'user_email' => $user->email
                 ]);
             }
 

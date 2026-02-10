@@ -4,11 +4,18 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Profile;
+use App\Services\ImageService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class UserProfileController extends Controller
 {
+    protected ImageService $imageService;
+
+    public function __construct(ImageService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
     /**
      * Mostrar el formulario para crear un perfil
      */
@@ -43,9 +50,9 @@ class UserProfileController extends Controller
             'foto_principal' => 'nullable|image|max:2048',
         ]);
 
-        // Procesar foto si existe
+        // Procesar foto si existe (convertir a WebP)
         if ($request->hasFile('foto_principal') && $request->file('foto_principal')->isValid()) {
-            $path = $request->file('foto_principal')->store('profiles', 'public');
+            $path = $this->imageService->convertToWebP($request->file('foto_principal'), 'profiles');
             $validated['foto_principal'] = $path;
         } elseif (!isset($validated['foto_principal']) || empty($validated['foto_principal'])) {
             // Usar avatar por defecto solo si no hay foto
@@ -110,9 +117,10 @@ class UserProfileController extends Controller
         if ($request->hasFile('foto_principal')) {
             // Eliminar foto principal anterior si no es de pravatar
             if ($profile->foto_principal && !str_contains($profile->foto_principal, 'pravatar') && !str_starts_with($profile->foto_principal, 'http')) {
-                Storage::disk('public')->delete($profile->foto_principal);
+                $this->imageService->delete($profile->foto_principal);
             }
-            $validated['foto_principal'] = $request->file('foto_principal')->store('profiles', 'public');
+            // Convertir a WebP
+            $validated['foto_principal'] = $this->imageService->convertToWebP($request->file('foto_principal'), 'profiles');
         } else {
             // Mantener la foto principal actual
             unset($validated['foto_principal']);
@@ -129,19 +137,17 @@ class UserProfileController extends Controller
         if ($request->has('fotos_eliminar') && $request->fotos_eliminar) {
             $fotosAEliminar = json_decode($request->fotos_eliminar, true) ?? [];
             foreach ($fotosAEliminar as $fotoEliminar) {
-                if (!str_contains($fotoEliminar, 'pravatar') && !str_starts_with($fotoEliminar, 'http')) {
-                    Storage::disk('public')->delete($fotoEliminar);
-                }
+                $this->imageService->delete($fotoEliminar);
                 // Quitar de las existentes
                 $fotosAdicionalesExistentes = array_values(array_filter($fotosAdicionalesExistentes, fn($f) => $f !== $fotoEliminar));
             }
         }
 
-        // Procesar nuevas fotos adicionales
+        // Procesar nuevas fotos adicionales (convertir a WebP)
         $nuevasFotosAdicionales = [];
         if ($request->hasFile('fotos_adicionales')) {
             foreach ($request->file('fotos_adicionales') as $foto) {
-                $path = $foto->store('profiles', 'public');
+                $path = $this->imageService->convertToWebP($foto, 'profiles');
                 $nuevasFotosAdicionales[] = $path;
             }
         }
