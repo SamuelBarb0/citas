@@ -1,12 +1,34 @@
 <x-app-layout>
     <div class="fixed inset-0 bg-gradient-to-br from-cream via-white to-cream flex flex-col" style="padding-bottom: 4rem;">
 
-        <!-- Botón flotante de filtros (top-right) -->
-        <button id="filters-btn" class="fixed top-4 right-4 z-50 bg-white text-brown w-14 h-14 rounded-full hover:bg-cream transition-all font-semibold shadow-2xl border-2 border-brown/20 flex items-center justify-center hover:scale-110 active:scale-95">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-            </svg>
-        </button>
+        <!-- Header minimalista solo con notificaciones -->
+        <div class="flex-shrink-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-200 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 py-3">
+                <div class="flex items-center justify-end">
+                    <!-- Botón de notificaciones -->
+                    <div class="relative" x-data="{ open: false, unreadCount: 0 }" x-init="
+                        const loadUnreadCount = async () => {
+                            try {
+                                const response = await fetch('/notifications/unread-count');
+                                const data = await response.json();
+                                unreadCount = data.count || 0;
+                            } catch (error) {
+                                console.error('Error loading notifications:', error);
+                            }
+                        };
+                        loadUnreadCount();
+                        setInterval(loadUnreadCount, 30000);
+                    ">
+                        <a href="{{ route('notifications.index') }}" class="relative block p-2 text-brown hover:text-heart-red transition">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                            <span x-show="unreadCount > 0" x-text="unreadCount" class="absolute -top-1 -right-1 bg-heart-red text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Panel de filtros deslizante -->
         <div id="filters-panel" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-[200] overflow-y-auto">
@@ -313,13 +335,35 @@
                     </div>
 
                     <!-- Botones de acción grandes (fuera del contenedor de tarjetas) -->
-                    <div class="flex-shrink-0 flex items-center justify-center gap-6 sm:gap-8 mt-4 sm:mt-6 pb-2">
+                    <div class="flex-shrink-0 flex items-center justify-center gap-4 sm:gap-6 mt-4 sm:mt-6 pb-2">
+                        <!-- Botón NOPE -->
                         <button id="nope-btn" class="w-14 h-14 sm:w-[72px] sm:h-[72px] bg-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform text-heart-red border-3 sm:border-4 border-red-100">
                             <svg class="w-7 h-7 sm:w-9 sm:h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
 
+                        <!-- Botón FILTROS (centro) -->
+                        @php
+                            $activeFiltersCount = 0;
+                            if(request()->has('ciudad') && request('ciudad')) $activeFiltersCount++;
+                            if(request()->has('busco') && request('busco')) $activeFiltersCount++;
+                            if(request()->has('edad_min') && request('edad_min') != 18) $activeFiltersCount++;
+                            if(request()->has('edad_max') && request('edad_max') != 99) $activeFiltersCount++;
+                            if(request()->has('intereses') && count(request('intereses', [])) > 0) $activeFiltersCount++;
+                        @endphp
+                        <button id="filters-btn" class="relative w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-brown to-brown-dark rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform text-white border-2 border-brown/50">
+                            <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                            </svg>
+                            @if($activeFiltersCount > 0)
+                                <span class="absolute -top-1 -right-1 bg-heart-red text-white text-xs font-black rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center border-2 border-white shadow-lg">
+                                    {{ $activeFiltersCount }}
+                                </span>
+                            @endif
+                        </button>
+
+                        <!-- Botón LIKE -->
                         <button id="like-btn" class="w-14 h-14 sm:w-[72px] sm:h-[72px] bg-gradient-to-br from-heart-red to-heart-red-light rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform text-white">
                             <svg class="w-7 h-7 sm:w-9 sm:h-9" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
