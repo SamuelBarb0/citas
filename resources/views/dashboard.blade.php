@@ -32,20 +32,26 @@
             </div>
         </div>
 
-        <!-- Panel de filtros deslizante -->
-        <div id="filters-panel" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-[200] overflow-y-auto">
-            <div class="p-6">
-                <!-- Header del panel -->
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-black text-brown">Filtros de Búsqueda</h2>
-                    <button id="close-filters" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
+        <!-- Panel de filtros full-screen -->
+        <div id="filters-panel" class="fixed inset-0 bg-white transform translate-x-full transition-transform duration-300 z-[200] flex flex-col" style="padding-bottom: 4rem;">
+            <!-- Header fijo del panel -->
+            <div class="flex-shrink-0 bg-white border-b border-gray-200 shadow-sm">
+                <div class="px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-2xl font-black text-brown">Filtros de Búsqueda</h2>
+                        <button id="close-filters" class="w-11 h-11 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
+            </div>
 
-                <form id="filters-form" method="GET" action="{{ route('dashboard') }}">
+            <!-- Contenido scrolleable -->
+            <div class="flex-1 overflow-y-auto">
+                <div class="px-6 py-6">
+                    <form id="filters-form" method="GET" action="{{ route('dashboard') }}">
                     <!-- Filtro de Edad con Slider Dual -->
                     <div class="mb-6">
                         <label class="block text-sm font-bold text-brown mb-3">Rango de Edad</label>
@@ -171,17 +177,22 @@
                         </div>
                         <p class="text-xs text-gray-500 mt-2">Selecciona los intereses que buscas</p>
                     </div>
+                    </form>
+                </div>
+            </div>
 
-                    <!-- Botones de acción -->
-                    <div class="flex gap-3 mt-8">
+            <!-- Footer fijo con botones de acción -->
+            <div class="flex-shrink-0 bg-white border-t border-gray-200 shadow-lg">
+                <div class="px-6 py-4">
+                    <div class="flex gap-3">
                         <button type="button" id="clear-filters" class="flex-1 px-6 py-4 bg-gray-100 text-brown rounded-xl font-bold hover:bg-gray-200 transition">
                             Limpiar
                         </button>
-                        <button type="submit" class="flex-1 px-6 py-4 bg-gradient-to-r from-heart-red to-heart-red-light text-white rounded-xl font-bold hover:shadow-glow transition">
+                        <button type="submit" form="filters-form" class="flex-1 px-6 py-4 bg-gradient-to-r from-heart-red to-heart-red-light text-white rounded-xl font-bold hover:shadow-glow transition">
                             Aplicar Filtros
                         </button>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
 
