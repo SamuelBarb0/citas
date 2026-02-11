@@ -1,29 +1,31 @@
 <x-app-layout>
     <div class="fixed inset-0 bg-gradient-to-br from-cream via-white to-cream flex flex-col" style="padding-bottom: 4rem;">
 
-        <!-- Header minimalista solo con notificaciones -->
+        <!-- Header minimalista con logo y notificaciones -->
         <div class="flex-shrink-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-200 shadow-sm">
-            <div class="max-w-7xl mx-auto px-4 py-3">
-                <div class="flex items-center justify-end">
-                    <!-- Botón de notificaciones -->
-                    <div class="relative" x-data="{ open: false, unreadCount: 0 }" x-init="
-                        const loadUnreadCount = async () => {
-                            try {
-                                const response = await fetch('/notifications/unread-count');
-                                const data = await response.json();
-                                unreadCount = data.count || 0;
-                            } catch (error) {
-                                console.error('Error loading notifications:', error);
-                            }
-                        };
-                        loadUnreadCount();
-                        setInterval(loadUnreadCount, 30000);
-                    ">
-                        <a href="{{ route('notifications.index') }}" class="relative block p-2 text-brown hover:text-heart-red transition">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="max-w-7xl mx-auto px-4 py-2.5">
+                <div class="flex items-center justify-between">
+                    <!-- Logo -->
+                    <a href="{{ route('dashboard') }}" class="flex items-center">
+                        <img src="{{ asset('images/LOGOCITAS.png') }}" alt="Citas Mallorca" class="w-11 h-11">
+                    </a>
+
+                    <!-- Notificaciones -->
+                    <div x-data="{ unreadCount: 0 }" x-init="
+                        fetch('{{ route('notifications.count') }}')
+                            .then(res => res.json())
+                            .then(data => unreadCount = data.count);
+                        setInterval(() => {
+                            fetch('{{ route('notifications.count') }}')
+                                .then(res => res.json())
+                                .then(data => unreadCount = data.count);
+                        }, 30000);
+                    " class="relative">
+                        <a href="{{ route('notifications.index') }}" class="relative inline-flex items-center p-2 text-gray-500 hover:text-heart-red transition">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                             </svg>
-                            <span x-show="unreadCount > 0" x-text="unreadCount" class="absolute -top-1 -right-1 bg-heart-red text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"></span>
+                            <span x-show="unreadCount > 0" x-text="unreadCount" class="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-heart-red rounded-full min-w-[1.1rem]"></span>
                         </a>
                     </div>
                 </div>
