@@ -1,31 +1,12 @@
 <x-app-layout>
     <div class="fixed inset-0 bg-gradient-to-br from-cream via-white to-cream flex flex-col" style="padding-bottom: 4rem;">
-        <!-- Header compacto y moderno -->
-        <div class="flex-shrink-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-200 shadow-sm">
-            <div class="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2 sm:gap-3">
-                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-heart-red to-heart-red-light rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-lg">
-                            {{ substr(Auth::user()->name, 0, 1) }}
-                        </div>
-                        <div>
-                            <h1 class="font-bold text-brown text-base sm:text-lg">Descubre</h1>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-1.5 sm:gap-2">
-                        <button id="filters-btn" class="bg-white text-brown px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full hover:bg-cream transition font-semibold text-xs sm:text-sm border-2 border-brown/20 flex items-center gap-1 sm:gap-2">
-                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-                            </svg>
-                            <span class="hidden xs:inline">Filtros</span>
-                        </button>
-                        <a href="{{ route('user.profile.show') }}" class="bg-gradient-to-r from-heart-red to-heart-red-light text-white px-3 sm:px-6 py-1.5 sm:py-2 rounded-full hover:shadow-glow transition font-semibold text-xs sm:text-sm">
-                            Mi Perfil
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+        <!-- Botón flotante de filtros (top-right) -->
+        <button id="filters-btn" class="fixed top-4 right-4 z-50 bg-white text-brown w-14 h-14 rounded-full hover:bg-cream transition-all font-semibold shadow-2xl border-2 border-brown/20 flex items-center justify-center hover:scale-110 active:scale-95">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+            </svg>
+        </button>
 
         <!-- Panel de filtros deslizante -->
         <div id="filters-panel" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-[200] overflow-y-auto">
@@ -184,7 +165,7 @@
         <div id="filters-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] opacity-0 pointer-events-none transition-opacity duration-300"></div>
 
         <!-- Contenedor principal con scroll -->
-        <div class="flex-1 overflow-y-auto py-3 sm:py-6 px-2 sm:px-4 md:px-6 lg:px-8">
+        <div class="flex-1 overflow-y-auto pt-4 pb-6 px-2 sm:px-4 md:px-6 lg:px-8">
             <div class="max-w-lg mx-auto h-full flex flex-col">
                 @if(isset($searchExpanded) && $searchExpanded)
                     <div class="mb-3 sm:mb-4 bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4 text-center">
