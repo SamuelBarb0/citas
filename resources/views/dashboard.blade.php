@@ -251,12 +251,26 @@
                                             </div>
                                         @endif
 
-                                        <!-- Indicador de like/nope -->
-                                        <div class="like-indicator absolute top-12 right-12 bg-green-500 text-white px-8 py-4 rounded-2xl font-black text-3xl rotate-12 border-4 border-white opacity-0 transition-opacity duration-200 z-40 pointer-events-none">
-                                            ❤️ LIKE
+                                        <!-- Indicador de like/nope mejorado -->
+                                        <div class="like-indicator absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-300 z-50 pointer-events-none">
+                                            <div class="bg-gradient-to-br from-green-400 to-green-600 text-white px-12 py-6 rounded-3xl font-black text-5xl rotate-12 border-8 border-white shadow-2xl transform scale-75">
+                                                <div class="flex items-center gap-3">
+                                                    <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    LIKE
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="nope-indicator absolute top-12 left-12 bg-red-500 text-white px-8 py-4 rounded-2xl font-black text-3xl -rotate-12 border-4 border-white opacity-0 transition-opacity duration-200 z-40 pointer-events-none">
-                                            ✕ NOPE
+                                        <div class="nope-indicator absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-300 z-50 pointer-events-none">
+                                            <div class="bg-gradient-to-br from-red-500 to-red-700 text-white px-12 py-6 rounded-3xl font-black text-5xl -rotate-12 border-8 border-white shadow-2xl transform scale-75">
+                                                <div class="flex items-center gap-3">
+                                                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="4">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                                    </svg>
+                                                    NOPE
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <!-- Badge de ciudad -->
@@ -781,15 +795,23 @@
 
                 card.style.transform = `translateX(${deltaX}px) rotate(${rotation}deg)`;
 
-                // Mostrar indicadores
+                // Mostrar indicadores con mejor visibilidad
                 const likeIndicator = card.querySelector('.like-indicator');
                 const nopeIndicator = card.querySelector('.nope-indicator');
+                const likeInner = likeIndicator.querySelector('div');
+                const nopeInner = nopeIndicator.querySelector('div');
 
-                if (deltaX > 50) {
-                    likeIndicator.style.opacity = Math.min(deltaX / 150, 1);
+                if (deltaX > 30) {
+                    const opacity = Math.min(deltaX / 100, 1);
+                    const scale = 0.75 + (opacity * 0.5); // De 0.75 a 1.25
+                    likeIndicator.style.opacity = opacity;
+                    likeInner.style.transform = `rotate(12deg) scale(${scale})`;
                     nopeIndicator.style.opacity = 0;
-                } else if (deltaX < -50) {
-                    nopeIndicator.style.opacity = Math.min(Math.abs(deltaX) / 150, 1);
+                } else if (deltaX < -30) {
+                    const opacity = Math.min(Math.abs(deltaX) / 100, 1);
+                    const scale = 0.75 + (opacity * 0.5); // De 0.75 a 1.25
+                    nopeIndicator.style.opacity = opacity;
+                    nopeInner.style.transform = `rotate(-12deg) scale(${scale})`;
                     likeIndicator.style.opacity = 0;
                 } else {
                     likeIndicator.style.opacity = 0;
@@ -1066,6 +1088,26 @@
         .confetti:nth-child(4n) {
             width: 12px;
             height: 12px;
+        }
+
+        /* Estilos mejorados para indicadores Like/Nope */
+        .like-indicator, .nope-indicator {
+            backdrop-filter: blur(4px);
+        }
+
+        .like-indicator > div, .nope-indicator > div {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            animation: pulse-glow 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 10px 30px rgba(0, 0, 0, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(255, 255, 255, 0.8), 0 10px 30px rgba(0, 0, 0, 0.3);
+            }
         }
     </style>
     @endif
