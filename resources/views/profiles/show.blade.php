@@ -315,6 +315,28 @@
             </div>
         </div>
 
+        {{-- ===== USUARIOS BLOQUEADOS ===== --}}
+        <div class="bg-white rounded-2xl shadow-smooth overflow-hidden">
+            <div class="p-5">
+                <a href="{{ route('blocked.index') }}" class="flex items-center justify-between group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-gray-200 transition">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-brown text-sm">Usuarios Bloqueados</h3>
+                            <p class="text-xs text-gray-500">Gestiona tus bloqueos</p>
+                        </div>
+                    </div>
+                    <svg class="w-5 h-5 text-gray-400 group-hover:text-heart-red transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+
     </div>
 </div>
 
