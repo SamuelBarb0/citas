@@ -1,7 +1,7 @@
 <x-app-layout>
-    <div class="min-h-screen bg-gradient-to-br from-cream via-white to-cream">
+    <div class="fixed inset-0 bg-gradient-to-br from-cream via-white to-cream flex flex-col" style="padding-bottom: 4rem;">
         <!-- Header compacto y moderno -->
-        <div class="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-200 shadow-sm">
+        <div class="flex-shrink-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-200 shadow-sm">
             <div class="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2 sm:gap-3">
@@ -183,8 +183,9 @@
         <!-- Overlay oscuro para el panel de filtros -->
         <div id="filters-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] opacity-0 pointer-events-none transition-opacity duration-300"></div>
 
-        <div class="py-3 sm:py-6 px-2 sm:px-4 md:px-6 lg:px-8">
-            <div class="max-w-lg mx-auto">
+        <!-- Contenedor principal con scroll -->
+        <div class="flex-1 overflow-y-auto py-3 sm:py-6 px-2 sm:px-4 md:px-6 lg:px-8">
+            <div class="max-w-lg mx-auto h-full flex flex-col">
                 @if(isset($searchExpanded) && $searchExpanded)
                     <div class="mb-3 sm:mb-4 bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4 text-center">
                         <p class="text-blue-700 text-xs sm:text-sm">
@@ -196,8 +197,8 @@
 
                 @if(count($perfiles) > 0)
                     <!-- Contenedor de tarjetas apiladas estilo Tinder -->
-                    <div class="relative" style="height: calc(100vh - 180px); min-height: 400px; max-height: 600px;">
-                        <div id="cards-stack" class="relative w-full h-full">
+                    <div class="relative flex-1 flex flex-col">
+                        <div id="cards-stack" class="relative w-full flex-1" style="min-height: 400px;">
                             @foreach($perfiles as $index => $perfil)
                                 <div class="swipe-card absolute inset-0 bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden cursor-grab active:cursor-grabbing transition-all duration-300"
                                      data-profile-id="{{ $perfil->user_id }}"
@@ -317,7 +318,7 @@
                     </div>
 
                     <!-- Botones de acción grandes (fuera del contenedor de tarjetas) -->
-                    <div class="flex items-center justify-center gap-6 sm:gap-8 mt-4 sm:mt-6">
+                    <div class="flex-shrink-0 flex items-center justify-center gap-6 sm:gap-8 mt-4 sm:mt-6 pb-2">
                         <button id="nope-btn" class="w-14 h-14 sm:w-[72px] sm:h-[72px] bg-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform text-heart-red border-3 sm:border-4 border-red-100">
                             <svg class="w-7 h-7 sm:w-9 sm:h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
