@@ -47,7 +47,7 @@
                     </a>
 
                     <!-- Botón ver perfil -->
-                    <a href="{{ route('profile.public', $otherUser->id) }}" class="hidden sm:block bg-gradient-to-r from-heart-red to-heart-red-light text-white px-5 py-2 rounded-full font-bold hover:shadow-glow transition text-sm">
+                    <a href="{{ route('profile.public', $otherUser->id) }}" class="hidden sm:block bg-gradient-to-r from-heart-red to-heart-red-light text-white px-5 py-2 rounded-full font-semibold hover:shadow-glow transition text-sm">
                         Ver Perfil
                     </a>
                 </div>

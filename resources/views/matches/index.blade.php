@@ -51,7 +51,7 @@
 
                                         <!-- Badge de match animado -->
                                         <div class="absolute top-4 right-4 bg-gradient-to-r from-heart-red to-heart-red-light text-white px-4 py-2 rounded-full text-xs font-black shadow-lg animate-pulse">
-                                            💕 MATCH
+                                            MATCH
                                         </div>
 
                                         <!-- Nombre y edad sobre la imagen -->
@@ -92,7 +92,6 @@
                                     @else
                                         <div class="bg-gradient-to-r from-cream to-cream-dark rounded-2xl p-4 mb-4 border-2 border-brown/20">
                                             <div class="flex items-center justify-center gap-2">
-                                                <span class="text-2xl">👋</span>
                                                 <p class="text-sm text-brown font-bold">
                                                     ¡Rompe el hielo!
                                                 </p>
@@ -142,7 +141,6 @@
                 <!-- CTA al final para seguir explorando -->
                 <div class="mt-12 bg-gradient-to-r from-heart-red to-heart-red-light rounded-3xl p-8 text-center text-white shadow-2xl">
                     <div class="max-w-2xl mx-auto">
-                        <div class="text-5xl mb-4">🔥</div>
                         <h3 class="text-3xl font-black mb-3">¿Quieres más matches?</h3>
                         <p class="text-white/90 mb-6 text-lg">
                             Sigue descubriendo perfiles increíbles en Mallorca
@@ -175,17 +173,14 @@
                         <!-- Pasos para conseguir matches -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                             <div class="bg-cream rounded-2xl p-6">
-                                <div class="text-4xl mb-3">👀</div>
                                 <h4 class="font-bold text-brown mb-2">1. Explora</h4>
                                 <p class="text-sm text-gray-600">Descubre perfiles interesantes</p>
                             </div>
                             <div class="bg-cream rounded-2xl p-6">
-                                <div class="text-4xl mb-3">❤️</div>
                                 <h4 class="font-bold text-brown mb-2">2. Da Like</h4>
                                 <p class="text-sm text-gray-600">Muestra tu interés</p>
                             </div>
                             <div class="bg-cream rounded-2xl p-6">
-                                <div class="text-4xl mb-3">💬</div>
                                 <h4 class="font-bold text-brown mb-2">3. ¡Match!</h4>
                                 <p class="text-sm text-gray-600">Empieza a chatear</p>
                             </div>
@@ -195,7 +190,7 @@
                             href="{{ route('dashboard') }}"
                             class="inline-block bg-gradient-to-r from-heart-red to-heart-red-light text-white px-12 py-5 rounded-full font-black text-lg hover:shadow-glow transition shadow-xl"
                         >
-                            🔥 Empezar a Descubrir
+                            Empezar a Descubrir
                         </a>
                     </div>
                 </div>

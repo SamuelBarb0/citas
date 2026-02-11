@@ -72,7 +72,6 @@
                                     <!-- Cuando diste like -->
                                     <div class="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl p-4 mb-4 border-2 border-red-100">
                                         <div class="flex items-center justify-center gap-2">
-                                            <span class="text-2xl">❤️</span>
                                             <p class="text-sm text-red-700 font-bold">
                                                 Like dado {{ $like->created_at->diffForHumans() }}
                                             </p>
@@ -117,10 +116,9 @@
                 <!-- CTA al final -->
                 <div class="mt-12 bg-gradient-to-r from-heart-red to-heart-red-light rounded-3xl p-8 text-center text-white shadow-2xl">
                     <div class="max-w-2xl mx-auto">
-                        <div class="text-5xl mb-4">💕</div>
-                        <h3 class="text-3xl font-black mb-3">¿Buscas mas conexiones?</h3>
+                        <h3 class="text-3xl font-black mb-3">¿Buscas más conexiones?</h3>
                         <p class="text-white/90 mb-6 text-lg">
-                            Sigue descubriendo perfiles increibles
+                            Sigue descubriendo perfiles increíbles
                         </p>
                         <a href="{{ route('dashboard') }}" class="inline-block bg-white text-heart-red px-10 py-4 rounded-full font-black text-lg hover:shadow-glow transition">
                             Seguir Descubriendo

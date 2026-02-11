@@ -72,9 +72,8 @@
                                     <!-- Cuando le dio like -->
                                     <div class="bg-gradient-to-r from-pink-50 to-red-50 rounded-2xl p-4 mb-4 border-2 border-pink-100">
                                         <div class="flex items-center justify-center gap-2">
-                                            <span class="text-2xl">💖</span>
                                             <p class="text-sm text-pink-700 font-bold">
-                                                {{ $like->created_at->diffForHumans() }}
+                                                Le gustas desde {{ $like->created_at->diffForHumans() }}
                                             </p>
                                         </div>
                                     </div>
@@ -117,7 +116,6 @@
                 <!-- CTA al final -->
                 <div class="mt-12 bg-gradient-to-r from-pink-500 to-heart-red rounded-3xl p-8 text-center text-white shadow-2xl">
                     <div class="max-w-2xl mx-auto">
-                        <div class="text-5xl mb-4">💕</div>
                         <h3 class="text-3xl font-black mb-3">¡Les gustas!</h3>
                         <p class="text-white/90 mb-6 text-lg">
                             Da like de vuelta para hacer match y empezar a chatear
