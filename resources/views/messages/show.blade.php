@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-cream via-white to-cream flex flex-col">
+<div class="fixed inset-0 bg-gradient-to-br from-cream via-white to-cream flex flex-col" style="padding-bottom: 4rem;">
     <!-- Header fijo con info del match -->
-    <div class="sticky top-0 z-40 bg-white/90 backdrop-blur-lg border-b border-gray-200 shadow-sm">
+    <div class="flex-shrink-0 bg-white/90 backdrop-blur-lg border-b border-gray-200 shadow-sm">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4 flex-1">
@@ -57,7 +57,7 @@
 
     <!-- Área de mensajes con diseño WhatsApp/Telegram style -->
     <div class="flex-1 overflow-hidden flex flex-col">
-        <div class="max-w-4xl mx-auto w-full flex-1 flex flex-col">
+        <div class="max-w-4xl mx-auto w-full h-full flex flex-col">
             <!-- Container de mensajes -->
             <div class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6" id="messages-container">
                 @if($messages->count() > 0)
@@ -161,8 +161,8 @@
             </div>
 
             <!-- Formulario de envío fijo - compacto y pegado a los mensajes -->
-            <div class="sticky bottom-0 bg-white border-t border-gray-200">
-                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex-shrink-0 bg-white border-t border-gray-200">
+                <div class="px-4 sm:px-6 lg:px-8 py-3">
                     @php
                         $currentUser = auth()->user();
                         $currentSubscription = $currentUser->activeSubscription;
