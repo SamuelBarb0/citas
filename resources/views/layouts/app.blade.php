@@ -19,7 +19,7 @@
         @stack('styles')
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-cream">
+        <div class="min-h-screen bg-cream pb-16">
             @include('layouts.navigation')
 
             <!-- Page Heading -->
