@@ -269,6 +269,12 @@ class MessageController extends Controller
         $currentUserId = auth()->id();
         $lastMessageId = $request->query('last_message_id', 0);
 
+        \Log::info('🔍 Polling recibido', [
+            'user_id' => $currentUserId,
+            'match_id' => $matchId,
+            'last_message_id' => $lastMessageId
+        ]);
+
         // Verificar que el match pertenece al usuario
         $match = UserMatch::where('id', $matchId)
             ->where(function ($query) use ($currentUserId) {
@@ -277,12 +283,23 @@ class MessageController extends Controller
             })
             ->firstOrFail();
 
+        \Log::info('✅ Match encontrado', [
+            'match_id' => $match->id,
+            'user_id_1' => $match->user_id_1,
+            'user_id_2' => $match->user_id_2
+        ]);
+
         // Obtener mensajes nuevos
         $newMessages = $match->messages()
             ->where('id', '>', $lastMessageId)
             ->with(['sender.profile'])
             ->orderBy('created_at', 'asc')
             ->get();
+
+        \Log::info('📨 Mensajes encontrados', [
+            'count' => $newMessages->count(),
+            'message_ids' => $newMessages->pluck('id')->toArray()
+        ]);
 
         // Marcar como leídos los mensajes recibidos
         $match->messages()

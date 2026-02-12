@@ -545,16 +545,32 @@
             if (!isPolling) return;
 
             try {
-                const response = await fetch(`/messages/${matchId}/new?last_message_id=${lastMessageId}`, {
+                const pollingUrl = `/messages/${matchId}/new?last_message_id=${lastMessageId}`;
+                console.log('🔄 Polling:', pollingUrl);
+
+                const response = await fetch(pollingUrl, {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 });
 
-                if (!response.ok) return;
+                if (!response.ok) {
+                    console.error('❌ Polling error:', response.status);
+                    return;
+                }
 
                 const data = await response.json();
+                console.log('📨 Respuesta polling:', {
+                    count: data.count,
+                    messages: data.messages,
+                    can_send: data.can_send,
+                    restriction_message: data.restriction_message
+                });
+
+                if (data.count > 0) {
+                    console.log('✅ Mensajes nuevos recibidos:', data.count, data.messages);
+                }
 
                 if (data.count > 0) {
                     // Verificar si el usuario está al final del chat
