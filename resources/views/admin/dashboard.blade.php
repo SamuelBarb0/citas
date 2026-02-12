@@ -1,16 +1,19 @@
 <x-app-layout>
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <div class="min-h-screen bg-gradient-to-br from-cream via-white to-cream">
         <!-- Header -->
         <div class="bg-gradient-to-r from-brown to-brown-dark shadow-lg">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-3xl font-black text-white">Panel de Administración</h1>
-                        <p class="text-white/80 mt-1">Bienvenido, {{ Auth::user()->name }}</p>
+                        <h1 class="text-3xl font-black text-white">👋 Hola, {{ Auth::user()->name }}</h1>
+                        <p class="text-white/90 mt-1 text-lg">Aquí puedes gestionar todo sobre Citas Mallorca</p>
                     </div>
                     <a href="{{ route('dashboard') }}"
-                       class="px-6 py-3 bg-white text-brown rounded-xl font-bold hover:shadow-lg transition">
-                        Ver Aplicación
+                       class="px-6 py-3 bg-white text-brown rounded-xl font-bold hover:shadow-lg transition flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Volver a la App
                     </a>
                 </div>
             </div>
@@ -18,226 +21,220 @@
 
         <div class="py-8 px-4 sm:px-6 lg:px-8">
             <div class="max-w-7xl mx-auto">
-                <!-- Tarjetas de estadísticas -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    <!-- Total Usuarios -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-blue-500">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-500 text-sm font-semibold uppercase">Total Usuarios</p>
-                                <p class="text-3xl font-black text-gray-900 mt-2">{{ $stats['total_users'] }}</p>
-                            </div>
-                            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                                <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
-                                </svg>
-                            </div>
+                <!-- Resumen Rápido -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-black text-brown mb-4">📊 ¿Cómo va la plataforma?</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        <!-- Total Usuarios -->
+                        <div class="bg-white rounded-2xl shadow-md p-4 text-center">
+                            <div class="text-4xl mb-2">👥</div>
+                            <p class="text-3xl font-black text-blue-600">{{ $stats['total_users'] }}</p>
+                            <p class="text-xs text-gray-600 mt-1">Usuarios registrados</p>
                         </div>
-                    </div>
 
-                    <!-- Perfiles Activos -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-green-500">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-500 text-sm font-semibold uppercase">Perfiles Activos</p>
-                                <p class="text-3xl font-black text-gray-900 mt-2">{{ $stats['total_profiles'] }}</p>
-                            </div>
-                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                                <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
+                        <!-- Perfiles Activos -->
+                        <div class="bg-white rounded-2xl shadow-md p-4 text-center">
+                            <div class="text-4xl mb-2">✅</div>
+                            <p class="text-3xl font-black text-green-600">{{ $stats['total_profiles'] }}</p>
+                            <p class="text-xs text-gray-600 mt-1">Perfiles completos</p>
                         </div>
-                    </div>
 
-                    <!-- Total Matches -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-pink-500">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-500 text-sm font-semibold uppercase">Total Matches</p>
-                                <p class="text-3xl font-black text-gray-900 mt-2">{{ $stats['total_matches'] }}</p>
-                            </div>
-                            <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center">
-                                <svg class="w-8 h-8 text-pink-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
+                        <!-- Total Matches -->
+                        <div class="bg-white rounded-2xl shadow-md p-4 text-center">
+                            <div class="text-4xl mb-2">💕</div>
+                            <p class="text-3xl font-black text-pink-600">{{ $stats['total_matches'] }}</p>
+                            <p class="text-xs text-gray-600 mt-1">Matches creados</p>
                         </div>
-                    </div>
 
-                    <!-- Total Likes -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-red-500">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-500 text-sm font-semibold uppercase">Total Likes</p>
-                                <p class="text-3xl font-black text-gray-900 mt-2">{{ $stats['total_likes'] }}</p>
-                            </div>
-                            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-                                <svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/>
-                                </svg>
-                            </div>
+                        <!-- Total Likes -->
+                        <div class="bg-white rounded-2xl shadow-md p-4 text-center">
+                            <div class="text-4xl mb-2">❤️</div>
+                            <p class="text-3xl font-black text-red-600">{{ $stats['total_likes'] }}</p>
+                            <p class="text-xs text-gray-600 mt-1">Me gusta dados</p>
                         </div>
-                    </div>
 
-                    <!-- Reportes Pendientes -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-yellow-500">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-500 text-sm font-semibold uppercase">Reportes Pendientes</p>
-                                <p class="text-3xl font-black text-gray-900 mt-2">{{ $stats['pending_reports'] }}</p>
-                            </div>
-                            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
-                                <svg class="w-8 h-8 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
+                        <!-- Perfiles Verificados -->
+                        <div class="bg-white rounded-2xl shadow-md p-4 text-center">
+                            <div class="text-4xl mb-2">✔️</div>
+                            <p class="text-3xl font-black text-blue-600">{{ $stats['verified_profiles'] }}</p>
+                            <p class="text-xs text-gray-600 mt-1">Perfiles verificados</p>
                         </div>
-                        @if($stats['pending_reports'] > 0)
-                            <a href="{{ route('admin.reports') }}" class="mt-4 inline-flex items-center text-sm text-yellow-600 font-semibold hover:text-yellow-700">
-                                Ver Reportes →
-                            </a>
-                        @endif
-                    </div>
 
-                    <!-- Perfiles Verificados -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-blue-600">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-500 text-sm font-semibold uppercase">Perfiles Verificados</p>
-                                <p class="text-3xl font-black text-gray-900 mt-2">{{ $stats['verified_profiles'] }}</p>
-                            </div>
-                            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                                <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
+                        <!-- Reportes Pendientes -->
+                        <div class="bg-white rounded-2xl shadow-md p-4 text-center {{ $stats['pending_reports'] > 0 ? 'ring-2 ring-yellow-400' : '' }}">
+                            <div class="text-4xl mb-2">⚠️</div>
+                            <p class="text-3xl font-black text-yellow-600">{{ $stats['pending_reports'] }}</p>
+                            <p class="text-xs text-gray-600 mt-1">Reportes pendientes</p>
+                            @if($stats['pending_reports'] > 0)
+                                <a href="{{ route('admin.reports') }}" class="text-xs text-yellow-700 font-bold hover:underline mt-1 inline-block">
+                                    ¡Revisar ahora!
+                                </a>
+                            @endif
                         </div>
                     </div>
                 </div>
 
-                <!-- Acciones rápidas -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    <a href="{{ route('admin.statistics') }}"
-                       class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl shadow-lg p-6 hover:shadow-xl transition group text-white">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
-                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
-                                </svg>
+                <!-- 🔥 TAREAS URGENTES / IMPORTANTES -->
+                @if($stats['pending_reports'] > 0)
+                <div class="mb-8">
+                    <h2 class="text-2xl font-black text-red-600 mb-4 flex items-center gap-2">
+                        🚨 ¡Atención! Tareas pendientes
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <a href="{{ route('admin.reports') }}"
+                           class="bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-2xl shadow-xl p-6 hover:shadow-2xl transition group border-2 border-yellow-600">
+                            <div class="flex items-center gap-4">
+                                <div class="text-5xl">⚠️</div>
+                                <div>
+                                    <h3 class="font-black text-gray-900 text-lg">Reportes sin revisar</h3>
+                                    <p class="text-sm text-gray-800 font-semibold">Hay {{ $stats['pending_reports'] }} usuarios que reportaron problemas</p>
+                                    <p class="text-xs text-gray-700 mt-1">→ Haz clic para revisarlos ahora</p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 class="font-bold text-white">Estadísticas Avanzadas</h3>
-                                <p class="text-sm text-white/80">Gráficos y métricas detalladas</p>
-                            </div>
-                        </div>
-                    </a>
+                        </a>
 
-                    <a href="{{ route('admin.logs') }}"
-                       class="bg-gradient-to-r from-gray-600 to-gray-700 rounded-2xl shadow-lg p-6 hover:shadow-xl transition group text-white">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
-                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
-                                </svg>
+                        <a href="{{ route('admin.verification') }}"
+                           class="bg-gradient-to-r from-blue-400 to-blue-500 rounded-2xl shadow-xl p-6 hover:shadow-2xl transition group border-2 border-blue-600">
+                            <div class="flex items-center gap-4">
+                                <div class="text-5xl">✔️</div>
+                                <div>
+                                    <h3 class="font-black text-white text-lg">Verificar perfiles</h3>
+                                    <p class="text-sm text-white font-semibold">Revisa las solicitudes de verificación</p>
+                                    <p class="text-xs text-white/90 mt-1">→ Aprobar o rechazar perfiles</p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 class="font-bold text-white">Logs de Actividad</h3>
-                                <p class="text-sm text-white/80">Historial de acciones admin</p>
-                            </div>
-                        </div>
-                    </a>
+                        </a>
+                    </div>
+                </div>
+                @endif
 
-                    <a href="{{ route('admin.reports') }}"
-                       class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition group">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
-                                <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                <!-- 👥 GESTIÓN DE USUARIOS -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-black text-brown mb-4">👥 Gestionar Usuarios</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <a href="{{ route('admin.users') }}"
+                           class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition group border-l-4 border-green-500">
+                            <div class="flex items-center gap-4">
+                                <div class="text-5xl">👤</div>
+                                <div class="flex-1">
+                                    <h3 class="font-black text-gray-900 text-lg">Ver todos los usuarios</h3>
+                                    <p class="text-sm text-gray-600 mt-1">Buscar, editar o eliminar usuarios</p>
+                                    <p class="text-xs text-gray-500 mt-2">Total: {{ $stats['total_users'] }} usuarios</p>
+                                </div>
+                                <svg class="w-6 h-6 text-gray-400 group-hover:text-green-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                 </svg>
                             </div>
-                            <div>
-                                <h3 class="font-bold text-gray-900">Gestionar Reportes</h3>
-                                <p class="text-sm text-gray-500">Revisar reportes de usuarios</p>
-                            </div>
-                        </div>
-                    </a>
+                        </a>
 
-                    <a href="{{ route('admin.verification') }}"
-                       class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition group">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
-                                <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        <a href="{{ route('admin.verification') }}"
+                           class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition group border-l-4 border-blue-500">
+                            <div class="flex items-center gap-4">
+                                <div class="text-5xl">✅</div>
+                                <div class="flex-1">
+                                    <h3 class="font-black text-gray-900 text-lg">Verificar perfiles</h3>
+                                    <p class="text-sm text-gray-600 mt-1">Aprobar o rechazar verificaciones</p>
+                                    <p class="text-xs text-gray-500 mt-2">Ya verificados: {{ $stats['verified_profiles'] }} perfiles</p>
+                                </div>
+                                <svg class="w-6 h-6 text-gray-400 group-hover:text-blue-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                 </svg>
                             </div>
-                            <div>
-                                <h3 class="font-bold text-gray-900">Verificar Perfiles</h3>
-                                <p class="text-sm text-gray-500">Aprobar verificaciones pendientes</p>
-                            </div>
-                        </div>
-                    </a>
+                        </a>
+                    </div>
+                </div>
 
-                    <a href="{{ route('admin.users') }}"
-                       class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition group">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
-                                <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                <!-- 💰 PLANES Y SUSCRIPCIONES -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-black text-brown mb-4">💰 Planes y Pagos</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+                        <a href="{{ route('admin.plans.index') }}"
+                           class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl shadow-lg p-6 hover:shadow-xl transition group">
+                            <div class="flex items-center gap-4">
+                                <div class="text-5xl">💳</div>
+                                <div class="flex-1">
+                                    <h3 class="font-black text-white text-lg">Gestionar planes de suscripción</h3>
+                                    <p class="text-sm text-white/90 mt-1">Crear, editar o eliminar planes (Básico, Premium, VIP, etc.)</p>
+                                    <p class="text-xs text-white/80 mt-2">→ Cambiar precios, funciones y duración de cada plan</p>
+                                </div>
+                                <svg class="w-6 h-6 text-white group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                 </svg>
                             </div>
-                            <div>
-                                <h3 class="font-bold text-gray-900">Ver Usuarios</h3>
-                                <p class="text-sm text-gray-500">Gestionar todos los usuarios</p>
-                            </div>
-                        </div>
-                    </a>
+                        </a>
+                    </div>
+                </div>
 
-                    <a href="{{ route('admin.seo.index') }}"
-                       class="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-2xl shadow-lg p-6 hover:shadow-xl transition group text-white">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
-                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+                <!-- 📝 CONTENIDOS Y TEXTOS -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-black text-brown mb-4">📝 Editar Textos de la Web</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <a href="{{ route('admin.content.index') }}"
+                           class="bg-gradient-to-r from-teal-500 to-teal-600 rounded-2xl shadow-lg p-6 hover:shadow-xl transition group">
+                            <div class="flex items-center gap-4">
+                                <div class="text-5xl">📄</div>
+                                <div class="flex-1">
+                                    <h3 class="font-black text-white text-lg">Contenidos de la página</h3>
+                                    <p class="text-sm text-white/90 mt-1">Cambiar textos de inicio, secciones, etc.</p>
+                                    <p class="text-xs text-white/80 mt-2">→ Sin tocar código, solo escribir</p>
+                                </div>
+                                <svg class="w-6 h-6 text-white group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                 </svg>
                             </div>
-                            <div>
-                                <h3 class="font-bold text-white">Gestión de SEO</h3>
-                                <p class="text-sm text-white/80">Configurar meta tags y SEO</p>
-                            </div>
-                        </div>
-                    </a>
+                        </a>
 
-                    <a href="{{ route('admin.plans.index') }}"
-                       class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl shadow-lg p-6 hover:shadow-xl transition group text-white">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
-                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
-                                    <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/>
+                        <a href="{{ route('admin.seo.index') }}"
+                           class="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-2xl shadow-lg p-6 hover:shadow-xl transition group">
+                            <div class="flex items-center gap-4">
+                                <div class="text-5xl">🔍</div>
+                                <div class="flex-1">
+                                    <h3 class="font-black text-white text-lg">SEO - Aparecer en Google</h3>
+                                    <p class="text-sm text-white/90 mt-1">Configurar cómo se ve la web en Google</p>
+                                    <p class="text-xs text-white/80 mt-2">→ Títulos, descripciones para buscadores</p>
+                                </div>
+                                <svg class="w-6 h-6 text-white group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                 </svg>
                             </div>
-                            <div>
-                                <h3 class="font-bold text-white">Gestión de Planes</h3>
-                                <p class="text-sm text-white/80">Configurar planes de suscripción</p>
-                            </div>
-                        </div>
-                    </a>
+                        </a>
+                    </div>
+                </div>
 
-                    <a href="{{ route('admin.content.index') }}"
-                       class="bg-gradient-to-r from-teal-500 to-teal-600 rounded-2xl shadow-lg p-6 hover:shadow-xl transition group text-white">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
-                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                <!-- 📊 ESTADÍSTICAS Y REPORTES -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-black text-brown mb-4">📊 Ver Estadísticas</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <a href="{{ route('admin.statistics') }}"
+                           class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl shadow-lg p-6 hover:shadow-xl transition group">
+                            <div class="flex items-center gap-4">
+                                <div class="text-5xl">📈</div>
+                                <div class="flex-1">
+                                    <h3 class="font-black text-white text-lg">Estadísticas completas</h3>
+                                    <p class="text-sm text-white/90 mt-1">Gráficos y números de actividad</p>
+                                    <p class="text-xs text-white/80 mt-2">→ Ver cuántos usuarios, matches, likes por fecha</p>
+                                </div>
+                                <svg class="w-6 h-6 text-white group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                 </svg>
                             </div>
-                            <div>
-                                <h3 class="font-bold text-white">Contenidos del Sitio</h3>
-                                <p class="text-sm text-white/80">Editar textos de la página principal</p>
+                        </a>
+
+                        <a href="{{ route('admin.logs') }}"
+                           class="bg-gradient-to-r from-gray-600 to-gray-700 rounded-2xl shadow-lg p-6 hover:shadow-xl transition group">
+                            <div class="flex items-center gap-4">
+                                <div class="text-5xl">📋</div>
+                                <div class="flex-1">
+                                    <h3 class="font-black text-white text-lg">Historial de cambios</h3>
+                                    <p class="text-sm text-white/90 mt-1">Ver qué se ha modificado y cuándo</p>
+                                    <p class="text-xs text-white/80 mt-2">→ Registro de todas las acciones del admin</p>
+                                </div>
+                                <svg class="w-6 h-6 text-white group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
                             </div>
-                        </div>
-                    </a>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

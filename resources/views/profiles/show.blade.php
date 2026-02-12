@@ -282,36 +282,36 @@
             </div>
         </div>
 
+        {{-- ===== SEPARADOR: CONFIGURACION Y CUENTA ===== --}}
+        <div class="mt-8 mb-4 flex items-center gap-3">
+            <div class="h-px bg-gray-200 flex-1"></div>
+            <h3 class="text-sm font-black text-gray-400 uppercase tracking-wider">Configuración y Cuenta</h3>
+            <div class="h-px bg-gray-200 flex-1"></div>
+        </div>
+
         {{-- ===== MI SUSCRIPCION ===== --}}
         <div class="bg-white rounded-2xl shadow-smooth overflow-hidden">
             <div class="p-5">
-                <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-lg font-black text-brown">Mi Suscripcion</h2>
-                    <a href="{{ route('subscriptions.dashboard') }}" class="text-heart-red text-sm font-semibold hover:underline">Gestionar</a>
-                </div>
-
-                @if($subscription && $plan)
-                    <div class="bg-gradient-to-r from-cream to-cream-dark rounded-xl p-4">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-bold text-brown text-base">{{ $plan->nombre }}</span>
-                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Activa</span>
+                <a href="{{ route('subscriptions.dashboard') }}" class="flex items-center justify-between group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-brown to-brown-dark rounded-full flex items-center justify-center group-hover:scale-110 transition">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                            </svg>
                         </div>
-                        <div class="text-sm text-gray-600 space-y-1">
-                            <p>Tipo: <span class="font-medium text-brown">{{ ucfirst($subscription->tipo) }}</span></p>
-                            <p>Expira: <span class="font-medium text-brown">{{ $subscription->fecha_expiracion->format('d/m/Y') }}</span></p>
-                            @if($subscription->dias_restantes > 0)
-                                <p class="text-xs text-gray-500">{{ $subscription->dias_restantes }} dias restantes</p>
+                        <div>
+                            <h3 class="font-bold text-brown text-sm">Mi Suscripción</h3>
+                            @if($subscription && $plan)
+                                <p class="text-xs text-green-600 font-semibold">{{ $plan->nombre }} · Activa</p>
+                            @else
+                                <p class="text-xs text-gray-500">Sin plan activo</p>
                             @endif
                         </div>
                     </div>
-                @else
-                    <div class="text-center py-4">
-                        <p class="text-gray-500 text-sm mb-3">No tienes una suscripcion activa</p>
-                        <a href="{{ route('subscriptions.index') }}" class="inline-block bg-gradient-to-r from-heart-red to-heart-red-light text-white px-6 py-2.5 rounded-xl font-semibold text-sm hover:shadow-lg transition">
-                            Ver Planes
-                        </a>
-                    </div>
-                @endif
+                    <svg class="w-5 h-5 text-gray-400 group-hover:text-heart-red transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
             </div>
         </div>
 
@@ -322,7 +322,7 @@
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-gray-200 transition">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 15.636 5.636m12.728 12.728L5.636 5.636"/>
                             </svg>
                         </div>
                         <div>
@@ -334,6 +334,31 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                     </svg>
                 </a>
+            </div>
+        </div>
+
+        {{-- ===== CERRAR SESION ===== --}}
+        <div class="bg-white rounded-2xl shadow-smooth overflow-hidden border border-red-100">
+            <div class="p-5">
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="w-full flex items-center justify-between group">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center group-hover:bg-red-100 transition">
+                                <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                </svg>
+                            </div>
+                            <div class="text-left">
+                                <h3 class="font-bold text-red-600 text-sm">Cerrar Sesión</h3>
+                                <p class="text-xs text-gray-500">Salir de tu cuenta</p>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-red-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </form>
             </div>
         </div>
 
