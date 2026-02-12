@@ -161,7 +161,7 @@
             </div>
 
             <!-- Formulario de envío fijo - compacto y pegado a los mensajes -->
-            <div class="flex-shrink-0 bg-white border-t border-gray-200">
+            <div class="flex-shrink-0 bg-white border-t border-gray-200 message-form-container">
                 <div class="px-4 sm:px-6 lg:px-8 py-3">
                     @php
                         $currentUser = auth()->user();
@@ -448,6 +448,18 @@
             return div.innerHTML;
         }
 
+        // Actualizar permisos del formulario dinámicamente
+        function updateFormPermissions(canSend, restrictionMessage) {
+            const formContainer = document.querySelector('.message-form-container');
+            if (!formContainer) return;
+
+            if (canSend) {
+                // Habilitar formulario - recargar para mostrar el formulario correcto
+                window.location.reload();
+            }
+            // Si no puede enviar, el formulario ya muestra la restricción, no hacer nada
+        }
+
         // Polling para mensajes nuevos (cada 3 segundos)
         async function checkNewMessages() {
             if (!isPolling) return;
@@ -465,23 +477,21 @@
                 const data = await response.json();
 
                 if (data.count > 0) {
-                    // Si hay mensajes del otro usuario, recargar la página para actualizar los permisos
-                    const hasMessagesFromOther = data.messages.some(m => !m.is_mine);
-                    if (hasMessagesFromOther) {
-                        // Recargar la página para recalcular permisos de mensajería
-                        window.location.reload();
-                        return;
-                    }
-
                     // Verificar si el usuario está al final del chat
                     const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
 
-                    // Agregar mensajes nuevos (solo los propios en este punto)
+                    // Agregar mensajes nuevos
                     data.messages.forEach(message => {
                         const messageElement = createMessageElement(message);
                         container.appendChild(messageElement);
                         lastMessageId = Math.max(lastMessageId, message.id);
                     });
+
+                    // Si hay mensajes del otro usuario, actualizar permisos del formulario
+                    const hasMessagesFromOther = data.messages.some(m => !m.is_mine);
+                    if (hasMessagesFromOther && data.can_send !== undefined) {
+                        updateFormPermissions(data.can_send, data.restriction_message);
+                    }
 
                     // Scroll automático si estaba al final o si el mensaje es propio
                     if (isAtBottom || data.messages.some(m => m.is_mine)) {

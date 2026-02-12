@@ -274,9 +274,30 @@ class MessageController extends Controller
             ];
         });
 
+        // Calcular si puede enviar mensajes (solo para usuarios gratuitos)
+        $currentUser = auth()->user();
+        $canSendMessage = true;
+        $restrictionMessage = null;
+
+        $senderSubscription = $currentUser->activeSubscription;
+        if (!$senderSubscription || ($senderSubscription->plan && $senderSubscription->plan->slug === 'free')) {
+            // Obtener el último mensaje para verificar permisos
+            $lastMessage = $match->messages()->latest()->first();
+
+            if (!$lastMessage) {
+                $canSendMessage = false;
+                $restrictionMessage = 'Los usuarios gratuitos solo pueden responder mensajes.';
+            } elseif ($lastMessage->sender_id == $currentUserId) {
+                $canSendMessage = false;
+                $restrictionMessage = 'Has respondido el último mensaje. Espera respuesta.';
+            }
+        }
+
         return response()->json([
             'messages' => $formattedMessages,
             'count' => $formattedMessages->count(),
+            'can_send' => $canSendMessage,
+            'restriction_message' => $restrictionMessage,
         ]);
     }
 }
