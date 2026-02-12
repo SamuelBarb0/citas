@@ -1,18 +1,28 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-cream via-white to-cream py-12">
-    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full mb-4 shadow-lg animate-pulse">
-                <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                </svg>
+<div class="fixed inset-0 bg-gradient-to-br from-cream via-white to-cream flex flex-col overflow-hidden">
+    <!-- Header fijo -->
+    <div class="flex-shrink-0 bg-gradient-to-r from-yellow-500 to-orange-500 shadow-lg">
+        <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-black text-white">⏳ Verificación en proceso</h1>
+                    <p class="text-white/90 mt-1 text-lg">Tu solicitud está siendo revisada por nuestro equipo</p>
+                </div>
+                <a href="{{ route('dashboard') }}" class="bg-white text-orange-600 px-6 py-3 rounded-xl font-bold hover:shadow-lg transition flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Volver
+                </a>
             </div>
-            <h1 class="text-4xl font-black text-brown mb-3">Verificacion en proceso</h1>
-            <p class="text-gray-600 text-lg">Tu solicitud esta siendo revisada por nuestro equipo</p>
         </div>
+    </div>
+
+    <!-- Contenido con scroll -->
+    <div class="flex-1 overflow-y-auto py-8 px-4 sm:px-6 lg:px-8" style="padding-bottom: 5rem;">
+        <div class="max-w-2xl mx-auto">
 
         <!-- Card principal -->
         <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-gray-100 p-8">
@@ -97,6 +107,7 @@
         <!-- Ayuda -->
         <div class="mt-6 text-center text-sm text-gray-500">
             <p>¿Tienes problemas? <a href="mailto:info@citasmallorca.es" class="text-brown font-medium hover:underline">Contacta con soporte</a></p>
+        </div>
         </div>
     </div>
 </div>

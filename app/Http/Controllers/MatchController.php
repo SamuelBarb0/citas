@@ -139,4 +139,23 @@ class MatchController extends Controller
             'matches' => $matchesData
         ]);
     }
+
+    /**
+     * Obtener el número de matches nuevos (últimas 24 horas)
+     * Para mostrar en el badge del navbar
+     */
+    public function newMatchesCount()
+    {
+        $currentUserId = auth()->id();
+
+        // Contar matches de las últimas 24 horas
+        $count = UserMatch::where(function ($query) use ($currentUserId) {
+            $query->where('user_id_1', $currentUserId)
+                  ->orWhere('user_id_2', $currentUserId);
+        })
+        ->where('matched_at', '>', now()->subDay())
+        ->count();
+
+        return response()->json(['count' => $count]);
+    }
 }

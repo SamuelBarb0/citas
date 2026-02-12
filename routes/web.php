@@ -34,6 +34,10 @@ Route::post('/webhooks/paypal', [\App\Http\Controllers\PayPalWebhookController::
 Route::middleware(['auth.api'])->group(function () {
     Route::get('/notifications/unread/count', [\App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('notifications.count');
     Route::get('/messages/unread/count', [MessageController::class, 'unreadCount'])->name('messages.unread');
+
+    // Contadores para navbar
+    Route::get('/api/unread-messages-count', [MessageController::class, 'unreadCount']);
+    Route::get('/api/new-matches-count', [MatchController::class, 'newMatchesCount']);
 });
 
 // Rutas protegidas (requieren autenticación)
