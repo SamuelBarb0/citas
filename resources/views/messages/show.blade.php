@@ -2,6 +2,16 @@
 
 @section('content')
 <div class="fixed inset-0 bg-gradient-to-br from-cream via-white to-cream flex flex-col" style="padding-bottom: 4rem;">
+    <!-- DEBUG BANNER: Mostrar usuario actual -->
+    <div class="bg-yellow-100 border-b-2 border-yellow-400 px-4 py-2 text-center">
+        <span class="text-sm font-bold text-yellow-800">
+            🐛 DEBUG: Sesión actual = <span class="text-blue-600">{{ auth()->user()->name }}</span>
+            (ID: {{ auth()->id() }}) |
+            Chateando con: <span class="text-purple-600">{{ $otherUser->name }}</span>
+            (ID: {{ $otherUser->id }})
+        </span>
+    </div>
+
     <!-- Header fijo con info del match -->
     <div class="flex-shrink-0 bg-white/90 backdrop-blur-lg border-b border-gray-200 shadow-sm">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -362,6 +372,9 @@
         console.log('📍 Initial state:', {
             matchId,
             currentUserId,
+            currentUserName: '{{ auth()->user()->name }}',
+            otherUserId: {{ $otherUser->id }},
+            otherUserName: '{{ $otherUser->name }}',
             lastMessageId,
             messagesContainer: messagesContainer ? 'found' : 'NOT FOUND',
             messagesList: messagesList ? 'found' : 'NOT FOUND'
@@ -577,7 +590,12 @@
 
                     // Agregar mensajes nuevos
                     data.messages.forEach((message, index) => {
-                        console.log(`📨 Polling - Processing message ${index + 1}:`, message);
+                        console.log(`📨 Polling - Processing message ${index + 1}:`, {
+                            ...message,
+                            currentUserId: currentUserId,
+                            currentUserName: '{{ auth()->user()->name }}',
+                            comparison: `${message.sender_name} enviado por ID desconocido vs currentUserId ${currentUserId}`
+                        });
                         const messageElement = createMessageElement(message);
                         console.log('🎨 Polling - Created element:', messageElement);
                         messagesList.appendChild(messageElement);

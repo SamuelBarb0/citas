@@ -305,6 +305,17 @@ class MessageController extends Controller
         // Formatear respuesta
         $formattedMessages = $newMessages->map(function ($message) use ($currentUserId) {
             $isMine = $message->sender_id === $currentUserId;
+
+            // DEBUG: Log detallado de cada mensaje
+            \Log::info('🔍 Processing message', [
+                'message_id' => $message->id,
+                'sender_id' => $message->sender_id,
+                'receiver_id' => $message->receiver_id,
+                'current_user_id' => $currentUserId,
+                'is_mine_calculated' => $isMine,
+                'mensaje' => $message->mensaje,
+            ]);
+
             return [
                 'id' => $message->id,
                 'mensaje' => $message->mensaje,
