@@ -20,7 +20,7 @@
     </div>
 
     <!-- Contenido con scroll -->
-    <div class="flex-1 overflow-y-auto py-8">
+    <div class="flex-1 overflow-y-auto py-8" style="padding-bottom: 5rem;">
         <div class="max-w-5xl mx-auto px-4 sm:px-6">
 
         @if(session('success'))
