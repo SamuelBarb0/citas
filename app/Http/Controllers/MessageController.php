@@ -269,6 +269,12 @@ class MessageController extends Controller
         $currentUserId = auth()->id();
         $lastMessageId = $request->query('last_message_id', 0);
 
+        \Log::info('📩 getNewMessages called', [
+            'match_id' => $matchId,
+            'user_id' => $currentUserId,
+            'last_message_id' => $lastMessageId
+        ]);
+
         // Verificar que el match pertenece al usuario
         $match = UserMatch::where('id', $matchId)
             ->where(function ($query) use ($currentUserId) {
@@ -283,6 +289,11 @@ class MessageController extends Controller
             ->with(['sender.profile'])
             ->orderBy('created_at', 'asc')
             ->get();
+
+        \Log::info('📨 Found messages', [
+            'count' => $newMessages->count(),
+            'message_ids' => $newMessages->pluck('id')->toArray()
+        ]);
 
         // Marcar como leídos los mensajes recibidos
         $match->messages()
@@ -323,11 +334,15 @@ class MessageController extends Controller
             }
         }
 
-        return response()->json([
+        $response = [
             'messages' => $formattedMessages,
             'count' => $formattedMessages->count(),
             'can_send' => $canSendMessage,
             'restriction_message' => $restrictionMessage,
-        ]);
+        ];
+
+        \Log::info('📤 Sending response', $response);
+
+        return response()->json($response);
     }
 }
