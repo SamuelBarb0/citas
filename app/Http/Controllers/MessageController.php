@@ -177,7 +177,8 @@ class MessageController extends Controller
         ]);
 
         // Enviar notificación al receptor
-        $receiverUser->notify(new \App\Notifications\NewMessageNotification($message, $currentUser));
+        // TEMPORALMENTE DESHABILITADO PARA DEBUG
+        // $receiverUser->notify(new \App\Notifications\NewMessageNotification($message, $currentUser));
 
         // Si es petición AJAX, devolver JSON
         if ($request->ajax() || $request->wantsJson()) {
