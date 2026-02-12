@@ -117,25 +117,23 @@ class MessageController extends Controller
 
         // Si el usuario NO tiene suscripción, es plan Gratis por defecto
         if (!$senderSubscription) {
-            // Usuario Gratis: Solo puede responder 1 mensaje por cada mensaje recibido
-            $messagesReceived = Message::where('match_id', $match->id)
-                ->where('sender_id', $receiverUser->id)
-                ->where('receiver_id', $currentUserId)
-                ->count();
+            // Usuario Gratis: Solo puede responder mensajes (regla 1:1)
+            // Verificar quién envió el último mensaje
+            $lastMessage = Message::where('match_id', $match->id)
+                ->latest()
+                ->first();
 
-            $messagesSent = Message::where('match_id', $match->id)
-                ->where('sender_id', $currentUserId)
-                ->where('receiver_id', $receiverUser->id)
-                ->count();
-
-            if ($messagesSent >= $messagesReceived) {
-                if ($messagesReceived === 0) {
-                    return back()->with('error', 'Los usuarios gratuitos solo pueden responder mensajes. Actualiza a un plan de pago para iniciar conversaciones.');
-                } else {
-                    $remaining = $messagesReceived - $messagesSent;
-                    return back()->with('error', "Has respondido todos los mensajes recibidos. Espera a que {$receiverUser->profile->nombre} te envíe más mensajes o actualiza a un plan de pago.");
-                }
+            // Si no hay mensajes, el usuario gratis no puede iniciar la conversación
+            if (!$lastMessage) {
+                return back()->with('error', 'Los usuarios gratuitos solo pueden responder mensajes. Actualiza a un plan de pago para iniciar conversaciones.');
             }
+
+            // Si el último mensaje lo envió el usuario actual, no puede enviar otro hasta recibir respuesta
+            if ($lastMessage->sender_id == $currentUserId) {
+                return back()->with('error', "Has respondido el último mensaje. Espera a que {$receiverUser->profile->nombre} te responda o actualiza a un plan de pago.");
+            }
+
+            // Si el último mensaje lo envió el otro usuario, puede responder
         } else {
             // Verificar si puede enviar mensaje según su plan
             if (!$senderSubscription->canSendMessageTo($receiverUser, $match->id)) {

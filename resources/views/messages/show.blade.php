@@ -178,25 +178,23 @@
                         $remainingResponses = null;
 
                         if (!$currentSubscription || ($currentPlan && $currentPlan->slug === 'free')) {
-                            // Usuario Gratis: solo puede responder 1:1
-                            $messagesReceived = $match->messages()
-                                ->where('sender_id', $otherUser->id)
-                                ->where('receiver_id', auth()->id())
-                                ->count();
+                            // Usuario Gratis: solo puede responder (regla 1:1 alternado)
+                            $lastMessage = $match->messages()->latest()->first();
 
-                            $messagesSent = $match->messages()
-                                ->where('sender_id', auth()->id())
-                                ->where('receiver_id', $otherUser->id)
-                                ->count();
-
-                            $remainingResponses = max(0, $messagesReceived - $messagesSent);
-
-                            if ($messagesReceived === 0) {
+                            if (!$lastMessage) {
+                                // No hay mensajes, no puede iniciar
                                 $canSendMessage = false;
                                 $restrictionMessage = 'Los usuarios gratuitos solo pueden responder mensajes. Actualiza tu plan para iniciar conversaciones.';
-                            } elseif ($messagesSent >= $messagesReceived) {
+                                $remainingResponses = 0;
+                            } elseif ($lastMessage->sender_id == auth()->id()) {
+                                // El último mensaje lo envió el usuario, debe esperar respuesta
                                 $canSendMessage = false;
-                                $restrictionMessage = "Has respondido todos los mensajes recibidos. Espera a que {$otherUser->profile->nombre} te envíe más mensajes o actualiza a un plan de pago.";
+                                $restrictionMessage = "Has respondido el último mensaje. Espera a que {$otherUser->profile->nombre} te responda.";
+                                $remainingResponses = 0;
+                            } else {
+                                // El último mensaje lo envió el otro usuario, puede responder
+                                $canSendMessage = true;
+                                $remainingResponses = 1;
                             }
                         } else {
                             // Verificar límites según el plan
