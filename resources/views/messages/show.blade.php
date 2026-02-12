@@ -240,6 +240,13 @@
                     @endif
 
                     @if(!$canSendMessage)
+                        <!-- DEBUG: Mostrar contadores -->
+                        @if(!$currentSubscription || ($currentPlan && $currentPlan->slug === 'free'))
+                            <div class="mb-2 text-center text-xs text-gray-500">
+                                Debug: Recibidos={{ $messagesReceived ?? 0 }} | Enviados={{ $messagesSent ?? 0 }} | Restantes={{ $remainingResponses ?? 0 }}
+                            </div>
+                        @endif
+
                         <!-- Mensaje de restricción compacto -->
                         <div class="flex items-center gap-3 bg-gray-50 rounded-2xl p-3 border border-gray-200">
                             <div class="flex-1">
