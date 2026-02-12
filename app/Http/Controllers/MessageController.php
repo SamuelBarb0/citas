@@ -179,6 +179,36 @@ class MessageController extends Controller
         // Enviar notificación al receptor
         $receiverUser->notify(new \App\Notifications\NewMessageNotification($message, $currentUser));
 
+        // Si es petición AJAX, devolver JSON
+        if ($request->ajax() || $request->wantsJson()) {
+            // Verificar si puede seguir enviando mensajes
+            $canSendMore = true;
+            $restrictionMessage = null;
+
+            if (!$senderSubscription) {
+                // Usuario gratis: verificar si el último mensaje es suyo
+                $lastMessage = Message::where('match_id', $match->id)->latest()->first();
+                if ($lastMessage && $lastMessage->sender_id == $currentUserId) {
+                    $canSendMore = false;
+                    $restrictionMessage = "Has respondido el último mensaje. Espera a que {$receiverUser->profile->nombre} te responda.";
+                }
+            } elseif ($senderSubscription->plan && $senderSubscription->plan->slug === 'free') {
+                // Usuario con plan gratis
+                $lastMessage = Message::where('match_id', $match->id)->latest()->first();
+                if ($lastMessage && $lastMessage->sender_id == $currentUserId) {
+                    $canSendMore = false;
+                    $restrictionMessage = "Has respondido el último mensaje. Espera respuesta.";
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message_id' => $message->id,
+                'can_send' => $canSendMore,
+                'restriction_message' => $restrictionMessage,
+            ]);
+        }
+
         return redirect()->route('messages.show', $matchId)
             ->with('success', 'Mensaje enviado correctamente.');
     }

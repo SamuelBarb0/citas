@@ -378,15 +378,15 @@
             }
         });
 
-        // Prevenir doble envío del formulario
-        form.addEventListener('submit', function(event) {
+        // Enviar formulario mediante AJAX
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
             if (isSubmitting) {
-                event.preventDefault();
                 return false;
             }
 
             if (!textarea.value.trim()) {
-                event.preventDefault();
                 return false;
             }
 
@@ -394,7 +394,57 @@
             sendButton.disabled = true;
             sendButton.classList.add('opacity-50', 'cursor-not-allowed');
 
-            setTimeout(() => scrollToBottom(false), 100);
+            const messageText = textarea.value.trim();
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // Crear y mostrar el mensaje inmediatamente
+                    const newMessage = {
+                        id: data.message_id,
+                        mensaje: messageText,
+                        created_at: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+                        is_mine: true
+                    };
+
+                    const messageElement = createMessageElement(newMessage);
+                    container.appendChild(messageElement);
+                    lastMessageId = data.message_id;
+
+                    // Limpiar textarea y resetear altura
+                    textarea.value = '';
+                    textarea.style.height = 'auto';
+
+                    // Scroll al final
+                    setTimeout(() => scrollToBottom(true), 100);
+
+                    // Si el usuario es gratis, deshabilitar el formulario hasta que reciba respuesta
+                    if (data.can_send === false) {
+                        updateFormPermissions(false, data.restriction_message);
+                    }
+                } else {
+                    // Mostrar error
+                    const errorData = await response.json();
+                    alert(errorData.error || 'Error al enviar el mensaje');
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Error al enviar el mensaje. Por favor, intenta de nuevo.');
+            } finally {
+                isSubmitting = false;
+                sendButton.disabled = false;
+                sendButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
         });
 
         // Focus automático en el input
@@ -456,8 +506,28 @@
             if (canSend) {
                 // Habilitar formulario - recargar para mostrar el formulario correcto
                 window.location.reload();
+            } else {
+                // Deshabilitar formulario y mostrar restricción
+                const formElement = document.getElementById('message-form');
+                if (formElement && restrictionMessage) {
+                    formElement.style.display = 'none';
+
+                    // Crear mensaje de restricción
+                    const restrictionDiv = document.createElement('div');
+                    restrictionDiv.id = 'restriction-message';
+                    restrictionDiv.className = 'flex items-center gap-3 bg-gray-50 rounded-2xl p-3 border border-gray-200';
+                    restrictionDiv.innerHTML = `
+                        <div class="flex-1">
+                            <p class="text-gray-600 text-sm">${restrictionMessage}</p>
+                        </div>
+                        <a href="/subscriptions" class="flex-shrink-0 bg-gradient-to-r from-heart-red to-heart-red-light text-white px-4 py-2 rounded-full font-bold text-sm hover:shadow-glow transition">
+                            Ver Planes
+                        </a>
+                    `;
+
+                    formElement.parentNode.appendChild(restrictionDiv);
+                }
             }
-            // Si no puede enviar, el formulario ya muestra la restricción, no hacer nada
         }
 
         // Polling para mensajes nuevos (cada 3 segundos)
