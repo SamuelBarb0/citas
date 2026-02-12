@@ -61,7 +61,7 @@
             <!-- Container de mensajes -->
             <div class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6" id="messages-container">
                 @if($messages->count() > 0)
-                    <div class="space-y-4">
+                    <div class="space-y-4" id="messages-list">
                         @php
                             $lastDate = null;
                         @endphp
@@ -338,7 +338,17 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const container = document.getElementById('messages-container');
+        const messagesContainer = document.getElementById('messages-container');
+        let messagesList = document.getElementById('messages-list');
+
+        // Si no existe messages-list (no hay mensajes), crearlo
+        if (!messagesList) {
+            messagesList = document.createElement('div');
+            messagesList.id = 'messages-list';
+            messagesList.className = 'space-y-4';
+            messagesContainer.appendChild(messagesList);
+        }
+
         const textarea = document.getElementById('mensaje-input');
         const form = document.getElementById('message-form');
         const sendButton = document.getElementById('send-button');
@@ -352,12 +362,12 @@
         // Auto scroll al final del chat al cargar
         function scrollToBottom(smooth = false) {
             if (smooth) {
-                container.scrollTo({
-                    top: container.scrollHeight,
+                messagesContainer.scrollTo({
+                    top: messagesContainer.scrollHeight,
                     behavior: 'smooth'
                 });
             } else {
-                container.scrollTop = container.scrollHeight;
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
         }
         scrollToBottom();
@@ -418,7 +428,7 @@
                     };
 
                     const messageElement = createMessageElement(newMessage);
-                    container.appendChild(messageElement);
+                    messagesList.appendChild(messageElement);
                     lastMessageId = data.message_id;
 
                     // Limpiar textarea y resetear altura
@@ -555,15 +565,15 @@
                     console.log('✨ Polling - Found', data.count, 'new message(s)');
 
                     // Verificar si el usuario está al final del chat
-                    const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
+                    const isAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 100;
 
                     // Agregar mensajes nuevos
                     data.messages.forEach((message, index) => {
                         console.log(`📨 Polling - Processing message ${index + 1}:`, message);
                         const messageElement = createMessageElement(message);
                         console.log('🎨 Polling - Created element:', messageElement);
-                        container.appendChild(messageElement);
-                        console.log('✅ Polling - Appended message to container');
+                        messagesList.appendChild(messageElement);
+                        console.log('✅ Polling - Appended message to messagesList');
                         lastMessageId = Math.max(lastMessageId, message.id);
                     });
 
