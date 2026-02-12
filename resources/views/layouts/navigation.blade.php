@@ -73,11 +73,9 @@
 <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-lg" id="bottom-nav">
     <div class="max-w-4xl mx-auto flex items-center justify-around py-2">
         {{-- Inicio --}}
-        <a href="{{ route('dashboard') }}" class="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition {{ request()->routeIs('dashboard') ? 'text-heart-red' : 'text-gray-400 hover:text-brown' }}">
-            <svg class="w-6 h-6" fill="{{ request()->routeIs('dashboard') ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-            </svg>
-            <span class="text-[10px] font-semibold">Inicio</span>
+        <a href="{{ route('dashboard') }}" class="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition {{ request()->routeIs('dashboard') ? 'opacity-100' : 'opacity-60 hover:opacity-100' }}">
+            <img src="{{ asset('images/LOGOCITAS.png') }}" alt="Citas Mallorca" class="w-7 h-7">
+            <span class="text-[10px] font-semibold {{ request()->routeIs('dashboard') ? 'text-heart-red' : 'text-gray-400' }}">Inicio</span>
         </a>
 
         {{-- Matches (reemplaza Buscar) --}}
@@ -149,9 +147,17 @@
 
         {{-- Mi perfil --}}
         <a href="{{ route('user.profile.show') }}" class="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition {{ request()->routeIs('user.profile.*') ? 'text-heart-red' : 'text-gray-400 hover:text-brown' }}">
-            <svg class="w-6 h-6" fill="{{ request()->routeIs('user.profile.*') ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-            </svg>
+            @php
+                $userProfile = Auth::user()->profile;
+                $userPhoto = $userProfile && $userProfile->foto_principal
+                    ? (str_starts_with($userProfile->foto_principal, 'http')
+                        ? $userProfile->foto_principal
+                        : Storage::url($userProfile->foto_principal))
+                    : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&size=100&background=A67C52&color=fff';
+            @endphp
+            <img src="{{ $userPhoto }}"
+                 alt="{{ Auth::user()->name }}"
+                 class="w-7 h-7 rounded-full object-cover {{ request()->routeIs('user.profile.*') ? 'ring-2 ring-heart-red' : '' }}">
             <span class="text-[10px] font-semibold">Mi perfil</span>
         </a>
     </div>
