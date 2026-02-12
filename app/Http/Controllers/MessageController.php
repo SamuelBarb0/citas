@@ -269,12 +269,6 @@ class MessageController extends Controller
         $currentUserId = auth()->id();
         $lastMessageId = $request->query('last_message_id', 0);
 
-        \Log::info('📩 getNewMessages called', [
-            'match_id' => $matchId,
-            'user_id' => $currentUserId,
-            'last_message_id' => $lastMessageId
-        ]);
-
         // Verificar que el match pertenece al usuario
         $match = UserMatch::where('id', $matchId)
             ->where(function ($query) use ($currentUserId) {
@@ -290,11 +284,6 @@ class MessageController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
-        \Log::info('📨 Found messages', [
-            'count' => $newMessages->count(),
-            'message_ids' => $newMessages->pluck('id')->toArray()
-        ]);
-
         // Marcar como leídos los mensajes recibidos
         $match->messages()
             ->where('id', '>', $lastMessageId)
@@ -305,16 +294,6 @@ class MessageController extends Controller
         // Formatear respuesta
         $formattedMessages = $newMessages->map(function ($message) use ($currentUserId) {
             $isMine = $message->sender_id === $currentUserId;
-
-            // DEBUG: Log detallado de cada mensaje
-            \Log::info('🔍 Processing message', [
-                'message_id' => $message->id,
-                'sender_id' => $message->sender_id,
-                'receiver_id' => $message->receiver_id,
-                'current_user_id' => $currentUserId,
-                'is_mine_calculated' => $isMine,
-                'mensaje' => $message->mensaje,
-            ]);
 
             return [
                 'id' => $message->id,
@@ -345,15 +324,11 @@ class MessageController extends Controller
             }
         }
 
-        $response = [
+        return response()->json([
             'messages' => $formattedMessages,
             'count' => $formattedMessages->count(),
             'can_send' => $canSendMessage,
             'restriction_message' => $restrictionMessage,
-        ];
-
-        \Log::info('📤 Sending response', $response);
-
-        return response()->json($response);
+        ]);
     }
 }

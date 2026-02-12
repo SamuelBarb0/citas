@@ -2,16 +2,6 @@
 
 @section('content')
 <div class="fixed inset-0 bg-gradient-to-br from-cream via-white to-cream flex flex-col" style="padding-bottom: 4rem;">
-    <!-- DEBUG BANNER: Mostrar usuario actual -->
-    <div class="bg-yellow-100 border-b-2 border-yellow-400 px-4 py-2 text-center">
-        <span class="text-sm font-bold text-yellow-800">
-            🐛 DEBUG: Sesión actual = <span class="text-blue-600">{{ auth()->user()->name }}</span>
-            (ID: {{ auth()->id() }}) |
-            Chateando con: <span class="text-purple-600">{{ $otherUser->name }}</span>
-            (ID: {{ $otherUser->id }})
-        </span>
-    </div>
-
     <!-- Header fijo con info del match -->
     <div class="flex-shrink-0 bg-white/90 backdrop-blur-lg border-b border-gray-200 shadow-sm">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -367,18 +357,7 @@
         let lastMessageId = {{ $messages->last()->id ?? 0 }};
         let isPolling = true;
         let pollingInterval;
-        let isSubmitting = false; // Prevenir doble envío
-
-        console.log('📍 Initial state:', {
-            matchId,
-            currentUserId,
-            currentUserName: '{{ auth()->user()->name }}',
-            otherUserId: {{ $otherUser->id }},
-            otherUserName: '{{ $otherUser->name }}',
-            lastMessageId,
-            messagesContainer: messagesContainer ? 'found' : 'NOT FOUND',
-            messagesList: messagesList ? 'found' : 'NOT FOUND'
-        });
+        let isSubmitting = false;
 
         // Auto scroll al final del chat al cargar
         function scrollToBottom(smooth = false) {
@@ -566,7 +545,6 @@
             if (!isPolling) return;
 
             try {
-                console.log('🔍 Polling - Checking for new messages. Last ID:', lastMessageId);
                 const response = await fetch(`/messages/${matchId}/new?last_message_id=${lastMessageId}`, {
                     headers: {
                         'Accept': 'application/json',
@@ -574,41 +552,24 @@
                     }
                 });
 
-                if (!response.ok) {
-                    console.warn('⚠️ Polling - Response not OK:', response.status);
-                    return;
-                }
+                if (!response.ok) return;
 
                 const data = await response.json();
-                console.log('📥 Polling - Response data:', data);
 
                 if (data.count > 0) {
-                    console.log('✨ Polling - Found', data.count, 'new message(s)');
-
                     // Verificar si el usuario está al final del chat
                     const isAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 100;
 
                     // Agregar mensajes nuevos
-                    data.messages.forEach((message, index) => {
-                        console.log(`📨 Polling - Processing message ${index + 1}:`, {
-                            ...message,
-                            currentUserId: currentUserId,
-                            currentUserName: '{{ auth()->user()->name }}',
-                            comparison: `${message.sender_name} enviado por ID desconocido vs currentUserId ${currentUserId}`
-                        });
+                    data.messages.forEach((message) => {
                         const messageElement = createMessageElement(message);
-                        console.log('🎨 Polling - Created element:', messageElement);
                         messagesList.appendChild(messageElement);
-                        console.log('✅ Polling - Appended message to messagesList');
                         lastMessageId = Math.max(lastMessageId, message.id);
                     });
-
-                    console.log('📌 Polling - Updated lastMessageId to:', lastMessageId);
 
                     // Si hay mensajes del otro usuario, actualizar permisos del formulario
                     const hasMessagesFromOther = data.messages.some(m => !m.is_mine);
                     if (hasMessagesFromOther && data.can_send !== undefined) {
-                        console.log('🔄 Polling - Updating form permissions. Can send:', data.can_send);
                         updateFormPermissions(data.can_send, data.restriction_message);
                     }
 
@@ -616,11 +577,9 @@
                     if (isAtBottom || data.messages.some(m => m.is_mine)) {
                         setTimeout(() => scrollToBottom(true), 100);
                     }
-                } else {
-                    console.log('💤 Polling - No new messages');
                 }
             } catch (error) {
-                console.error('❌ Polling - Error checking new messages:', error);
+                console.error('Error checking messages:', error);
             }
         }
 
