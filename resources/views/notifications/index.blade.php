@@ -1,19 +1,19 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-cream via-white to-cream">
-    <!-- Header sticky moderno -->
-    <div class="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-200 shadow-sm">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+<div class="fixed inset-0 bg-gradient-to-br from-cream via-white to-cream flex flex-col overflow-hidden">
+    <!-- Header fijo -->
+    <div class="flex-shrink-0 bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl md:text-3xl font-black text-brown">Notificaciones</h1>
-                    <p class="text-gray-500 text-sm">Mantente al día con tus matches y mensajes</p>
+                    <h1 class="text-3xl font-black text-white">🔔 Notificaciones</h1>
+                    <p class="text-white/90 mt-1 text-lg">Mantente al día con tus matches y mensajes</p>
                 </div>
                 @if($notifications->where('read_at', null)->count() > 0)
                     <form action="{{ route('notifications.mark-all') }}" method="POST">
                         @csrf
-                        <button type="submit" class="text-sm text-heart-red hover:text-heart-red-light font-semibold transition">
+                        <button type="submit" class="bg-white text-blue-600 px-6 py-3 rounded-xl font-bold hover:shadow-lg transition">
                             Marcar todas como leídas
                         </button>
                     </form>
@@ -22,7 +22,8 @@
         </div>
     </div>
 
-    <div class="py-6 px-4 sm:px-6 lg:px-8">
+    <!-- Contenido con scroll -->
+    <div class="flex-1 overflow-y-auto py-8 px-4 sm:px-6 lg:px-8" style="padding-bottom: 5rem;">
         <div class="max-w-4xl mx-auto">
             <!-- Lista de Notificaciones -->
             @if($notifications->count() > 0)

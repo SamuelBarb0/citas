@@ -47,13 +47,28 @@
 @endpush
 
 @section('content')
-<div class="min-h-screen bg-cream py-6 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-3xl mx-auto">
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold text-brown mb-2">Editar mi Perfil</h1>
-            <p class="text-gray-600 text-sm sm:text-base">Actualiza tu información</p>
+<div class="fixed inset-0 bg-gradient-to-br from-cream via-white to-cream flex flex-col overflow-hidden">
+    <!-- Header fijo -->
+    <div class="flex-shrink-0 bg-gradient-to-r from-brown to-brown-dark shadow-lg">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-black text-white">✏️ Editar mi Perfil</h1>
+                    <p class="text-white/90 mt-1 text-lg">Actualiza tu información</p>
+                </div>
+                <a href="{{ route('user.profile.show') }}" class="bg-white text-brown px-6 py-3 rounded-xl font-bold hover:shadow-lg transition flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Volver
+                </a>
+            </div>
         </div>
+    </div>
+
+    <!-- Contenido con scroll -->
+    <div class="flex-1 overflow-y-auto py-8 px-4 sm:px-6 lg:px-8" style="padding-bottom: 5rem;">
+        <div class="max-w-3xl mx-auto">
 
         <!-- Mensajes de éxito -->
         @if(session('success'))
@@ -494,4 +509,7 @@ $(document).ready(function() {
     });
 });
 </script>
+        </div>
+    </div>
+</div>
 @endsection

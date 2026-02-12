@@ -1,23 +1,24 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-cream via-white to-cream">
-    <!-- Header sticky moderno -->
-    <div class="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+<div class="fixed inset-0 bg-gradient-to-br from-cream via-white to-cream flex flex-col overflow-hidden">
+    <!-- Header fijo -->
+    <div class="flex-shrink-0 bg-gradient-to-r from-heart-red to-heart-red-light shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl md:text-3xl font-black text-brown">Mis Matches</h1>
-                    <p class="text-gray-500 text-sm">{{ $matchesData->count() }} {{ $matchesData->count() === 1 ? 'persona' : 'personas' }} compatibles</p>
+                    <h1 class="text-3xl font-black text-white">💕 Mis Matches</h1>
+                    <p class="text-white/90 mt-1 text-lg">{{ $matchesData->count() }} {{ $matchesData->count() === 1 ? 'persona' : 'personas' }} compatibles</p>
                 </div>
-                <a href="{{ route('dashboard') }}" class="bg-gradient-to-r from-heart-red to-heart-red-light text-white px-6 py-2 rounded-full hover:shadow-glow transition font-semibold text-sm">
+                <a href="{{ route('dashboard') }}" class="bg-white text-heart-red px-6 py-3 rounded-xl font-bold hover:shadow-lg transition flex items-center gap-2">
                     Descubrir más
                 </a>
             </div>
         </div>
     </div>
 
-    <div class="py-6 px-4 sm:px-6 lg:px-8">
+    <!-- Contenido con scroll -->
+    <div class="flex-1 overflow-y-auto py-8 px-4 sm:px-6 lg:px-8" style="padding-bottom: 5rem;">
         <div class="max-w-7xl mx-auto">
             <!-- Mensajes de feedback flotantes -->
             @if(session('success'))

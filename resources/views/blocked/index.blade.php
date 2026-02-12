@@ -1,20 +1,21 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-cream via-white to-cream">
-    <!-- Header sticky moderno -->
-    <div class="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-200 shadow-sm">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+<div class="fixed inset-0 bg-gradient-to-br from-cream via-white to-cream flex flex-col overflow-hidden">
+    <!-- Header fijo -->
+    <div class="flex-shrink-0 bg-gradient-to-r from-gray-700 to-gray-800 shadow-lg">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl md:text-3xl font-black text-brown">Usuarios Bloqueados</h1>
-                    <p class="text-gray-500 text-sm">{{ count($blockedUsers) }} {{ count($blockedUsers) === 1 ? 'usuario' : 'usuarios' }}</p>
+                    <h1 class="text-3xl font-black text-white">🚫 Usuarios Bloqueados</h1>
+                    <p class="text-white/90 mt-1 text-lg">{{ count($blockedUsers) }} {{ count($blockedUsers) === 1 ? 'usuario bloqueado' : 'usuarios bloqueados' }}</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="py-6 px-4 sm:px-6 lg:px-8">
+    <!-- Contenido con scroll -->
+    <div class="flex-1 overflow-y-auto py-8 px-4 sm:px-6 lg:px-8" style="padding-bottom: 5rem;">
         <div class="max-w-4xl mx-auto">
             @if(session('success'))
                 <div class="mb-6 bg-green-50 border-2 border-green-200 text-green-800 px-6 py-4 rounded-2xl">
