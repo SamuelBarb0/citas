@@ -359,6 +359,14 @@
         let pollingInterval;
         let isSubmitting = false; // Prevenir doble envío
 
+        console.log('📍 Initial state:', {
+            matchId,
+            currentUserId,
+            lastMessageId,
+            messagesContainer: messagesContainer ? 'found' : 'NOT FOUND',
+            messagesList: messagesList ? 'found' : 'NOT FOUND'
+        });
+
         // Auto scroll al final del chat al cargar
         function scrollToBottom(smooth = false) {
             if (smooth) {
