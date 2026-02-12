@@ -467,10 +467,18 @@
                 const data = await response.json();
 
                 if (data.count > 0) {
+                    // Si hay mensajes del otro usuario, recargar la página para actualizar los permisos
+                    const hasMessagesFromOther = data.messages.some(m => !m.is_mine);
+                    if (hasMessagesFromOther) {
+                        // Recargar la página para recalcular permisos de mensajería
+                        window.location.reload();
+                        return;
+                    }
+
                     // Verificar si el usuario está al final del chat
                     const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
 
-                    // Agregar mensajes nuevos
+                    // Agregar mensajes nuevos (solo los propios en este punto)
                     data.messages.forEach(message => {
                         const messageElement = createMessageElement(message);
                         container.appendChild(messageElement);

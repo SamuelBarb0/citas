@@ -60,7 +60,7 @@
                                         @if($conversation['last_message'])
                                             <p class="text-sm text-gray-600 truncate {{ $conversation['unread_count'] > 0 ? 'font-semibold' : '' }}">
                                                 @if($conversation['last_message']->sender_id == auth()->id())
-                                                    <span class="text-gray-400">Tú:</span>
+                                                    <span class="text-gray-400">Tú: </span>
                                                 @endif
                                                 {{ $conversation['last_message']->mensaje }}
                                             </p>
