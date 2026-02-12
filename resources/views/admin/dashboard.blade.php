@@ -1,7 +1,7 @@
 <x-app-layout>
-    <div class="min-h-screen bg-gradient-to-br from-cream via-white to-cream">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-brown to-brown-dark shadow-lg">
+    <div class="fixed inset-0 bg-gradient-to-br from-cream via-white to-cream flex flex-col overflow-hidden">
+        <!-- Header fijo -->
+        <div class="flex-shrink-0 bg-gradient-to-r from-brown to-brown-dark shadow-lg">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div class="flex items-center justify-between">
                     <div>
@@ -19,7 +19,8 @@
             </div>
         </div>
 
-        <div class="py-8 px-4 sm:px-6 lg:px-8">
+        <!-- Contenido con scroll -->
+        <div class="flex-1 overflow-y-auto py-8 px-4 sm:px-6 lg:px-8">
             <div class="max-w-7xl mx-auto">
                 <!-- Resumen Rápido -->
                 <div class="mb-8">
@@ -237,6 +238,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </div>
 </x-app-layout>

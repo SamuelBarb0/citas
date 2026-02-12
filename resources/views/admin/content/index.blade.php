@@ -1,22 +1,27 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-cream via-white to-cream py-8">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6">
-        <!-- Header -->
-        <div class="mb-8">
-            <div class="flex items-center gap-4 mb-4">
-                <a href="{{ route('admin.dashboard') }}" class="text-brown hover:text-heart-red transition">
+<div class="fixed inset-0 bg-gradient-to-br from-cream via-white to-cream flex flex-col overflow-hidden">
+    <!-- Header fijo -->
+    <div class="flex-shrink-0 bg-gradient-to-r from-teal-500 to-teal-600 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center gap-4">
+                <a href="{{ route('admin.dashboard') }}" class="text-white/80 hover:text-white transition p-2 rounded-full hover:bg-white/20">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                     </svg>
                 </a>
                 <div>
-                    <h1 class="text-3xl font-black text-brown">Gestión de Contenidos</h1>
-                    <p class="text-gray-600">Edita los textos e imágenes de la página principal</p>
+                    <h1 class="text-3xl font-black text-white">📄 Textos de la Página</h1>
+                    <p class="text-white/90 text-lg mt-1">Cambiar los textos de inicio y otras secciones (sin código)</p>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Contenido con scroll -->
+    <div class="flex-1 overflow-y-auto py-8">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6">
 
         @if(session('success'))
             <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl">
@@ -161,6 +166,7 @@
                 </div>
             @endif
         </form>
+        </div>
     </div>
 </div>
 @endsection

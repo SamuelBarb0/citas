@@ -1,22 +1,26 @@
 <x-app-layout>
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-brown to-brown-dark shadow-lg">
+    <div class="fixed inset-0 bg-gradient-to-br from-cream via-white to-cream flex flex-col overflow-hidden">
+        <!-- Header fijo -->
+        <div class="flex-shrink-0 bg-gradient-to-r from-brown to-brown-dark shadow-lg">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-3xl font-black text-white">Gestión de Reportes</h1>
-                        <p class="text-white/80 mt-1">Revisar y gestionar reportes de usuarios</p>
+                        <h1 class="text-3xl font-black text-white">⚠️ Reportes de Usuarios</h1>
+                        <p class="text-white/90 mt-1 text-lg">Ver y resolver quejas o problemas reportados</p>
                     </div>
                     <a href="{{ route('admin.dashboard') }}"
-                       class="px-6 py-3 bg-white text-brown rounded-xl font-bold hover:shadow-lg transition">
+                       class="px-6 py-3 bg-white text-brown rounded-xl font-bold hover:shadow-lg transition flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
                         Volver al Panel
                     </a>
                 </div>
             </div>
         </div>
 
-        <div class="py-8 px-4 sm:px-6 lg:px-8">
+        <!-- Contenido con scroll -->
+        <div class="flex-1 overflow-y-auto py-8 px-4 sm:px-6 lg:px-8">
             <div class="max-w-7xl mx-auto">
                 @if(session('success'))
                     <div class="mb-6 bg-green-50 border-2 border-green-200 text-green-800 px-6 py-4 rounded-2xl">
@@ -214,6 +218,7 @@
                     </div>
                 @endif
             </div>
+        </div>
         </div>
     </div>
 </x-app-layout>

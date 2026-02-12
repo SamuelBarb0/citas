@@ -1,23 +1,26 @@
 <x-app-layout>
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-purple-500 to-purple-600 shadow-lg">
+    <div class="fixed inset-0 bg-gradient-to-br from-cream via-white to-cream flex flex-col overflow-hidden">
+        <!-- Header fijo -->
+        <div class="flex-shrink-0 bg-gradient-to-r from-purple-500 to-purple-600 shadow-lg">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
-                        <a href="{{ route('admin.dashboard') }}" class="text-white/80 hover:text-white transition">
+                        <a href="{{ route('admin.dashboard') }}" class="text-white/80 hover:text-white transition p-2 rounded-full hover:bg-white/20">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                             </svg>
                         </a>
                         <div>
-                            <h1 class="text-3xl font-black text-white">Estadísticas Avanzadas</h1>
-                            <p class="text-white/80 mt-1">Métricas detalladas y análisis de crecimiento</p>
+                            <h1 class="text-3xl font-black text-white">📈 Estadísticas Completas</h1>
+                            <p class="text-white/90 mt-1 text-lg">Gráficos y números de la actividad de la plataforma</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Contenido con scroll -->
+        <div class="flex-1 overflow-y-auto">
 
         <div class="py-8 px-4 sm:px-6 lg:px-8">
             <div class="max-w-7xl mx-auto space-y-6">
@@ -365,4 +368,6 @@
             });
         });
     </script>
+        </div>
+    </div>
 </x-app-layout>

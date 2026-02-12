@@ -1,22 +1,22 @@
 <x-app-layout>
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-gray-600 to-gray-700 shadow-lg">
+    <div class="fixed inset-0 bg-gradient-to-br from-cream via-white to-cream flex flex-col overflow-hidden">
+        <!-- Header fijo -->
+        <div class="flex-shrink-0 bg-gradient-to-r from-gray-600 to-gray-700 shadow-lg">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
-                        <a href="{{ route('admin.dashboard') }}" class="text-white/80 hover:text-white transition">
+                        <a href="{{ route('admin.dashboard') }}" class="text-white/80 hover:text-white transition p-2 rounded-full hover:bg-white/20">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                             </svg>
                         </a>
                         <div>
-                            <h1 class="text-3xl font-black text-white">Logs de Actividad</h1>
-                            <p class="text-white/80 mt-1">Historial de acciones administrativas</p>
+                            <h1 class="text-3xl font-black text-white">📋 Historial de Cambios</h1>
+                            <p class="text-white/90 mt-1 text-lg">Ver qué se ha modificado y cuándo</p>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-white/60 text-sm">Total de registros</p>
+                        <p class="text-white/60 text-sm">Total de acciones</p>
                         <p class="text-2xl font-bold text-white">{{ $logs->total() }}</p>
                     </div>
                 </div>
@@ -235,6 +235,7 @@
                     @endforeach
                 </div>
             </div>
+        </div>
         </div>
     </div>
 </x-app-layout>
