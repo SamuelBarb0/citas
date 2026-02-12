@@ -276,7 +276,7 @@ class UserSubscription extends Model
      * - Básico: 3 mensajes/semana a usuarios Gratis, ilimitados a Básico/Premium
      * - Premium: Ilimitados con todos
      */
-    public function canSendMessageTo($receiverUser)
+    public function canSendMessageTo($receiverUser, $matchId = null)
     {
         $this->resetWeeklyMessages();
 
@@ -287,14 +287,21 @@ class UserSubscription extends Model
 
         // Si el plan NO puede iniciar conversaciones (Gratis)
         if (!$this->plan->puede_iniciar_conversacion) {
-            // Contar mensajes en la conversación
-            $messagesReceived = \App\Models\Message::where('sender_id', $receiverUser->id)
-                ->where('receiver_id', $this->user_id)
-                ->count();
+            // Contar mensajes en la conversación del match específico
+            $messagesReceivedQuery = \App\Models\Message::where('sender_id', $receiverUser->id)
+                ->where('receiver_id', $this->user_id);
 
-            $messagesSent = \App\Models\Message::where('sender_id', $this->user_id)
-                ->where('receiver_id', $receiverUser->id)
-                ->count();
+            $messagesSentQuery = \App\Models\Message::where('sender_id', $this->user_id)
+                ->where('receiver_id', $receiverUser->id);
+
+            // Si se proporciona match_id, filtrar por ese match específico
+            if ($matchId) {
+                $messagesReceivedQuery->where('match_id', $matchId);
+                $messagesSentQuery->where('match_id', $matchId);
+            }
+
+            $messagesReceived = $messagesReceivedQuery->count();
+            $messagesSent = $messagesSentQuery->count();
 
             // Solo puede responder si ha recibido más mensajes de los que ha enviado
             return $messagesSent < $messagesReceived;

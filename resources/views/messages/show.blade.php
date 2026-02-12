@@ -200,7 +200,7 @@
                             }
                         } else {
                             // Verificar límites según el plan
-                            if (!$currentSubscription->canSendMessageTo($otherUser)) {
+                            if (!$currentSubscription->canSendMessageTo($otherUser, $match->id)) {
                                 $canSendMessage = false;
                                 $remainingMessages = $currentSubscription->getRemainingWeeklyMessages();
 

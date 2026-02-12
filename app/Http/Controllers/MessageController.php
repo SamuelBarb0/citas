@@ -138,7 +138,7 @@ class MessageController extends Controller
             }
         } else {
             // Verificar si puede enviar mensaje según su plan
-            if (!$senderSubscription->canSendMessageTo($receiverUser)) {
+            if (!$senderSubscription->canSendMessageTo($receiverUser, $match->id)) {
                 $remaining = $senderSubscription->getRemainingWeeklyMessages();
 
                 if ($remaining === 0 && $senderSubscription->plan->slug === 'basico') {
