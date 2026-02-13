@@ -739,12 +739,17 @@
 
             // Función para navegar entre fotos
             function navigatePhoto(cardId, direction) {
+                console.log('navigatePhoto llamado - cardId:', cardId, 'direction:', direction);
                 const carousel = document.querySelector(`.photo-carousel[data-card-id="${cardId}"]`);
-                if (!carousel) return;
+                if (!carousel) {
+                    console.log('Carrusel no encontrado');
+                    return;
+                }
 
                 const photos = carousel.querySelectorAll('.carousel-photo');
                 const indicators = document.querySelector(`[data-carousel-id="${cardId}"]`)?.querySelectorAll('[data-indicator-index]');
 
+                console.log('Fotos encontradas:', photos.length);
                 if (!photos || photos.length <= 1) return;
 
                 const currentIndex = cardPhotoIndexes[cardId] || 0;
@@ -876,6 +881,8 @@
                     // Verificar que sea realmente un click (no movimiento accidental)
                     const distance = Math.sqrt(Math.pow(endX - clickStartX, 2) + Math.pow(endY - clickStartY, 2));
 
+                    console.log('Click detectado - distance:', distance, 'hasMoved:', hasMoved);
+
                     if (distance < 10) {
                         // Es un click real - navegar en el carrusel
                         const cardRect = card.getBoundingClientRect();
@@ -883,9 +890,13 @@
                         const cardWidth = cardRect.width;
                         const cardId = card.dataset.profileId;
 
+                        console.log('Navegando carrusel - clickX:', clickX, 'cardWidth:', cardWidth, 'cardId:', cardId);
+
                         if (clickX < cardWidth / 2) {
+                            console.log('Navegando a foto anterior');
                             navigatePhoto(cardId, 'prev');
                         } else {
+                            console.log('Navegando a foto siguiente');
                             navigatePhoto(cardId, 'next');
                         }
                     }
