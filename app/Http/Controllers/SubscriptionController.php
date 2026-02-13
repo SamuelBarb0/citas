@@ -650,7 +650,7 @@ class SubscriptionController extends Controller
     public function reactivate(Request $request)
     {
         $subscription = Auth::user()->subscriptions()
-            ->where('estado', 'cancelada')
+            ->where('estado', 'cancelada_fin_periodo')
             ->latest()
             ->first();
 
@@ -659,9 +659,10 @@ class SubscriptionController extends Controller
         }
 
         $subscription->update([
+            'estado' => 'activa',
             'auto_renovacion' => true,
         ]);
 
-        return back()->with('success', 'Tu suscripción se renovará automáticamente.');
+        return back()->with('success', 'Tu suscripción se ha reactivado y se renovará automáticamente.');
     }
 }
