@@ -673,7 +673,13 @@ class SubscriptionController extends Controller
     public function forceCancel(Request $request)
     {
         $user = Auth::user();
-        $subscription = $user->activeSubscription;
+
+        // Buscar cualquier suscripción activa o cancelada_fin_periodo
+        $subscription = $user->subscriptions()
+            ->whereIn('estado', ['activa', 'cancelada_fin_periodo'])
+            ->where('fecha_expiracion', '>', now())
+            ->latest()
+            ->first();
 
         if (!$subscription) {
             return back()->with('error', 'No tienes una suscripción activa para cancelar.');
@@ -683,7 +689,7 @@ class SubscriptionController extends Controller
         $subscription->update([
             'estado' => 'cancelada',
             'auto_renovacion' => false,
-            'fecha_expiracion' => now(), // Expira ahora mismo
+            'fecha_expiracion' => now()->subMinute(), // Expiró hace 1 minuto (para asegurar que now() > fecha_expiracion)
         ]);
 
         return back()->with('success', '🧪 [PRUEBA] Suscripción cancelada completamente. Has perdido acceso inmediato.');
