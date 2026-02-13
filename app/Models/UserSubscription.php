@@ -143,10 +143,11 @@ class UserSubscription extends Model
 
     /**
      * Scope para suscripciones activas
+     * Incluye suscripciones canceladas pero aún válidas hasta fin de período
      */
     public function scopeActive($query)
     {
-        return $query->where('estado', 'activa')
+        return $query->whereIn('estado', ['activa', 'cancelada_fin_periodo'])
                      ->where('fecha_expiracion', '>', now());
     }
 

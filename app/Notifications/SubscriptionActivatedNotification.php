@@ -37,7 +37,18 @@ class SubscriptionActivatedNotification extends Notification
      */
     public function toMail(object $notifiable): \Illuminate\Notifications\Messages\MailMessage
     {
+        // Asegurar que la relación 'plan' esté cargada
+        $this->subscription->load('plan');
         $plan = $this->subscription->plan;
+
+        // Si por alguna razón el plan no está cargado, loguearlo
+        if (!$plan) {
+            \Log::error('SubscriptionActivatedNotification: Plan no encontrado', [
+                'subscription_id' => $this->subscription->id,
+                'plan_id' => $this->subscription->plan_id
+            ]);
+            throw new \Exception('No se pudo cargar el plan de la suscripción');
+        }
 
         $mailable = (new MailMessage)
             ->subject('¡Tu suscripción a Citas Mallorca está activa!')

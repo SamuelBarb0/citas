@@ -502,7 +502,14 @@ class SubscriptionController extends Controller
                 ]);
 
                 if ($mailConfigured) {
-                    Log::info('PAYPAL ACTIVAR: Intentando enviar email...');
+                    Log::info('PAYPAL ACTIVAR: Intentando enviar email...', [
+                        'subscription_id' => $subscription->id,
+                        'plan_id' => $subscription->plan_id,
+                        'plan_nombre' => $plan->nombre
+                    ]);
+
+                    // Asegurar que la relación 'plan' esté cargada en la suscripción
+                    $subscription->setRelation('plan', $plan);
 
                     $user->notify(new \App\Notifications\SubscriptionActivatedNotification($subscription));
 

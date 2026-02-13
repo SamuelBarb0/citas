@@ -291,13 +291,20 @@ class PayPalWebhookController extends Controller
                 $mailConfigured = $mailUsername !== null && $mailUsername !== 'tu-email@gmail.com';
 
                 if ($mailConfigured) {
-                    Log::info('PayPal Webhook Fallback: Intentando enviar email...');
+                    Log::info('PayPal Webhook Fallback: Intentando enviar email...', [
+                        'subscription_id' => $subscription->id,
+                        'plan_id' => $subscription->plan_id
+                    ]);
+
+                    // Asegurar que la relación 'plan' esté cargada
+                    $subscription->load('plan');
 
                     $user->notify(new \App\Notifications\SubscriptionActivatedNotification($subscription));
 
                     Log::info('PayPal Webhook Fallback: ✅ Email enviado exitosamente', [
                         'user_email' => $user->email,
-                        'to' => $user->email
+                        'to' => $user->email,
+                        'plan' => $subscription->plan->nombre ?? 'N/A'
                     ]);
                 } else {
                     Log::warning('PayPal Webhook Fallback: ⚠️ Email NO enviado - configuración no válida', [

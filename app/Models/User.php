@@ -90,7 +90,7 @@ class User extends Authenticatable
     public function activeSubscription()
     {
         return $this->hasOne(UserSubscription::class)
-            ->where('estado', 'activa')
+            ->whereIn('estado', ['activa', 'cancelada_fin_periodo'])
             ->where('fecha_expiracion', '>', now())
             ->latest();
     }
