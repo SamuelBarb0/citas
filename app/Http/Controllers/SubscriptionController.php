@@ -665,4 +665,27 @@ class SubscriptionController extends Controller
 
         return back()->with('success', 'Tu suscripción se ha reactivado y se renovará automáticamente.');
     }
+
+    /**
+     * SOLO PARA PRUEBAS: Cancelar suscripción inmediatamente (sin acceso)
+     * Este método elimina la suscripción completamente, dejando al usuario sin ninguna suscripción
+     */
+    public function forceCancel(Request $request)
+    {
+        $user = Auth::user();
+        $subscription = $user->activeSubscription;
+
+        if (!$subscription) {
+            return back()->with('error', 'No tienes una suscripción activa para cancelar.');
+        }
+
+        // Cancelar completamente y quitar acceso inmediato
+        $subscription->update([
+            'estado' => 'cancelada',
+            'auto_renovacion' => false,
+            'fecha_expiracion' => now(), // Expira ahora mismo
+        ]);
+
+        return back()->with('success', '🧪 [PRUEBA] Suscripción cancelada completamente. Has perdido acceso inmediato.');
+    }
 }
