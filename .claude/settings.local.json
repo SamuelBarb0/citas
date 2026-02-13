@@ -34,7 +34,8 @@
       "Bash(for file in users.blade.php verification-queue.blade.php reports.blade.php statistics.blade.php logs.blade.php)",
       "Bash(do sed -i 's/flex-1 overflow-y-auto py-8 px-4 sm:px-6 lg:px-8\"\">/flex-1 overflow-y-auto py-8 px-4 sm:px-6 lg:px-8\"\" style=\"\"padding-bottom: 5rem;\"\">/' \"$file\")",
       "Bash(done)",
-      "Bash(timeout 10 tail:*)"
+      "Bash(timeout 10 tail:*)",
+      "Bash(php test-subscription-email.php:*)"
     ]
   }
 }

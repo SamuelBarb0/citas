@@ -271,13 +271,46 @@ class PayPalWebhookController extends Controller
             ]);
 
             // Enviar email de confirmación
+            Log::info('PayPal Webhook Fallback: Iniciando envío de email', [
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+                'subscription_id' => $subscription->id
+            ]);
+
             try {
-                if (config('mail.username') !== 'tu-email@gmail.com') {
+                $mailHost = config('mail.mailers.smtp.host');
+                $mailUsername = config('mail.mailers.smtp.username');
+                $mailFromAddress = config('mail.from.address');
+
+                Log::info('PayPal Webhook Fallback: Configuración de correo', [
+                    'mail_host' => $mailHost,
+                    'mail_username' => $mailUsername,
+                    'mail_from' => $mailFromAddress
+                ]);
+
+                $mailConfigured = $mailUsername !== null && $mailUsername !== 'tu-email@gmail.com';
+
+                if ($mailConfigured) {
+                    Log::info('PayPal Webhook Fallback: Intentando enviar email...');
+
                     $user->notify(new \App\Notifications\SubscriptionActivatedNotification($subscription));
+
+                    Log::info('PayPal Webhook Fallback: ✅ Email enviado exitosamente', [
+                        'user_email' => $user->email,
+                        'to' => $user->email
+                    ]);
+                } else {
+                    Log::warning('PayPal Webhook Fallback: ⚠️ Email NO enviado - configuración no válida', [
+                        'mail_username' => $mailUsername
+                    ]);
                 }
             } catch (\Exception $e) {
-                Log::warning('PayPal Webhook Fallback: Error enviando email', [
-                    'error' => $e->getMessage()
+                Log::error('PayPal Webhook Fallback: ❌ Error enviando email', [
+                    'error' => $e->getMessage(),
+                    'error_class' => get_class($e),
+                    'error_file' => $e->getFile(),
+                    'error_line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString()
                 ]);
             }
 

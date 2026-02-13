@@ -471,30 +471,65 @@ class SubscriptionController extends Controller
 
             // Enviar email de confirmación de bienvenida
             // IMPORTANTE: Intentar siempre enviar el email, solo fallar silenciosamente si hay error de config
+            Log::info('PAYPAL ACTIVAR: Iniciando proceso de envío de email', [
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+                'plan' => $plan->nombre
+            ]);
+
             try {
-                // Verificar que el mail esté configurado (no es la config por defecto)
-                $mailConfigured = config('mail.mailers.smtp.host') !== 'smtp.mailgun.org' &&
-                                  config('mail.mailers.smtp.username') !== null &&
-                                  config('mail.mailers.smtp.username') !== 'tu-email@gmail.com';
+                // Verificar configuración de correo
+                $mailHost = config('mail.mailers.smtp.host');
+                $mailUsername = config('mail.mailers.smtp.username');
+                $mailFromAddress = config('mail.from.address');
+
+                Log::info('PAYPAL ACTIVAR: Configuración de correo detectada', [
+                    'mail_host' => $mailHost,
+                    'mail_username' => $mailUsername,
+                    'mail_from' => $mailFromAddress,
+                    'mail_mailer' => config('mail.default')
+                ]);
+
+                $mailConfigured = $mailHost !== 'smtp.mailgun.org' &&
+                                  $mailUsername !== null &&
+                                  $mailUsername !== 'tu-email@gmail.com';
+
+                Log::info('PAYPAL ACTIVAR: Resultado verificación de configuración', [
+                    'mail_configured' => $mailConfigured,
+                    'host_check' => $mailHost !== 'smtp.mailgun.org',
+                    'username_check' => $mailUsername !== null,
+                    'username_not_default' => $mailUsername !== 'tu-email@gmail.com'
+                ]);
 
                 if ($mailConfigured) {
+                    Log::info('PAYPAL ACTIVAR: Intentando enviar email...');
+
                     $user->notify(new \App\Notifications\SubscriptionActivatedNotification($subscription));
-                    Log::info('PAYPAL ACTIVAR: Email de bienvenida enviado exitosamente', [
+
+                    Log::info('PAYPAL ACTIVAR: ✅ Email de bienvenida enviado exitosamente', [
                         'user_email' => $user->email,
-                        'plan' => $plan->nombre
+                        'plan' => $plan->nombre,
+                        'to' => $user->email,
+                        'from' => $mailFromAddress
                     ]);
                 } else {
-                    Log::info('PAYPAL ACTIVAR: Email no enviado - configuración de correo pendiente', [
+                    Log::warning('PAYPAL ACTIVAR: ⚠️ Email NO enviado - configuración de correo no válida', [
                         'user_email' => $user->email,
-                        'nota' => 'Configurar MAIL_USERNAME en .env para habilitar emails'
+                        'mail_host' => $mailHost,
+                        'mail_username' => $mailUsername,
+                        'reason' => 'Configuración de correo no cumple con los requisitos'
                     ]);
                 }
             } catch (\Exception $e) {
                 // No bloquear la activación por error de email
-                Log::warning('PAYPAL ACTIVAR: Error enviando email de bienvenida (no bloquea activación)', [
+                Log::error('PAYPAL ACTIVAR: ❌ Error enviando email de bienvenida (no bloquea activación)', [
                     'error' => $e->getMessage(),
+                    'error_class' => get_class($e),
+                    'error_file' => $e->getFile(),
+                    'error_line' => $e->getLine(),
                     'user_id' => $user->id,
-                    'user_email' => $user->email
+                    'user_email' => $user->email,
+                    'trace' => $e->getTraceAsString()
                 ]);
             }
 
