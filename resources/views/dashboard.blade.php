@@ -232,7 +232,7 @@
                                         @endphp
 
                                         <!-- Contenedor de la galería de fotos -->
-                                        <div class="photo-carousel relative w-full h-full" data-card-id="{{ $perfil->id }}">
+                                        <div class="photo-carousel relative w-full h-full" data-card-id="{{ $perfil->user_id }}">
                                             @foreach($allPhotos as $photoIndex => $photo)
                                                 <div class="carousel-photo absolute inset-0 transition-opacity duration-300 {{ $photoIndex === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0' }}"
                                                      data-photo-index="{{ $photoIndex }}">
@@ -246,7 +246,7 @@
 
                                         @if($totalPhotos > 1)
                                             <!-- Indicadores de foto en la parte superior (barras estilo Stories) -->
-                                            <div class="absolute top-3 left-0 right-0 z-30 flex gap-1.5 px-3 pointer-events-none" data-carousel-id="{{ $perfil->id }}">
+                                            <div class="absolute top-3 left-0 right-0 z-30 flex gap-1.5 px-3 pointer-events-none" data-carousel-id="{{ $perfil->user_id }}">
                                                 @foreach($allPhotos as $photoIndex => $photo)
                                                     <div class="flex-1 h-1 rounded-full transition-all duration-300 {{ $photoIndex === 0 ? 'bg-white shadow-lg' : 'bg-white/40' }}"
                                                          data-indicator-index="{{ $photoIndex }}"></div>
