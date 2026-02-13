@@ -316,32 +316,6 @@
             <h3 class="text-2xl font-bold text-brown mb-2">Gestion de Cuenta</h3>
             <p class="text-gray-600 mb-6">Opciones para gestionar tu suscripcion y tu cuenta en la plataforma.</p>
 
-            <!-- BOTÓN DE PRUEBAS -->
-            @if($subscription)
-            <div class="bg-purple-50 border-2 border-purple-300 rounded-2xl p-6 mb-6">
-                <div class="flex items-start gap-4">
-                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span class="text-2xl">🧪</span>
-                    </div>
-                    <div class="flex-1">
-                        <h4 class="font-bold text-purple-800 text-lg mb-2">🧪 MODO PRUEBAS - Cancelación Forzada</h4>
-                        <p class="text-purple-700 text-sm mb-4">
-                            <strong>⚠️ SOLO PARA PRUEBAS:</strong> Este botón cancela la suscripción inmediatamente y quita el acceso premium al instante.
-                            Diferente al botón normal que mantiene acceso hasta expiración.
-                        </p>
-                        <form action="{{ route('subscriptions.force-cancel') }}" method="POST"
-                              onsubmit="return confirm('🧪 PRUEBA: ¿Cancelar suscripción y perder acceso inmediato?\n\nEsto es SOLO para pruebas. Perderás acceso premium ahora mismo.');">
-                            @csrf
-                            <button type="submit"
-                                    class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl transition shadow-md">
-                                🧪 Cancelar y Perder Acceso Inmediato (PRUEBA)
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            @endif
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Cancelar Suscripción -->
                 @if($subscription && $subscription->auto_renovacion && $subscription->estado === 'activa')

@@ -799,9 +799,6 @@
             function handleDragStart(e) {
                 if (currentCardIndex >= cards.length) return;
 
-                // Prevenir comportamiento de drag & drop nativo del navegador
-                e.preventDefault();
-
                 const card = cards[currentCardIndex];
                 card.style.transition = 'none';
 
@@ -825,6 +822,9 @@
 
                 // Solo activar el drag si se ha movido al menos 10px
                 if (Math.abs(deltaX) < 10 && !hasMoved) return;
+
+                // Prevenir scroll/comportamiento nativo solo cuando realmente se está arrastrando
+                e.preventDefault();
 
                 hasMoved = true; // Marcar que se ha iniciado el movimiento
 

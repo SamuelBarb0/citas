@@ -237,7 +237,6 @@ Route::middleware(['auth', 'has.profile'])->group(function () {
     Route::get('/subscribe/paypal/success', [\App\Http\Controllers\SubscriptionController::class, 'paypalSuccess'])->name('subscriptions.paypal.success');
     Route::post('/subscription/cancel', [\App\Http\Controllers\SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
     Route::post('/subscription/reactivate', [\App\Http\Controllers\SubscriptionController::class, 'reactivate'])->name('subscriptions.reactivate');
-    Route::post('/subscription/force-cancel', [\App\Http\Controllers\SubscriptionController::class, 'forceCancel'])->name('subscriptions.force-cancel');
 
     // Preview de emails (solo admin, para desarrollo)
     Route::prefix('email-preview')->middleware('admin')->group(function () {
