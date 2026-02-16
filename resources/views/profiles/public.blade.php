@@ -196,6 +196,22 @@
                             @endif
                         </p>
                     </div>
+
+                    <!-- Reportar y Bloquear -->
+                    <div class="flex gap-2 pt-4 border-t border-gray-100">
+                        <button id="report-btn" class="flex-1 px-4 py-3 bg-yellow-50 text-yellow-700 rounded-xl font-semibold text-sm hover:bg-yellow-100 transition flex items-center justify-center gap-2 border border-yellow-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            Reportar
+                        </button>
+                        <button id="block-btn" class="flex-1 px-4 py-3 bg-red-50 text-red-600 rounded-xl font-semibold text-sm hover:bg-red-100 transition flex items-center justify-center gap-2 border border-red-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                            </svg>
+                            Bloquear
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -249,22 +265,6 @@
                             Match para chatear
                         </div>
                     @endif
-                </div>
-
-                <!-- Botones de reportar y bloquear -->
-                <div class="mt-4 flex gap-2">
-                    <button id="report-btn" class="flex-1 px-4 py-3 bg-yellow-50 text-yellow-700 rounded-xl font-semibold text-sm hover:bg-yellow-100 transition flex items-center justify-center gap-2 border border-yellow-200">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                        </svg>
-                        Reportar
-                    </button>
-                    <button id="block-btn" class="flex-1 px-4 py-3 bg-red-50 text-red-600 rounded-xl font-semibold text-sm hover:bg-red-100 transition flex items-center justify-center gap-2 border border-red-200">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
-                        </svg>
-                        Bloquear
-                    </button>
                 </div>
             </div>
         </div>
