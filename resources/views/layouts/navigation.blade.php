@@ -125,56 +125,61 @@
             <span class="text-[10px] font-semibold">Mensajes</span>
         </a>
 
-        {{-- Planes o Likes (condicional segun suscripcion) --}}
+        {{-- Likes (siempre visible) --}}
         @php
             $hasActiveSubscription = Auth::user()->activeSubscription !== null;
         @endphp
 
-        @if($hasActiveSubscription)
-            {{-- Boton Likes con menu desplegable --}}
-            <div x-data="{ likesOpen: false }" class="relative">
-                <button @click="likesOpen = !likesOpen" class="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition {{ request()->routeIs('likes.*') ? 'text-heart-red' : 'text-gray-400 hover:text-brown' }}">
-                    <svg class="w-6 h-6" fill="{{ request()->routeIs('likes.*') ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                    </svg>
-                    <span class="text-[10px] font-semibold">Likes</span>
-                </button>
+        <div x-data="{ likesOpen: false }" class="relative">
+            <button @click="likesOpen = !likesOpen" class="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition {{ request()->routeIs('likes.*') ? 'text-heart-red' : 'text-gray-400 hover:text-brown' }}">
+                <svg class="w-6 h-6" fill="{{ request()->routeIs('likes.*') ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                </svg>
+                <span class="text-[10px] font-semibold">Likes</span>
+            </button>
 
-                {{-- Menu desplegable de Likes --}}
-                <div x-show="likesOpen" @click.away="likesOpen = false"
-                     x-transition:enter="transition ease-out duration-150"
-                     x-transition:enter-start="opacity-0 translate-y-2"
-                     x-transition:enter-end="opacity-100 translate-y-0"
-                     x-transition:leave="transition ease-in duration-100"
-                     x-transition:leave-start="opacity-100 translate-y-0"
-                     x-transition:leave-end="opacity-0 translate-y-2"
-                     class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50"
-                     style="display: none;">
+            {{-- Menu desplegable de Likes --}}
+            <div x-show="likesOpen" @click.away="likesOpen = false"
+                 x-transition:enter="transition ease-out duration-150"
+                 x-transition:enter-start="opacity-0 translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-100"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 translate-y-2"
+                 class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50"
+                 style="display: none;">
 
+                @if($hasActiveSubscription)
+                    {{-- Con suscripcion: acceso completo --}}
                     <a href="{{ route('likes.who') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-cream transition">
                         <svg class="w-4 h-4 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
                         </svg>
                         <span>Quien te ha dado like</span>
                     </a>
+                @else
+                    {{-- Sin suscripcion: bloqueado con mensaje --}}
+                    <div class="px-4 py-2.5 text-sm text-gray-400 cursor-not-allowed">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Quien te ha dado like</span>
+                        </div>
+                        <a href="{{ route('subscriptions.index') }}" class="block mt-2 ml-7 text-xs text-heart-red hover:underline font-semibold">
+                            Contrata un plan para desbloquear
+                        </a>
+                    </div>
+                @endif
 
-                    <a href="{{ route('likes.my') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-cream transition">
-                        <svg class="w-4 h-4 text-heart-red" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
-                        </svg>
-                        <span>Mis Likes</span>
-                    </a>
-                </div>
+                <a href="{{ route('likes.my') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-cream transition">
+                    <svg class="w-4 h-4 text-heart-red" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Mis Likes</span>
+                </a>
             </div>
-        @else
-            {{-- Boton Planes (sin suscripcion) --}}
-            <a href="{{ route('subscriptions.index') }}" class="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition {{ request()->routeIs('subscriptions.index') ? 'text-heart-red' : 'text-gray-400 hover:text-brown' }}">
-                <svg class="w-6 h-6" fill="{{ request()->routeIs('subscriptions.index') ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                </svg>
-                <span class="text-[10px] font-semibold">Planes</span>
-            </a>
-        @endif
+        </div>
 
         {{-- Mi perfil --}}
         <a href="{{ route('user.profile.show') }}" class="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition {{ request()->routeIs('user.profile.*') ? 'text-heart-red' : 'text-gray-400 hover:text-brown' }}">
