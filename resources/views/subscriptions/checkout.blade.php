@@ -93,10 +93,9 @@
             <div class="border-b pb-6 mb-6">
                 <div class="flex justify-between items-center mb-2">
                     <div>
-                        <p class="text-lg font-semibold text-gray-800">Plan: {{ $plan->nombre }}</p>
-                        @if($plan->descripcion)
-                        <p class="text-sm text-gray-600">{{ $plan->descripcion }}</p>
-                        @endif
+                        <p id="plan-tipo-display" class="text-lg font-semibold text-gray-800">
+                            Plan {{ $tipoSuscripcion === 'anual' ? 'anual' : 'mensual' }}
+                        </p>
                     </div>
                     <div class="text-right">
                         <p id="precio-display" class="text-2xl font-black text-heart-red">
@@ -251,6 +250,7 @@
     const totalDisplay = document.getElementById('total-display');
     const renovacionTexto = document.getElementById('renovacion-texto');
     const ahorroAnual = document.getElementById('ahorro-anual');
+    const planTipoDisplay = document.getElementById('plan-tipo-display');
 
     // Estado de validacion
     let paymentsEnabled = false;
@@ -270,6 +270,10 @@
         periodoDisplay.textContent = periodo;
         totalDisplay.textContent = precio.toFixed(2).replace('.', ',') + '€';
         renovacionTexto.textContent = 'Se renovara automaticamente cada ' + renovacion;
+
+        if (planTipoDisplay) {
+            planTipoDisplay.textContent = 'Plan ' + (tipo === 'anual' ? 'anual' : 'mensual');
+        }
 
         if (ahorroAnual) {
             if (tipo === 'anual') {
