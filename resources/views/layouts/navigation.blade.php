@@ -146,34 +146,34 @@
                  x-transition:leave="transition ease-in duration-100"
                  x-transition:leave-start="opacity-100 translate-y-0"
                  x-transition:leave-end="opacity-0 translate-y-2"
-                 class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50"
+                 class="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 py-1.5 z-[60]"
                  style="display: none;">
 
                 @if($hasActiveSubscription)
                     {{-- Con suscripcion: acceso completo --}}
-                    <a href="{{ route('likes.who') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-cream transition">
-                        <svg class="w-4 h-4 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
+                    <a href="{{ route('likes.who') }}" class="flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-cream transition">
+                        <svg class="w-3.5 h-3.5 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
                         </svg>
                         <span>Quien te ha dado like</span>
                     </a>
                 @else
                     {{-- Sin suscripcion: bloqueado con mensaje --}}
-                    <div class="px-4 py-2.5 text-sm text-gray-400 cursor-not-allowed">
-                        <div class="flex items-center gap-3">
-                            <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                    <div class="px-3 py-2 text-xs text-gray-400 cursor-not-allowed">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
                             </svg>
                             <span>Quien te ha dado like</span>
                         </div>
-                        <a href="{{ route('subscriptions.index') }}" class="block mt-2 ml-7 text-xs text-heart-red hover:underline font-semibold">
+                        <a href="{{ route('subscriptions.index') }}" class="block mt-1 ml-5 text-[10px] text-heart-red hover:underline font-semibold">
                             Contrata un plan para desbloquear
                         </a>
                     </div>
                 @endif
 
-                <a href="{{ route('likes.my') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-cream transition">
-                    <svg class="w-4 h-4 text-heart-red" fill="currentColor" viewBox="0 0 20 20">
+                <a href="{{ route('likes.my') }}" class="flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-cream transition">
+                    <svg class="w-3.5 h-3.5 text-heart-red" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
                     </svg>
                     <span>Mis Likes</span>
