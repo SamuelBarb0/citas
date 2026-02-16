@@ -42,6 +42,15 @@ Route::middleware(['auth.api'])->group(function () {
 
 // Rutas protegidas (requieren autenticación)
 Route::middleware(['auth'])->group(function () {
+    // Ruta de cuenta suspendida (NO requiere active.account para poder mostrarse)
+    Route::get('/cuenta-suspendida', function () {
+        $user = auth()->user();
+        if (!$user->profile || $user->profile->activo) {
+            return redirect()->route('dashboard');
+        }
+        return view('account.suspended');
+    })->name('account.suspended');
+
     // Rutas de perfil y verificación (NO requieren estar verificado)
     Route::get('/mi-perfil/crear', [UserProfileController::class, 'create'])->name('user.profile.create');
     Route::post('/mi-perfil', [UserProfileController::class, 'store'])->name('user.profile.store');
@@ -53,7 +62,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Rutas que REQUIEREN tener perfil (no requieren verificación)
-Route::middleware(['auth', 'has.profile'])->group(function () {
+Route::middleware(['auth', 'has.profile', 'active.account'])->group(function () {
     // Dashboard - Descubrir perfiles
     Route::get('/dashboard', function () {
         $currentUserId = auth()->id();

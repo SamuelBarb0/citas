@@ -149,12 +149,6 @@
                                         </li>
                                     @endif
 
-                                    @if($plan->fotos_adicionales && $plan->fotos_adicionales > 6)
-                                        <li class="flex items-start gap-3">
-                                            <span class="text-green-500 text-xl flex-shrink-0">✓</span>
-                                            <span class="text-gray-700 text-sm">Hasta {{ $plan->fotos_adicionales }} fotos en tu perfil</span>
-                                        </li>
-                                    @endif
                                 </ul>
                             </div>
 
