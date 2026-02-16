@@ -248,6 +248,11 @@ class AdminController extends Controller
         if ($user->profile) {
             $user->profile->update(['activo' => false]);
 
+            // Marcar reportes pendientes como acción tomada
+            Report::where('reported_user_id', $userId)
+                ->whereIn('status', ['pendiente', 'revisado'])
+                ->update(['status' => 'accion_tomada']);
+
             $this->logActivity(
                 'suspend_user',
                 "Suspendió al usuario {$user->name}",
@@ -351,6 +356,11 @@ class AdminController extends Controller
             }
         }
 
+        // Marcar reportes pendientes como acción tomada antes de eliminar
+        Report::where('reported_user_id', $userId)
+            ->whereIn('status', ['pendiente', 'revisado'])
+            ->update(['status' => 'accion_tomada']);
+
         // Eliminar usuario (cascade eliminará relaciones)
         $user->delete();
 
@@ -380,6 +390,11 @@ class AdminController extends Controller
         if ($user->profile) {
             $user->profile->update(['activo' => false]);
         }
+
+        // Marcar reportes pendientes como acción tomada
+        Report::where('reported_user_id', $userId)
+            ->whereIn('status', ['pendiente', 'revisado'])
+            ->update(['status' => 'accion_tomada']);
 
         $this->logActivity(
             'block_user',
