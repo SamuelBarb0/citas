@@ -11,9 +11,29 @@
                 </svg>
                 Volver a Planes
             </a>
-            <h1 class="text-4xl font-black text-brown mb-2">Finaliza tu Suscripcion</h1>
+            <h1 class="text-4xl font-black text-brown mb-2">
+                {{ isset($currentSubscription) && $currentSubscription ? 'Cambiar tu Suscripcion' : 'Finaliza tu Suscripcion' }}
+            </h1>
             <p class="text-gray-600">Completa tu pago de forma segura</p>
         </div>
+
+        @if(isset($currentSubscription) && $currentSubscription)
+        <div class="bg-amber-50 border-2 border-amber-200 rounded-2xl p-5 mb-6">
+            <div class="flex items-start gap-3">
+                <svg class="w-6 h-6 text-amber-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                <div>
+                    <p class="font-bold text-amber-800 mb-1">Cambio de suscripcion</p>
+                    <p class="text-sm text-amber-700">
+                        Tu suscripcion actual ({{ $currentSubscription->tipo === 'anual' ? 'Anual' : 'Mensual' }})
+                        sera cancelada automaticamente al activar la nueva.
+                        El cambio es inmediato.
+                    </p>
+                </div>
+            </div>
+        </div>
+        @endif
 
         @php
             // Determinar que precio tiene el plan

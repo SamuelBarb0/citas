@@ -41,11 +41,8 @@ class SubscriptionController extends Controller
     {
         $plan = Plan::where('slug', $planSlug)->active()->firstOrFail();
 
-        // Verificar si ya tiene una suscripción activa
+        // Obtener suscripción activa si existe (se permite cambiar de plan)
         $currentSubscription = Auth::user()->activeSubscription;
-        if ($currentSubscription) {
-            return back()->with('error', 'Ya tienes una suscripción activa.');
-        }
 
         // Determinar el tipo basado en lo que el plan ofrece
         $tieneMensual = $plan->precio_mensual > 0;
@@ -69,7 +66,7 @@ class SubscriptionController extends Controller
             $tipo = 'anual';
         }
 
-        return view('subscriptions.checkout', compact('plan', 'tipo'));
+        return view('subscriptions.checkout', compact('plan', 'tipo', 'currentSubscription'));
     }
 
     /**
@@ -398,6 +395,37 @@ class SubscriptionController extends Controller
                 'monto_pagado' => $montoPagado,
                 'paypal_subscription_id' => $request->subscription_id
             ]);
+
+            // Cancelar suscripción anterior si existe (cambio de plan)
+            $previousSubscription = $user->activeSubscription;
+            if ($previousSubscription) {
+                Log::info('PAYPAL ACTIVAR: Cancelando suscripción anterior por cambio de plan', [
+                    'old_subscription_id' => $previousSubscription->id,
+                    'old_plan_id' => $previousSubscription->plan_id,
+                    'old_tipo' => $previousSubscription->tipo,
+                    'old_paypal_subscription_id' => $previousSubscription->paypal_subscription_id,
+                ]);
+
+                // Cancelar en PayPal si tiene subscription_id
+                if ($previousSubscription->paypal_subscription_id) {
+                    try {
+                        $paypalService->cancelSubscription(
+                            $previousSubscription->paypal_subscription_id,
+                            'Cambio de plan por el usuario'
+                        );
+                    } catch (\Exception $e) {
+                        Log::warning('PAYPAL ACTIVAR: Error al cancelar suscripción anterior en PayPal (no bloquea)', [
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                }
+
+                // Marcar como cancelada en la BD
+                $previousSubscription->update([
+                    'estado' => 'cancelada',
+                    'auto_renovacion' => false,
+                ]);
+            }
 
             // Crear la suscripción en nuestra base de datos
             // Calcular las fechas aquí para asegurar activación inmediata

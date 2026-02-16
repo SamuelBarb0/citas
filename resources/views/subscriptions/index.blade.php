@@ -154,9 +154,22 @@
 
                             <!-- Boton CTA -->
                             @if($currentSubscription && $currentSubscription->plan_id === $plan->id)
-                                <div class="bg-green-100 text-green-700 py-4 px-6 rounded-2xl font-bold text-center">
-                                    Tu Plan Actual
+                                <div class="bg-green-100 text-green-700 py-4 px-6 rounded-2xl font-bold text-center mb-2">
+                                    Tu Plan Actual ({{ $currentSubscription->tipo === 'anual' ? 'Anual' : 'Mensual' }})
                                 </div>
+                                @if($plan->precio_mensual > 0 && $plan->precio_anual > 0)
+                                    @if($currentSubscription->tipo === 'mensual')
+                                        <a href="{{ route('subscriptions.checkout', ['planSlug' => $plan->slug, 'tipo' => 'anual']) }}"
+                                           class="block w-full bg-brown text-white py-3 px-6 rounded-2xl font-bold text-center text-sm hover:bg-brown-dark transition">
+                                            Cambiar a Anual ({{ number_format($plan->precio_anual, 2) }}€/año)
+                                        </a>
+                                    @else
+                                        <a href="{{ route('subscriptions.checkout', ['planSlug' => $plan->slug, 'tipo' => 'mensual']) }}"
+                                           class="block w-full bg-brown text-white py-3 px-6 rounded-2xl font-bold text-center text-sm hover:bg-brown-dark transition">
+                                            Cambiar a Mensual ({{ number_format($plan->precio_mensual, 2) }}€/mes)
+                                        </a>
+                                    @endif
+                                @endif
                             @elseif($plan->isFree())
                                 @if(Auth::check())
                                     <div class="bg-gray-100 text-gray-600 py-4 px-6 rounded-2xl font-bold text-center">
@@ -171,13 +184,23 @@
                             @else
                                 @if(Auth::check())
                                     @php
-                                        // Determinar texto del boton segun precios disponibles
-                                        if ($plan->precio_mensual > 0) {
-                                            $btnText = 'Suscribirse (' . number_format($plan->precio_mensual, 2) . '€/mes)';
-                                        } elseif ($plan->precio_anual > 0) {
-                                            $btnText = 'Suscribirse (' . number_format($plan->precio_anual, 2) . '€/año)';
+                                        if ($currentSubscription) {
+                                            // Ya tiene suscripcion, mostrar "Cambiar"
+                                            if ($plan->precio_mensual > 0) {
+                                                $btnText = 'Cambiar a este plan (' . number_format($plan->precio_mensual, 2) . '€/mes)';
+                                            } elseif ($plan->precio_anual > 0) {
+                                                $btnText = 'Cambiar a este plan (' . number_format($plan->precio_anual, 2) . '€/año)';
+                                            } else {
+                                                $btnText = 'Cambiar a este plan';
+                                            }
                                         } else {
-                                            $btnText = 'Suscribirse';
+                                            if ($plan->precio_mensual > 0) {
+                                                $btnText = 'Suscribirse (' . number_format($plan->precio_mensual, 2) . '€/mes)';
+                                            } elseif ($plan->precio_anual > 0) {
+                                                $btnText = 'Suscribirse (' . number_format($plan->precio_anual, 2) . '€/año)';
+                                            } else {
+                                                $btnText = 'Suscribirse';
+                                            }
                                         }
                                     @endphp
                                     <a href="{{ route('subscriptions.checkout', $plan->slug) }}"
