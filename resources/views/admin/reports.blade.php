@@ -190,6 +190,58 @@
                                             </button>
                                         </form>
                                     </div>
+
+                                    <!-- Acciones sobre el usuario reportado -->
+                                    @if($report->reportedUser && !$report->reportedUser->is_admin)
+                                    <div class="border-t pt-4 mt-4">
+                                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Acciones sobre el usuario reportado:</h4>
+                                        <div class="flex gap-2 flex-wrap">
+                                            {{-- Suspender --}}
+                                            @if($report->reportedUser->profile && $report->reportedUser->profile->activo)
+                                                <form action="{{ route('admin.users.suspend', $report->reported_user_id) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit"
+                                                            onclick="return confirm('¿Suspender a {{ $report->reportedUser->profile->nombre ?? $report->reportedUser->name }}?')"
+                                                            class="px-4 py-2 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition text-sm flex items-center gap-1.5">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                                        </svg>
+                                                        Suspender
+                                                    </button>
+                                                </form>
+                                            @elseif($report->reportedUser->profile)
+                                                <span class="px-4 py-2 bg-orange-100 text-orange-700 rounded-xl font-bold text-sm">Ya suspendido</span>
+                                            @endif
+
+                                            {{-- Bloquear --}}
+                                            <form action="{{ route('admin.users.block', $report->reported_user_id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit"
+                                                        onclick="return confirm('¿Bloquear a {{ $report->reportedUser->profile->nombre ?? $report->reportedUser->name }}? Se suspendera su cuenta.')"
+                                                        class="px-4 py-2 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition text-sm flex items-center gap-1.5">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                                    </svg>
+                                                    Bloquear
+                                                </button>
+                                            </form>
+
+                                            {{-- Eliminar --}}
+                                            <form action="{{ route('admin.users.delete', $report->reported_user_id) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        onclick="return confirm('¿ELIMINAR PERMANENTEMENTE a {{ $report->reportedUser->profile->nombre ?? $report->reportedUser->name }}? Todos sus datos seran eliminados. Esta accion NO se puede deshacer.')"
+                                                        class="px-4 py-2 bg-red-700 text-white rounded-xl font-bold hover:bg-red-800 transition text-sm flex items-center gap-1.5">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                    </svg>
+                                                    Eliminar Cuenta
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach

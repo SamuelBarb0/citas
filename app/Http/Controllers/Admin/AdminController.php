@@ -10,6 +10,7 @@ use App\Models\UserMatch;
 use App\Models\Like;
 use App\Models\AdminLog;
 use App\Models\Message;
+use App\Models\BlockedUser;
 use App\Models\SeoSetting;
 use App\Models\Plan;
 use Illuminate\Http\Request;
@@ -271,6 +272,124 @@ class AdminController extends Controller
         }
 
         return back()->with('success', 'Usuario reactivado.');
+    }
+
+    /**
+     * Mostrar formulario de edición de usuario
+     */
+    public function editUser($userId)
+    {
+        $user = User::with('profile')->findOrFail($userId);
+        return view('admin.users-edit', compact('user'));
+    }
+
+    /**
+     * Actualizar usuario desde admin
+     */
+    public function updateUser(Request $request, $userId)
+    {
+        $user = User::findOrFail($userId);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $userId,
+            'is_admin' => 'boolean',
+        ]);
+
+        $user->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'is_admin' => $request->has('is_admin'),
+        ]);
+
+        if ($user->profile) {
+            $profileData = $request->validate([
+                'nombre' => 'nullable|string|max:100',
+                'ciudad' => 'nullable|string|max:100',
+                'biografia' => 'nullable|string|max:1000',
+            ]);
+
+            $user->profile->update(array_filter($profileData));
+        }
+
+        $this->logActivity(
+            'edit_user',
+            "Editó al usuario {$user->name}",
+            User::class,
+            $user->id,
+            ['user_name' => $user->name, 'user_email' => $user->email]
+        );
+
+        return redirect()->route('admin.users')->with('success', "Usuario {$user->name} actualizado correctamente.");
+    }
+
+    /**
+     * Eliminar usuario y todos sus datos
+     */
+    public function deleteUser($userId)
+    {
+        $user = User::findOrFail($userId);
+
+        if ($user->is_admin) {
+            return back()->with('error', 'No se puede eliminar a un administrador.');
+        }
+
+        $userName = $user->name;
+        $userEmail = $user->email;
+
+        // Eliminar foto de perfil y fotos adicionales
+        if ($user->profile) {
+            if ($user->profile->foto_principal && !str_starts_with($user->profile->foto_principal, 'http')) {
+                Storage::disk('public')->delete($user->profile->foto_principal);
+            }
+            if ($user->profile->fotos_adicionales) {
+                foreach ($user->profile->fotos_adicionales as $foto) {
+                    if (!str_starts_with($foto, 'http')) {
+                        Storage::disk('public')->delete($foto);
+                    }
+                }
+            }
+        }
+
+        // Eliminar usuario (cascade eliminará relaciones)
+        $user->delete();
+
+        $this->logActivity(
+            'delete_user',
+            "Eliminó al usuario {$userName} ({$userEmail})",
+            User::class,
+            $userId,
+            ['user_name' => $userName, 'user_email' => $userEmail]
+        );
+
+        return redirect()->route('admin.users')->with('success', "Usuario {$userName} eliminado correctamente.");
+    }
+
+    /**
+     * Bloquear usuario desde admin (bloqueo global)
+     */
+    public function blockUser($userId)
+    {
+        $user = User::findOrFail($userId);
+
+        if ($user->is_admin) {
+            return back()->with('error', 'No se puede bloquear a un administrador.');
+        }
+
+        // Suspender el perfil
+        if ($user->profile) {
+            $user->profile->update(['activo' => false]);
+        }
+
+        $this->logActivity(
+            'block_user',
+            "Bloqueó al usuario {$user->name}",
+            User::class,
+            $user->id,
+            ['user_name' => $user->name, 'user_email' => $user->email]
+        );
+
+        return back()->with('success', "Usuario {$user->name} bloqueado correctamente.");
     }
 
     /**

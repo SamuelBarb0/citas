@@ -329,8 +329,12 @@ Route::middleware(['auth', 'has.profile'])->group(function () {
         Route::post('/verification/{requestId}/reject', [AdminController::class, 'rejectVerification'])->name('verification.reject');
         Route::post('/unverify/{profileId}', [AdminController::class, 'unverifyProfile'])->name('unverify');
         Route::get('/users', [AdminController::class, 'users'])->name('users');
+        Route::get('/users/{userId}/edit', [AdminController::class, 'editUser'])->name('users.edit');
+        Route::put('/users/{userId}', [AdminController::class, 'updateUser'])->name('users.update');
         Route::post('/users/{userId}/suspend', [AdminController::class, 'suspendUser'])->name('users.suspend');
         Route::post('/users/{userId}/activate', [AdminController::class, 'activateUser'])->name('users.activate');
+        Route::post('/users/{userId}/block', [AdminController::class, 'blockUser'])->name('users.block');
+        Route::delete('/users/{userId}', [AdminController::class, 'deleteUser'])->name('users.delete');
 
         // Gestión de SEO
         Route::get('/seo', [AdminController::class, 'seoIndex'])->name('seo.index');
