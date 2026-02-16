@@ -216,7 +216,7 @@
             </div>
 
             <!-- Botones de acción modernos y grandes -->
-            <div class="sticky bottom-6 z-50 bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border border-gray-200">
+            <div class="sticky bottom-20 z-40 bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border border-gray-200">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <!-- Botón de Like -->
                     <form action="{{ route('like.store', $user->id) }}" method="POST">
