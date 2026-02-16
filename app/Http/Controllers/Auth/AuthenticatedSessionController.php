@@ -37,7 +37,7 @@ class AuthenticatedSessionController extends Controller
             true
         ));
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->intended(route('user.profile.show', absolute: false));
     }
 
     /**
