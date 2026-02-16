@@ -181,6 +181,15 @@
             </div>
         </div>
 
+        {{-- Planes --}}
+        <a href="{{ route('subscriptions.index') }}" class="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition {{ request()->routeIs('subscriptions.*') ? 'text-heart-red' : 'text-gray-400 hover:text-brown' }}">
+            <svg class="w-6 h-6" fill="{{ request()->routeIs('subscriptions.*') ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l3.057-3 3.943 3h4a2 2 0 012 2v16a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8l1.5 3 3.5.5-2.5 2.5.5 3.5-3-1.5-3 1.5.5-3.5L7 11.5l3.5-.5L12 8z"/>
+            </svg>
+            <span class="text-[10px] font-semibold">Planes</span>
+        </a>
+
         {{-- Mi perfil --}}
         <a href="{{ route('user.profile.show') }}" class="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition {{ request()->routeIs('user.profile.*') ? 'text-heart-red' : 'text-gray-400 hover:text-brown' }}">
             @php
