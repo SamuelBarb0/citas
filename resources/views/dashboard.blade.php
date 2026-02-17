@@ -331,7 +331,7 @@
                                                 </div>
 
                                                 <!-- Botón de info -->
-                                                <a href="{{ route('profile.public', $perfil->id) }}"
+                                                <a href="{{ route('profile.public', $perfil->user_id) }}"
                                                    class="ml-4 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition border border-white/30"
                                                    onclick="event.stopPropagation();">
                                                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
