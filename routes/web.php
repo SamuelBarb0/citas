@@ -342,7 +342,6 @@ Route::middleware(['auth', 'has.profile', 'active.account'])->group(function () 
         Route::put('/users/{userId}', [AdminController::class, 'updateUser'])->name('users.update');
         Route::post('/users/{userId}/suspend', [AdminController::class, 'suspendUser'])->name('users.suspend');
         Route::post('/users/{userId}/activate', [AdminController::class, 'activateUser'])->name('users.activate');
-        Route::post('/users/{userId}/block', [AdminController::class, 'blockUser'])->name('users.block');
         Route::delete('/users/{userId}', [AdminController::class, 'deleteUser'])->name('users.delete');
 
         // Gestión de SEO

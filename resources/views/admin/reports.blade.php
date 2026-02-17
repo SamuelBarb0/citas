@@ -213,19 +213,6 @@
                                                 <span class="px-4 py-2 bg-orange-100 text-orange-700 rounded-xl font-bold text-sm">Ya suspendido</span>
                                             @endif
 
-                                            {{-- Bloquear --}}
-                                            <form action="{{ route('admin.users.block', $report->reported_user_id) }}" method="POST">
-                                                @csrf
-                                                <button type="submit"
-                                                        onclick="return confirm('¿Bloquear a {{ $report->reportedUser->profile->nombre ?? $report->reportedUser->name }}? Se suspendera su cuenta.')"
-                                                        class="px-4 py-2 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition text-sm flex items-center gap-1.5">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                                    </svg>
-                                                    Bloquear
-                                                </button>
-                                            </form>
-
                                             {{-- Eliminar --}}
                                             <form action="{{ route('admin.users.delete', $report->reported_user_id) }}" method="POST">
                                                 @csrf

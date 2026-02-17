@@ -376,38 +376,6 @@ class AdminController extends Controller
     }
 
     /**
-     * Bloquear usuario desde admin (bloqueo global)
-     */
-    public function blockUser($userId)
-    {
-        $user = User::findOrFail($userId);
-
-        if ($user->is_admin) {
-            return back()->with('error', 'No se puede bloquear a un administrador.');
-        }
-
-        // Suspender el perfil
-        if ($user->profile) {
-            $user->profile->update(['activo' => false]);
-        }
-
-        // Marcar reportes pendientes como acción tomada
-        Report::where('reported_user_id', $userId)
-            ->whereIn('status', ['pendiente', 'revisado'])
-            ->update(['status' => 'accion_tomada']);
-
-        $this->logActivity(
-            'block_user',
-            "Bloqueó al usuario {$user->name}",
-            User::class,
-            $user->id,
-            ['user_name' => $user->name, 'user_email' => $user->email]
-        );
-
-        return back()->with('success', "Usuario {$user->name} bloqueado correctamente.");
-    }
-
-    /**
      * Ver logs de actividad
      */
     public function logs(Request $request)
