@@ -184,7 +184,11 @@ class UserProfileController extends Controller
         $subscription = $user->activeSubscription;
         $plan = $subscription ? $subscription->plan : null;
 
-        return view('profiles.show', compact('profile', 'subscription', 'plan'));
+        // Contadores para la seccion de actividad
+        $likesEnviados = \App\Models\Like::where('user_id', $user->id)->count();
+        $likesRecibidos = \App\Models\Like::where('liked_user_id', $user->id)->count();
+
+        return view('profiles.show', compact('profile', 'subscription', 'plan', 'likesEnviados', 'likesRecibidos'));
     }
 
     /**

@@ -28,7 +28,6 @@
         $hasPendingRequest = \App\Models\VerificationRequest::where('user_id', $user->id)
             ->where('estado', 'pendiente')
             ->exists();
-        $likesReceived = \App\Models\Like::where('liked_user_id', $user->id)->count();
     @endphp
 
     <div class="max-w-lg mx-auto px-4 py-6 space-y-4">
@@ -207,16 +206,73 @@
             </div>
         </div>
 
-        {{-- ===== SEPARADOR: CONFIGURACION Y CUENTA ===== --}}
+        {{-- ===== SEPARADOR: ACTIVIDAD ===== --}}
         <div class="mt-8 mb-4 flex items-center gap-3">
             <div class="h-px bg-gray-200 flex-1"></div>
-            <h3 class="text-sm font-black text-gray-400 uppercase tracking-wider">Configuración y Cuenta</h3>
+            <h3 class="text-sm font-black text-gray-400 uppercase tracking-wider">Actividad</h3>
             <div class="h-px bg-gray-200 flex-1"></div>
         </div>
 
-        {{-- ===== MI SUSCRIPCION ===== --}}
+        {{-- Likes y Quien me gusta en una tarjeta con 2 filas --}}
         <div class="bg-white rounded-2xl shadow-smooth overflow-hidden">
-            <div class="p-5">
+            {{-- Mis Likes --}}
+            <div class="p-4">
+                <a href="{{ route('likes.my') }}" class="flex items-center justify-between group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-heart-red to-heart-red-light rounded-full flex items-center justify-center group-hover:scale-110 transition">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-brown text-sm">Mis Likes</h3>
+                            <p class="text-xs text-gray-500">{{ $likesEnviados }} {{ $likesEnviados === 1 ? 'like enviado' : 'likes enviados' }}</p>
+                        </div>
+                    </div>
+                    <svg class="w-5 h-5 text-gray-400 group-hover:text-heart-red transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+            <div class="border-t border-gray-100"></div>
+            {{-- Quien me ha dado Like --}}
+            <div class="p-4">
+                <a href="{{ route('likes.who') }}" class="flex items-center justify-between group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-pink-400 to-pink-500 rounded-full flex items-center justify-center group-hover:scale-110 transition">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-brown text-sm">Quien me ha dado Like</h3>
+                            <p class="text-xs text-gray-500">{{ $likesRecibidos }} {{ $likesRecibidos === 1 ? 'persona' : 'personas' }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        @if($likesRecibidos > 0)
+                            <span class="bg-heart-red text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $likesRecibidos }}</span>
+                        @endif
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-heart-red transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        {{-- ===== SEPARADOR: SUSCRIPCION ===== --}}
+        <div class="mt-8 mb-4 flex items-center gap-3">
+            <div class="h-px bg-gray-200 flex-1"></div>
+            <h3 class="text-sm font-black text-gray-400 uppercase tracking-wider">Suscripcion</h3>
+            <div class="h-px bg-gray-200 flex-1"></div>
+        </div>
+
+        {{-- Mi Suscripcion y Ver Planes en una tarjeta --}}
+        <div class="bg-white rounded-2xl shadow-smooth overflow-hidden">
+            {{-- Mi Suscripcion --}}
+            <div class="p-4">
                 <a href="{{ route('subscriptions.dashboard') }}" class="flex items-center justify-between group">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-gradient-to-br from-brown to-brown-dark rounded-full flex items-center justify-center group-hover:scale-110 transition">
@@ -225,7 +281,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="font-bold text-brown text-sm">Mi Suscripción</h3>
+                            <h3 class="font-bold text-brown text-sm">Mi Suscripcion</h3>
                             @if($subscription && $plan)
                                 <p class="text-xs text-green-600 font-semibold">{{ $plan->nombre }} · Activa</p>
                             @else
@@ -238,11 +294,39 @@
                     </svg>
                 </a>
             </div>
+            <div class="border-t border-gray-100"></div>
+            {{-- Ver Planes --}}
+            <div class="p-4">
+                <a href="{{ route('subscriptions.index') }}" class="flex items-center justify-between group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-500 rounded-full flex items-center justify-center group-hover:scale-110 transition">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-brown text-sm">Ver Planes</h3>
+                            <p class="text-xs text-gray-500">Mejora tu experiencia</p>
+                        </div>
+                    </div>
+                    <svg class="w-5 h-5 text-gray-400 group-hover:text-heart-red transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
         </div>
 
-        {{-- ===== USUARIOS BLOQUEADOS ===== --}}
+        {{-- ===== SEPARADOR: CUENTA ===== --}}
+        <div class="mt-8 mb-4 flex items-center gap-3">
+            <div class="h-px bg-gray-200 flex-1"></div>
+            <h3 class="text-sm font-black text-gray-400 uppercase tracking-wider">Cuenta</h3>
+            <div class="h-px bg-gray-200 flex-1"></div>
+        </div>
+
+        {{-- Bloqueados y Cerrar Sesion en una tarjeta --}}
         <div class="bg-white rounded-2xl shadow-smooth overflow-hidden">
-            <div class="p-5">
+            {{-- Usuarios Bloqueados --}}
+            <div class="p-4">
                 <a href="{{ route('blocked.index') }}" class="flex items-center justify-between group">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-gray-200 transition">
@@ -260,11 +344,9 @@
                     </svg>
                 </a>
             </div>
-        </div>
-
-        {{-- ===== CERRAR SESION ===== --}}
-        <div class="bg-white rounded-2xl shadow-smooth overflow-hidden border border-red-100">
-            <div class="p-5">
+            <div class="border-t border-gray-100"></div>
+            {{-- Cerrar Sesion --}}
+            <div class="p-4">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="w-full flex items-center justify-between group">
@@ -275,7 +357,7 @@
                                 </svg>
                             </div>
                             <div class="text-left">
-                                <h3 class="font-bold text-red-600 text-sm">Cerrar Sesión</h3>
+                                <h3 class="font-bold text-red-600 text-sm">Cerrar Sesion</h3>
                                 <p class="text-xs text-gray-500">Salir de tu cuenta</p>
                             </div>
                         </div>
