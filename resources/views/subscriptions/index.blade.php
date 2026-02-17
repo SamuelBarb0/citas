@@ -35,10 +35,10 @@
                             </div>
                         @endif
 
-                        <!-- Badge Ahorro -->
-                        @if($plan->precio_anual && $plan->descuento_anual > 0 && $index !== 1)
+                        <!-- Badge Mejor Precio (plan anual) -->
+                        @if($plan->precio_anual > 0 && !$plan->isFree() && $index !== 1)
                             <div class="absolute top-0 right-0 bg-green-500 text-white px-6 py-2 rounded-bl-3xl font-bold text-sm shadow-lg z-10">
-                                Ahorra {{ $plan->descuento_anual }}%
+                                Mejor Precio
                             </div>
                         @endif
 
@@ -52,27 +52,13 @@
                                 @if($plan->isFree())
                                     <div class="text-5xl font-black text-heart-red">0€</div>
                                     <p class="text-gray-500 text-sm mt-2">Para siempre</p>
-                                @elseif($plan->precio_mensual > 0 && $plan->precio_anual > 0)
-                                    {{-- Tiene ambos precios: mostrar mensual como principal --}}
-                                    <div class="text-5xl font-black text-heart-red">
-                                        {{ number_format($plan->precio_mensual, 2) }}€
-                                    </div>
-                                    <p class="text-gray-500 text-lg mt-2">/mes</p>
-                                    <p class="text-xs text-gray-400 mt-1">(IVA incluido)</p>
-                                    <div class="mt-3 bg-green-50 border border-green-200 rounded-xl p-2">
-                                        <p class="text-xs text-green-700 font-semibold">
-                                            O {{ number_format($plan->precio_anual, 2) }}€/año ({{ number_format($plan->precio_anual / 12, 2) }}€/mes)
-                                        </p>
-                                    </div>
                                 @elseif($plan->precio_mensual > 0)
-                                    {{-- Solo precio mensual --}}
                                     <div class="text-5xl font-black text-heart-red">
                                         {{ number_format($plan->precio_mensual, 2) }}€
                                     </div>
                                     <p class="text-gray-500 text-lg mt-2">/mes</p>
                                     <p class="text-xs text-gray-400 mt-1">(IVA incluido)</p>
                                 @elseif($plan->precio_anual > 0)
-                                    {{-- Solo precio anual --}}
                                     <div class="text-5xl font-black text-heart-red">
                                         {{ number_format($plan->precio_anual, 2) }}€
                                     </div>
@@ -154,22 +140,9 @@
 
                             <!-- Boton CTA -->
                             @if($currentSubscription && $currentSubscription->plan_id === $plan->id)
-                                <div class="bg-green-100 text-green-700 py-4 px-6 rounded-2xl font-bold text-center mb-2">
-                                    Tu Plan Actual ({{ $currentSubscription->tipo === 'anual' ? 'Anual' : 'Mensual' }})
+                                <div class="bg-green-100 text-green-700 py-4 px-6 rounded-2xl font-bold text-center">
+                                    Tu Plan Actual
                                 </div>
-                                @if($plan->precio_mensual > 0 && $plan->precio_anual > 0)
-                                    @if($currentSubscription->tipo === 'mensual')
-                                        <a href="{{ route('subscriptions.checkout', ['planSlug' => $plan->slug, 'tipo' => 'anual']) }}"
-                                           class="block w-full bg-brown text-white py-3 px-6 rounded-2xl font-bold text-center text-sm hover:bg-brown-dark transition">
-                                            Cambiar a Anual ({{ number_format($plan->precio_anual, 2) }}€/año)
-                                        </a>
-                                    @else
-                                        <a href="{{ route('subscriptions.checkout', ['planSlug' => $plan->slug, 'tipo' => 'mensual']) }}"
-                                           class="block w-full bg-brown text-white py-3 px-6 rounded-2xl font-bold text-center text-sm hover:bg-brown-dark transition">
-                                            Cambiar a Mensual ({{ number_format($plan->precio_mensual, 2) }}€/mes)
-                                        </a>
-                                    @endif
-                                @endif
                             @elseif($plan->isFree())
                                 @if(Auth::check())
                                     <div class="bg-gray-100 text-gray-600 py-4 px-6 rounded-2xl font-bold text-center">

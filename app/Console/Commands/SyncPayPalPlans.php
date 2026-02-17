@@ -50,6 +50,14 @@ class SyncPayPalPlans extends Command
             foreach ($plans as $plan) {
                 $this->info("📦 Procesando plan: {$plan->nombre}");
 
+                // Validar que el plan no tenga ambos precios (cada plan debe ser mensual O anual)
+                if ($plan->precio_mensual > 0 && $plan->precio_anual > 0) {
+                    $this->warn("   ⚠ ADVERTENCIA: El plan '{$plan->nombre}' tiene precio mensual ({$plan->precio_mensual}) Y anual ({$plan->precio_anual}).");
+                    $this->warn("     Cada plan debe tener solo UN tipo de precio. Se omite este plan.");
+                    $this->newLine();
+                    continue;
+                }
+
                 // Crear producto en PayPal (uno por plan)
                 $productName = "Citas Mallorca - {$plan->nombre}";
 

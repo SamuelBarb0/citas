@@ -727,6 +727,12 @@ class AdminController extends Controller
 
         $plan = Plan::create($validated);
 
+        // Validar que el plan no tenga ambos precios (cada plan debe ser mensual O anual)
+        if ($validated['precio_mensual'] > 0 && ($validated['precio_anual'] ?? 0) > 0) {
+            return redirect()->route('admin.plans.index')
+                ->with('error', 'Un plan no puede tener precio mensual Y anual a la vez. Crea un plan separado para cada tipo.');
+        }
+
         // Sincronizar automáticamente con PayPal si tiene precios
         if ($validated['precio_mensual'] > 0 || ($validated['precio_anual'] ?? 0) > 0) {
             try {
@@ -830,6 +836,12 @@ class AdminController extends Controller
         // Procesar características personalizadas (filtrar vacías)
         $caracteristicas = $request->input('caracteristicas_personalizadas', []);
         $validated['caracteristicas_personalizadas'] = array_values(array_filter($caracteristicas, fn($c) => !empty(trim($c))));
+
+        // Validar que el plan no tenga ambos precios
+        if ($validated['precio_mensual'] > 0 && ($validated['precio_anual'] ?? 0) > 0) {
+            return redirect()->route('admin.plans.edit', $id)
+                ->with('error', 'Un plan no puede tener precio mensual Y anual a la vez. Crea un plan separado para cada tipo.');
+        }
 
         // Detectar cambios de precio ANTES de actualizar
         $precioMensualCambio = $plan->precio_mensual != $validated['precio_mensual'];

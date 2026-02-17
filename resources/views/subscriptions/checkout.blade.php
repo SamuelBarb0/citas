@@ -36,75 +36,21 @@
         @endif
 
         @php
-            // Determinar que precio tiene el plan
-            $tieneMensual = $plan->precio_mensual > 0;
-            $tieneAnual = $plan->precio_anual > 0;
-
-            // Determinar el tipo y precio basado en lo que tiene el plan
-            if ($tieneMensual && $tieneAnual) {
-                // Plan con ambos precios - usar el tipo que venga o mensual por defecto
-                $tipoSuscripcion = $tipo ?? 'mensual';
-                $precio = $tipoSuscripcion === 'anual' ? $plan->precio_anual : $plan->precio_mensual;
-                $periodo = $tipoSuscripcion === 'anual' ? 'año' : 'mes';
-                $mostrarSelector = true;
-            } elseif ($tieneMensual) {
-                // Solo precio mensual
+            // Cada plan tiene un solo tipo de cobro: mensual O anual
+            if ($plan->precio_mensual > 0) {
                 $tipoSuscripcion = 'mensual';
                 $precio = $plan->precio_mensual;
                 $periodo = 'mes';
-                $mostrarSelector = false;
-            } elseif ($tieneAnual) {
-                // Solo precio anual
+            } elseif ($plan->precio_anual > 0) {
                 $tipoSuscripcion = 'anual';
                 $precio = $plan->precio_anual;
                 $periodo = 'año';
-                $mostrarSelector = false;
             } else {
-                // Plan gratuito - no deberia llegar aqui
                 $tipoSuscripcion = 'mensual';
                 $precio = 0;
                 $periodo = 'mes';
-                $mostrarSelector = false;
             }
         @endphp
-
-        <!-- Selector de tipo de suscripcion (solo si tiene ambos precios) -->
-        @if($mostrarSelector)
-        <div class="bg-white rounded-3xl shadow-lg p-6 mb-6">
-            <h2 class="text-xl font-bold text-brown mb-4 text-center">Elige tu periodo de facturacion</h2>
-            <div class="grid grid-cols-2 gap-4">
-                <!-- Opcion Mensual -->
-                <label class="cursor-pointer">
-                    <input type="radio" name="tipo_selector" value="mensual" class="hidden peer" {{ $tipoSuscripcion === 'mensual' ? 'checked' : '' }}>
-                    <div class="peer-checked:border-heart-red peer-checked:bg-red-50 border-2 border-gray-200 rounded-2xl p-4 transition-all hover:border-heart-red/50">
-                        <div class="text-center">
-                            <p class="text-sm text-gray-500 mb-1">Mensual</p>
-                            <p class="text-3xl font-black text-brown">{{ number_format($plan->precio_mensual, 2) }}€</p>
-                            <p class="text-xs text-gray-500">/mes</p>
-                        </div>
-                    </div>
-                </label>
-
-                <!-- Opcion Anual -->
-                <label class="cursor-pointer">
-                    <input type="radio" name="tipo_selector" value="anual" class="hidden peer" {{ $tipoSuscripcion === 'anual' ? 'checked' : '' }}>
-                    <div class="peer-checked:border-heart-red peer-checked:bg-red-50 border-2 border-gray-200 rounded-2xl p-4 transition-all hover:border-heart-red/50 relative">
-                        @if($plan->descuento_anual > 0)
-                        <div class="absolute -top-2 -right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                            -{{ $plan->descuento_anual }}%
-                        </div>
-                        @endif
-                        <div class="text-center">
-                            <p class="text-sm text-gray-500 mb-1">Anual</p>
-                            <p class="text-3xl font-black text-brown">{{ number_format($plan->precio_anual, 2) }}€</p>
-                            <p class="text-xs text-gray-500">/año</p>
-                            <p class="text-xs text-green-600 font-semibold mt-1">{{ number_format($plan->precio_anual / 12, 2) }}€/mes</p>
-                        </div>
-                    </div>
-                </label>
-            </div>
-        </div>
-        @endif
 
         <!-- Resumen de la Suscripcion -->
         <div class="bg-white rounded-3xl shadow-lg p-8 mb-6">
@@ -250,11 +196,7 @@
 <script src="{{ config('paypal.sdk_url') }}?client-id={{ config('paypal.client_id') }}&vault=true&intent=subscription&currency={{ config('paypal.currency') }}&locale={{ config('paypal.locale') }}"></script>
 
 <script>
-    // Precios del plan
-    const precioMensual = {{ $plan->precio_mensual ?? 0 }};
-    const precioAnual = {{ $plan->precio_anual ?? 0 }};
-    let tipoActual = '{{ $tipoSuscripcion }}';
-    const mostrarSelector = {{ $mostrarSelector ? 'true' : 'false' }};
+    const tipoActual = '{{ $tipoSuscripcion }}';
 
     // Referencias a los checkboxes
     const termsCheckbox = document.getElementById('terms-checkbox');
@@ -262,57 +204,9 @@
     const paypalContainer = document.getElementById('paypal-button-container');
     const cardContainer = document.getElementById('card-button-container');
     const validationError = document.getElementById('validation-error');
-    const tipoHidden = document.getElementById('tipo-hidden');
-
-    // Referencias para actualizar precios (solo si hay selector)
-    const precioDisplay = document.getElementById('precio-display');
-    const periodoDisplay = document.getElementById('periodo-display');
-    const totalDisplay = document.getElementById('total-display');
-    const renovacionTexto = document.getElementById('renovacion-texto');
-    const ahorroAnual = document.getElementById('ahorro-anual');
-    const planTipoDisplay = document.getElementById('plan-tipo-display');
 
     // Estado de validacion
     let paymentsEnabled = false;
-
-    // Funcion para actualizar los precios mostrados (solo si hay selector)
-    function actualizarPrecios(tipo) {
-        if (!mostrarSelector) return;
-
-        tipoActual = tipo;
-        tipoHidden.value = tipo;
-
-        const precio = tipo === 'anual' ? precioAnual : precioMensual;
-        const periodo = tipo === 'anual' ? '/año' : '/mes';
-        const renovacion = tipo === 'anual' ? 'año' : 'mes';
-
-        precioDisplay.textContent = precio.toFixed(2).replace('.', ',') + '€';
-        periodoDisplay.textContent = periodo;
-        totalDisplay.textContent = precio.toFixed(2).replace('.', ',') + '€';
-        renovacionTexto.textContent = 'Se renovara automaticamente cada ' + renovacion;
-
-        if (planTipoDisplay) {
-            planTipoDisplay.textContent = 'Plan ' + (tipo === 'anual' ? 'anual' : 'mensual');
-        }
-
-        if (ahorroAnual) {
-            if (tipo === 'anual') {
-                ahorroAnual.classList.remove('hidden');
-            } else {
-                ahorroAnual.classList.add('hidden');
-            }
-        }
-    }
-
-    // Listeners para selector de tipo (si existe)
-    if (mostrarSelector) {
-        const tipoSelectors = document.querySelectorAll('input[name="tipo_selector"]');
-        tipoSelectors.forEach(radio => {
-            radio.addEventListener('change', function() {
-                actualizarPrecios(this.value);
-            });
-        });
-    }
 
     // Funcion para verificar si ambos checkboxes estan marcados
     function checkValidation() {

@@ -44,26 +44,14 @@ class SubscriptionController extends Controller
         // Obtener suscripción activa si existe (se permite cambiar de plan)
         $currentSubscription = Auth::user()->activeSubscription;
 
-        // Determinar el tipo basado en lo que el plan ofrece
-        $tieneMensual = $plan->precio_mensual > 0;
-        $tieneAnual = $plan->precio_anual > 0;
-
-        // Si el plan es gratis, redirigir
-        if (!$tieneMensual && !$tieneAnual) {
+        // Cada plan tiene un solo tipo: mensual O anual
+        if ($plan->precio_mensual > 0) {
+            $tipo = 'mensual';
+        } elseif ($plan->precio_anual > 0) {
+            $tipo = 'anual';
+        } else {
             return redirect()->route('subscriptions.index')
                 ->with('error', 'Este plan no tiene precio configurado.');
-        }
-
-        // Determinar el tipo: usar el solicitado si está disponible, sino usar el que tenga
-        $tipoSolicitado = $request->input('tipo');
-        if ($tipoSolicitado === 'anual' && $tieneAnual) {
-            $tipo = 'anual';
-        } elseif ($tipoSolicitado === 'mensual' && $tieneMensual) {
-            $tipo = 'mensual';
-        } elseif ($tieneMensual) {
-            $tipo = 'mensual';
-        } else {
-            $tipo = 'anual';
         }
 
         return view('subscriptions.checkout', compact('plan', 'tipo', 'currentSubscription'));
