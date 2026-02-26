@@ -258,107 +258,40 @@ class UserSubscription extends Model
     }
 
     /**
-     * Resetear contador de mensajes semanales
-     */
-    public function resetWeeklyMessages()
-    {
-        if (!$this->ultimo_reset_mensajes || $this->ultimo_reset_mensajes->diffInDays(now()) >= 7) {
-            $this->update([
-                'mensajes_enviados_esta_semana' => 0,
-                'ultimo_reset_mensajes' => now(),
-            ]);
-        }
-    }
-
-    /**
      * Verificar si puede enviar mensaje a un usuario específico
      * Reglas:
-     * - Gratis: NO puede iniciar conversaciones. Solo puede responder 1 mensaje por cada mensaje recibido
-     * - Básico: 3 mensajes/semana a usuarios Gratis, ilimitados a Básico/Premium
-     * - Premium: Ilimitados con todos
+     * - Gratis (sin suscripción): NO puede iniciar conversaciones, pero puede responder libremente
+     * - De pago (Mensual/Anual): Mensajes ilimitados con todos
      */
     public function canSendMessageTo($receiverUser, $matchId = null)
     {
-        $this->resetWeeklyMessages();
-
-        // Si el plan tiene mensajes ilimitados (Premium)
-        if ($this->plan->mensajes_ilimitados) {
+        // Usuarios de pago: mensajes ilimitados
+        if ($this->plan->puede_iniciar_conversacion) {
             return true;
         }
 
-        // Si el plan NO puede iniciar conversaciones (Gratis)
-        if (!$this->plan->puede_iniciar_conversacion) {
-            // Verificar quién envió el último mensaje
-            $lastMessageQuery = \App\Models\Message::where(function($query) use ($receiverUser) {
-                $query->where('sender_id', $receiverUser->id)
-                      ->where('receiver_id', $this->user_id)
-                      ->orWhere(function($q) use ($receiverUser) {
-                          $q->where('sender_id', $this->user_id)
-                            ->where('receiver_id', $receiverUser->id);
-                      });
-            });
+        // Usuario gratis: verificar quién inició la conversación
+        $firstMessageQuery = \App\Models\Message::where(function($query) use ($receiverUser) {
+            $query->where('sender_id', $receiverUser->id)
+                  ->where('receiver_id', $this->user_id)
+                  ->orWhere(function($q) use ($receiverUser) {
+                      $q->where('sender_id', $this->user_id)
+                        ->where('receiver_id', $receiverUser->id);
+                  });
+        });
 
-            // Si se proporciona match_id, filtrar por ese match específico
-            if ($matchId) {
-                $lastMessageQuery->where('match_id', $matchId);
-            }
-
-            $lastMessage = $lastMessageQuery->latest()->first();
-
-            // Si no hay mensajes, no puede iniciar
-            if (!$lastMessage) {
-                return false;
-            }
-
-            // Solo puede enviar si el último mensaje NO fue enviado por él mismo
-            return $lastMessage->sender_id !== $this->user_id;
+        if ($matchId) {
+            $firstMessageQuery->where('match_id', $matchId);
         }
 
-        // Plan Básico
-        // Obtener el plan del receptor
-        $receiverSubscription = $receiverUser->activeSubscription;
-        $receiverPlan = $receiverSubscription ? $receiverSubscription->plan : null;
+        $firstMessage = $firstMessageQuery->oldest()->first();
 
-        // Si el receptor es Gratis, verificar límite semanal
-        if (!$receiverPlan || $receiverPlan->slug === 'free') {
-            return $this->mensajes_enviados_esta_semana < $this->plan->mensajes_semanales_gratis;
+        // Si no hay mensajes, no puede iniciar
+        if (!$firstMessage) {
+            return false;
         }
 
-        // Mensajes ilimitados entre Básico y Premium
-        return true;
-    }
-
-    /**
-     * Incrementar contador de mensajes semanales a usuarios gratis
-     */
-    public function incrementWeeklyMessages($receiverUser)
-    {
-        $this->resetWeeklyMessages();
-
-        // Solo contar mensajes a usuarios gratis
-        $receiverSubscription = $receiverUser->activeSubscription;
-        $receiverPlan = $receiverSubscription ? $receiverSubscription->plan : null;
-
-        if (!$receiverPlan || $receiverPlan->slug === 'free') {
-            $this->increment('mensajes_enviados_esta_semana');
-        }
-    }
-
-    /**
-     * Obtener mensajes restantes esta semana a usuarios gratis
-     */
-    public function getRemainingWeeklyMessages()
-    {
-        $this->resetWeeklyMessages();
-
-        if ($this->plan->mensajes_ilimitados) {
-            return -1; // Ilimitado
-        }
-
-        if (!$this->plan->puede_iniciar_conversacion) {
-            return 0; // No puede enviar
-        }
-
-        return max(0, $this->plan->mensajes_semanales_gratis - $this->mensajes_enviados_esta_semana);
+        // Puede responder libremente si la conversación fue iniciada por el otro usuario
+        return $firstMessage->sender_id !== $this->user_id;
     }
 }

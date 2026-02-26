@@ -168,74 +168,30 @@
                         $currentSubscription = $currentUser->activeSubscription;
                         $currentPlan = $currentSubscription ? $currentSubscription->plan : null;
 
-                        $receiverSubscription = $otherUser->activeSubscription;
-                        $receiverPlan = $receiverSubscription ? $receiverSubscription->plan : null;
-
                         // Determinar si puede enviar mensajes
                         $canSendMessage = true;
                         $restrictionMessage = null;
-                        $remainingMessages = null;
-                        $remainingResponses = null;
 
                         if (!$currentSubscription || ($currentPlan && $currentPlan->slug === 'free')) {
-                            // Usuario Gratis: solo puede responder (regla 1:1 alternado)
-                            $lastMessage = $match->messages()->latest()->first();
+                            // Usuario Gratis: no puede iniciar conversaciones, pero puede responder libremente
+                            $firstMessage = $match->messages()->oldest()->first();
 
-                            if (!$lastMessage) {
-                                // No hay mensajes, no puede iniciar
+                            if (!$firstMessage) {
                                 $canSendMessage = false;
                                 $restrictionMessage = 'Los usuarios gratuitos solo pueden responder mensajes. Actualiza tu plan para iniciar conversaciones.';
-                                $remainingResponses = 0;
-                            } elseif ($lastMessage->sender_id == auth()->id()) {
-                                // El último mensaje lo envió el usuario, debe esperar respuesta
+                            } elseif ($firstMessage->sender_id == auth()->id()) {
                                 $canSendMessage = false;
-                                $restrictionMessage = "Has respondido el último mensaje. Espera a que {$otherUser->profile->nombre} te responda.";
-                                $remainingResponses = 0;
-                            } else {
-                                // El último mensaje lo envió el otro usuario, puede responder
-                                $canSendMessage = true;
-                                $remainingResponses = 1;
+                                $restrictionMessage = 'Los usuarios gratuitos solo pueden responder mensajes. Actualiza tu plan para iniciar conversaciones.';
                             }
+                            // Si la conversación fue iniciada por el otro usuario, puede responder libremente
                         } else {
-                            // Verificar límites según el plan
+                            // Usuario de pago: verificar permisos según su plan
                             if (!$currentSubscription->canSendMessageTo($otherUser, $match->id)) {
                                 $canSendMessage = false;
-                                $remainingMessages = $currentSubscription->getRemainingWeeklyMessages();
-
-                                if ($remainingMessages === 0 && $currentPlan->slug === 'basico') {
-                                    $restrictionMessage = 'Has alcanzado tu límite de 3 mensajes semanales a usuarios gratuitos. Actualiza a Premium para mensajes ilimitados.';
-                                } else {
-                                    $restrictionMessage = 'No puedes enviar más mensajes. Actualiza tu plan para continuar.';
-                                }
-                            } else {
-                                // Mostrar mensajes restantes para usuarios Básico enviando a Gratis
-                                if ($currentPlan->slug === 'basico' && (!$receiverPlan || $receiverPlan->slug === 'free')) {
-                                    $remainingMessages = $currentSubscription->getRemainingWeeklyMessages();
-                                }
+                                $restrictionMessage = 'No puedes enviar más mensajes. Actualiza tu plan para continuar.';
                             }
                         }
                     @endphp
-
-                    {{-- Indicador minimalista de mensajes restantes (solo si aplica) --}}
-                    @if($remainingResponses !== null && $remainingResponses > 0 && (!$currentPlan || $currentPlan->slug === 'free'))
-                        <div class="mb-2 text-center">
-                            <span class="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"/>
-                                </svg>
-                                {{ $remainingResponses }} {{ $remainingResponses === 1 ? 'respuesta disponible' : 'respuestas disponibles' }}
-                            </span>
-                        </div>
-                    @elseif($remainingMessages !== null && $remainingMessages >= 0 && $remainingMessages <= 3 && $currentPlan && $currentPlan->slug === 'basico')
-                        <div class="mb-2 text-center">
-                            <span class="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"/>
-                                </svg>
-                                {{ $remainingMessages }} mensajes semanales restantes
-                            </span>
-                        </div>
-                    @endif
 
                     @if(!$canSendMessage)
                         <!-- Mensaje de restricción compacto -->

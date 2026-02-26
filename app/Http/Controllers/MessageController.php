@@ -117,54 +117,27 @@ class MessageController extends Controller
 
         // Si el usuario NO tiene suscripción, es plan Gratis por defecto
         if (!$senderSubscription) {
-            // Usuario Gratis: Solo puede responder mensajes (regla 1:1)
-            // Verificar quién envió el último mensaje
-            $lastMessage = Message::where('match_id', $match->id)
-                ->latest()
+            // Usuario Gratis: No puede iniciar conversaciones, pero puede responder libremente
+            $firstMessage = Message::where('match_id', $match->id)
+                ->oldest()
                 ->first();
 
             // Si no hay mensajes, el usuario gratis no puede iniciar la conversación
-            if (!$lastMessage) {
+            if (!$firstMessage) {
                 return back()->with('error', 'Los usuarios gratuitos solo pueden responder mensajes. Actualiza a un plan de pago para iniciar conversaciones.');
             }
 
-            // Si el último mensaje lo envió el usuario actual, no puede enviar otro hasta recibir respuesta
-            if ($lastMessage->sender_id == $currentUserId) {
-                return back()->with('error', "Has respondido el último mensaje. Espera a que {$receiverUser->profile->nombre} te responda o actualiza a un plan de pago.");
+            // Si el primer mensaje de la conversación lo envió el usuario gratis, no debería poder (caso edge)
+            if ($firstMessage->sender_id == $currentUserId) {
+                return back()->with('error', 'Los usuarios gratuitos solo pueden responder mensajes. Actualiza a un plan de pago para iniciar conversaciones.');
             }
 
-            // Si el último mensaje lo envió el otro usuario, puede responder
+            // La conversación fue iniciada por el otro usuario (de pago), puede responder libremente
         } else {
-            // Verificar si puede enviar mensaje según su plan
+            // Usuario de pago: verificar permisos según su plan
             if (!$senderSubscription->canSendMessageTo($receiverUser, $match->id)) {
-                $remaining = $senderSubscription->getRemainingWeeklyMessages();
-
-                if ($remaining === 0 && $senderSubscription->plan->slug === 'basico') {
-                    return back()->with('error', 'Has alcanzado tu límite de 3 mensajes semanales a usuarios gratuitos. Actualiza a Premium para mensajes ilimitados.');
-                }
-
-                // Si es usuario gratis con suscripción
-                if ($senderSubscription->plan->slug === 'free') {
-                    $messagesReceived = Message::where('sender_id', $receiverUser->id)
-                        ->where('receiver_id', $currentUserId)
-                        ->count();
-
-                    $messagesSent = Message::where('sender_id', $currentUserId)
-                        ->where('receiver_id', $receiverUser->id)
-                        ->count();
-
-                    $remaining = $messagesReceived - $messagesSent;
-
-                    if ($remaining === 0 && $messagesReceived > 0) {
-                        return back()->with('error', "Has respondido todos los mensajes recibidos. Espera a que {$receiverUser->profile->nombre} te envíe más mensajes o actualiza a un plan de pago.");
-                    }
-                }
-
                 return back()->with('error', 'No puedes enviar más mensajes. Actualiza tu plan para continuar.');
             }
-
-            // Incrementar contador de mensajes si es necesario
-            $senderSubscription->incrementWeeklyMessages($receiverUser);
         }
 
         // Crear el mensaje
@@ -185,20 +158,15 @@ class MessageController extends Controller
             $canSendMore = true;
             $restrictionMessage = null;
 
-            if (!$senderSubscription) {
-                // Usuario gratis: verificar si el último mensaje es suyo
-                $lastMessage = Message::where('match_id', $match->id)->latest()->first();
-                if ($lastMessage && $lastMessage->sender_id == $currentUserId) {
+            if (!$senderSubscription || ($senderSubscription->plan && $senderSubscription->plan->slug === 'free')) {
+                // Usuario gratis: puede responder libremente si la conversación fue iniciada por otro
+                $firstMessage = Message::where('match_id', $match->id)->oldest()->first();
+                if ($firstMessage && $firstMessage->sender_id == $currentUserId) {
+                    // El usuario gratis inició la conversación (no debería pasar, pero por seguridad)
                     $canSendMore = false;
-                    $restrictionMessage = "Has respondido el último mensaje. Espera a que {$receiverUser->profile->nombre} te responda.";
+                    $restrictionMessage = "Los usuarios gratuitos solo pueden responder mensajes.";
                 }
-            } elseif ($senderSubscription->plan && $senderSubscription->plan->slug === 'free') {
-                // Usuario con plan gratis
-                $lastMessage = Message::where('match_id', $match->id)->latest()->first();
-                if ($lastMessage && $lastMessage->sender_id == $currentUserId) {
-                    $canSendMore = false;
-                    $restrictionMessage = "Has respondido el último mensaje. Espera respuesta.";
-                }
+                // Si la conversación fue iniciada por el otro usuario, puede seguir enviando
             }
 
             return response()->json([
@@ -329,16 +297,18 @@ class MessageController extends Controller
 
         $senderSubscription = $currentUser->activeSubscription;
         if (!$senderSubscription || ($senderSubscription->plan && $senderSubscription->plan->slug === 'free')) {
-            // Obtener el último mensaje para verificar permisos
-            $lastMessage = $match->messages()->latest()->first();
+            // Obtener el primer mensaje para verificar quién inició la conversación
+            $firstMessage = $match->messages()->oldest()->first();
 
-            if (!$lastMessage) {
+            if (!$firstMessage) {
                 $canSendMessage = false;
                 $restrictionMessage = 'Los usuarios gratuitos solo pueden responder mensajes.';
-            } elseif ($lastMessage->sender_id == $currentUserId) {
+            } elseif ($firstMessage->sender_id == $currentUserId) {
+                // El usuario gratis inició la conversación (caso edge)
                 $canSendMessage = false;
-                $restrictionMessage = 'Has respondido el último mensaje. Espera respuesta.';
+                $restrictionMessage = 'Los usuarios gratuitos solo pueden responder mensajes.';
             }
+            // Si la conversación fue iniciada por el otro usuario, puede responder libremente
         }
 
         return response()->json([
